@@ -1,0 +1,10 @@
+{
+    "DEMON_EXECUTABLE":"",
+    "BASIS":{
+        "SKTYPE":"BIO",
+        "SKFILE":""
+    },
+    "DEMON_PARAMETERS":{
+        "DFTB":["SCC"]
+    }
+}

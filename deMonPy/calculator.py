@@ -5,18 +5,16 @@ import __future__
 import os
 import numpy as np
 
-import subprocess
 
-from ase.calculators.calculator import (
-    Calculator,
-    FileIOCalculator,
-    all_changes,
-    CalculationFailed,
-    Parameters
-)
-
+import deMonPy
+from deMonPy.profile import profile_ASE
 from deMonPy.input import DemonWriteInput
 from deMonPy.output import DemonReadOutput
+
+
+
+
+
 
 
 
