@@ -7,18 +7,19 @@ import sys
 import configs
 
 import deMonPy
-from deMonPy import deMonEnviron
+from deMonPy.deMonNano import deMonNano
 
 
 if __name__=='__main__':
 
-    env = deMonEnviron(
-        workdir='.run',
-        config='config.json',
-        omp_threads=1,
+    dem = deMonNano(
+        title="CALCULATION DEMONANO",
+        basis={},
+        execut="~/Documents/dev_deMon/deMon.x",
+        workdir=".run/",
     )
 
-    print(env)
+    print(dem)
 
 
     

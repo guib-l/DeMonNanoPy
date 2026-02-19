@@ -7,28 +7,9 @@ import numpy as np
 
 
 import deMonPy
-from deMonPy.profile import profile_ASE
+from deMonPy.profile import process
 from deMonPy.input import DemonWriteInput
 from deMonPy.output import DemonReadOutput
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

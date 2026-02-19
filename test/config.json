@@ -5,6 +5,57 @@
         "SKFILE":""
     },
     "DEMON_PARAMETERS":{
-        "DFTB":["SCC"]
+        "ACTIVE":{
+            "DFTB":{
+                "SCC":true,
+                "MAX":500,
+                "FERMI":10.0
+            }
+        },
+        "DISABLE":{
+            "DFTB":{
+                "SCC":true,
+                "TOL":1e-8,
+                "MEMOSCC":false,
+                "MAX":100,
+                "MIX":0.2,
+                "SIMPLE":false,
+                "L-DEP":false,
+                "FERMI":0.0,
+                "THRID":false,
+                "DISP":1,
+                "LEV_S":0.0
+            },
+            "TD-DFTB":false,
+            "CM3":{
+                "BONDPARAMS":null
+            },
+            "WMULL":{
+                "BONDPARAMS":null
+            },
+            "CI":{
+                "SIZECI":null,
+                "NOSLAT":false,
+                "CONST":null
+            },
+            "FREQ":false,
+            "CHARGE":0,
+            "QMMM":{
+                "RG":"ARGON",
+                "TYPE":[]
+            },
+            "CUTSYS":{
+                "FRAGMENT":[],
+                "RIGID":false
+            },
+            "MULTI":null,
+            "BAND":null,
+            "DEBUG":false,
+            "DIPOLE":{
+                "OUTFILE":false,
+                "DIPBIN":false
+            },
+            "CARPAR":null
+        }
     }
 }

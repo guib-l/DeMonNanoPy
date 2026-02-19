@@ -6,25 +6,20 @@ import deMonPy
 
 
 
-class profile_ASE:
+class process:
 
     def __init__(self, command, system=True):
 
         self.command = command
         self.system  = system
-        self.configvars = {}
 
     def execute(self,calc):
 
         prefix = 'DEMON'
 
         if self.command is None:
-            raise EnvironmentError(
-                'Please set ${} environment variable '.format(
-                    'ASE_' + prefix.upper() + '_COMMAND'
-                )
-                + 'or supply the command keyword'
-            )
+            raise EnvironmentError("Unknow command")
+        
         command = self.command
         if 'PREFIX' in command:
             command = command.replace('PREFIX', prefix)
