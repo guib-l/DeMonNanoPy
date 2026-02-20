@@ -1,6 +1,13 @@
 .env/
+basis/
 data/
 archive/
+
+# DeMonNano files
+deMon.inp
+deMon.mol
+deMon.keep.mol
+deMon.out
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

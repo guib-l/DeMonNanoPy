@@ -1,18 +1,12 @@
 {
-    "DEMON_EXECUTABLE":"~/Documents/dev_deMon/deMon.x",
+    "DEMON_EXECUTABLE":"",
+    "WORKDIR":"",
     "BASIS":{
-        "PTYPE":"BIO",
-        "SKFILE":"/home/pguibourg/Documents/DeMonNanoPy/test/basis"
+        "SKTYPE":"BIO",
+        "SKFILE":""
     },
     "DEMON_PARAMETERS":{
-        "ACTIVE":{
-            "DFTB":{
-                "SCC":true,
-                "L-DEP":true,
-                "FERMI":40.0,
-                "LEV_S":0.0
-            }
-        },
+        "ACTIVE":{},
         "DISABLE":{
             "DFTB":{
                 "SCC":true,
@@ -29,10 +23,10 @@
             },
             "TD-DFTB":false,
             "CM3":{
-                "BONDPARAMS":null
+                "BONDPARAMS":{}
             },
             "WMULL":{
-                "BONDPARAMS":null
+                "BONDPARAMS":{}
             },
             "CI":{
                 "SIZECI":null,
