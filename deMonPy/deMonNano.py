@@ -10,11 +10,20 @@ import numpy as np
 import deMonPy
 from deMonPy.profile import Process
 from deMonPy.input import write_input
-from deMonPy.output import read_input
+from deMonPy.output import read_output
+
+
+
+
+
 
 
 
 class BasicCalculation:
+    
+    execut  = ""
+    workdir = None
+
     def __init__(
             self,
             exec,
@@ -42,12 +51,6 @@ class BasicCalculation:
                 raise Exception(e)
 
 
-
-class deMonMixin:
-
-    execut  = ""
-    workdir = None
-
     def set_workdir(self,):
 
         if not os.path.exists(self.workdir):
@@ -62,24 +65,36 @@ class deMonMixin:
     def to_dict(self,):
         return locals()
     
-    def __repr__(self):
-        import time
-        txt  = "* ============================================ *\n"
-        txt += f" - DEMONANO CODE at {time.asctime()}\n"
-        txt += f"   > BASIS   : {self.basis} \n"
-        txt += f"   > WORKDIR : {self.workdir} \n"
-        txt += f"   > EXEC    : {self.execut} \n"
-        txt += "* ============================================ *"
-        return txt
 
 
 
 
 
 
-class deMonNano(BasicCalculation,deMonMixin):
+
+available_flags = {
+    "qmmm":"QMMM",
+    "dftb":"DFTB",
+    "tddftb":"TD-DFTB",
+    "ci":"CI",
+    "":"FREQ",
+    "":"CM3",
+    "":"CHARGE",
+    "":"MULTI",
+    "":"CUTSYS",
+    "":"DEBUG",
+    "":"DIPOLE",
+    "":"OPT",
+    "":"MD",
+    "":"PTMC",
+}
+
+
+class deMonNano(BasicCalculation):
 
     available_properties = ["energies","forces"]
+
+
 
 
     def __init__(
@@ -90,14 +105,15 @@ class deMonNano(BasicCalculation,deMonMixin):
             system=True,
             prefix="DEMON",
             title="CALCULATION DEMONANO",
+            properies=['energy'],
             basis={},
             **parameters):
         
 
         BasicCalculation.__init__(self,
                                   execut,workdir,prefix,
-                       omp_threads=omp_threads,
-                       system=system )
+                                  omp_threads=omp_threads,
+                                  system=system )
         
         # Start running directory
         self.title   = title
@@ -110,12 +126,34 @@ class deMonNano(BasicCalculation,deMonMixin):
         self.state   = {}
         self.results = {}
 
+        self.flags = set()
+
         for props in self.available_properties:
             self.results.update({ props:None })
 
         # Build parameters
         self.basis = parameters.pop("BASIS",basis)
-        self.build(BASIS=self.basis,**parameters)
+
+        self._wi = write_input(BASIS=self.basis,
+                               **parameters)
+        self.flags = self._wi.flags
+        
+        self._wo = read_output(properties=properies,
+                               workdir=self.workdir,
+                               flags=self.flags,
+                               output="deMon.out")
+
+
+    def __repr__(self):
+        import time
+        txt  = "* ============================================ *\n"
+        txt += f" - DEMONANO CODE at {time.asctime()}\n"
+        txt += f"   > BASIS   : {self.basis} \n"
+        txt += f"   > WORKDIR : {self.workdir} \n"
+        txt += f"   > EXEC    : {self.execut} \n"
+        txt += "* ============================================ *"
+        return txt
+
 
 
 
@@ -133,6 +171,10 @@ class deMonNano(BasicCalculation,deMonMixin):
             positions,)
         
         self.execute(ignore_fails=False)
+
+
+        self.read_output()
+
         
         self.set_state(
             index=index,
@@ -144,10 +186,6 @@ class deMonNano(BasicCalculation,deMonMixin):
             }
         )
 
-    def build(self, **parameters):
-        
-        self.wi = write_input(**parameters)
-
 
 
 
@@ -156,22 +194,30 @@ class deMonNano(BasicCalculation,deMonMixin):
             symbols, 
             geometry):
         
-        self.wi._write_dftb()
-        self.wi._write_basis()
-        self.wi._write_geometry(symbols,geometry)
+        self._wi._write_dftb()
+        self._wi._write_basis()
+        self._wi._write_geometry(symbols=symbols,
+                                positions=geometry)
         
-        self.wi.write(
+        
+        self._wi._write_qmmm()
+        
+        self._wi.write(
             workdir=self.workdir
         )
 
 
 
-    def read_input(self,):
-        raise NotImplemented
+    def read_output(self,):
+
+        self._wo.read_file()
+        self._wo.read_geometry(output='deMon.mol',
+                               is_charges=False, 
+                               keep=1,)
+        self._wo.read_energy()
 
 
-
-
+        print(self._wo.complet_results)
 
 
 

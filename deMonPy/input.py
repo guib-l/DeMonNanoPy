@@ -9,6 +9,9 @@ import numpy as np
 import deMonPy
 
 
+from deMonPy.profile import assert_flags
+
+
 
 
 class write_input:
@@ -22,8 +25,6 @@ class write_input:
         params = parameters.get("DEMON_PARAMETERS",None)
         self.parameters = params.get("ACTIVE",{})
 
-        self.flags = set()
-
         assert self.parameters!={}, ValueError("No parameters")
 
         self.io_lines = {
@@ -33,6 +34,35 @@ class write_input:
             "GEOMETRY":[],
         }
 
+        self.flags = set(key.lower() for key in self.parameters.keys())
+        
+
+
+    def _write_basis(self):
+        params = self.io_lines.pop("PARAM")
+        new = [ "PTYPE="+params["PTYPE"]+f"\n{params["SKFILE"]}" ]
+        
+        self.io_lines["PARAM"] = new
+        
+    def _write_geometry(self, symbols, positions, fmt = '%10.7f'):
+        
+        geometry = "GEOMETRY\n"
+        updt = ["",]*len(symbols)
+
+        if "QMMM" in self.flags:
+            raise NotImplementedError("Flags QMMM set True")
+        
+        for s,p,u in zip(symbols,positions,updt):
+            geometry += "%s %s %s %s %s\n" % \
+                        (s,fmt % p[0],fmt % p[1],fmt % p[2], u)
+            
+        self.io_lines["GEOMETRY"] = [geometry]
+
+
+
+
+
+    @assert_flags("dftb")
     def _write_dftb(self, params=None):
         if params is None:
             params = self.parameters["DFTB"]
@@ -43,55 +73,36 @@ class write_input:
                 self.io_lines['DFTB'].append(f"{key}")
             elif item > 0.0:
                 self.io_lines['DFTB'].append(f"{key}={item}")
-
-
-    def _write_basis(self):
-        params = self.io_lines.pop("PARAM")
-        new = [
-            "PTYPE="+params["PTYPE"]+f"\n{params["SKFILE"]}"
-        ]
-        self.io_lines["PARAM"] = new
-        
-        
-
-
-    def _write_geometry(self, symbols, positions, fmt = '%10.7f'):
-        
-        geometry = "GEOMETRY\n"
-        updt = ["",]*len(symbols)
-
-        if "qmmm" in self.flags:
-            raise NotImplementedError("Flags QMMM set True")
-        
-        for s,p,u in zip(symbols,positions,updt):
-
-            geometry += "%s %s %s %s %s\n" % \
-                        (s,fmt % p[0],fmt % p[1],fmt % p[2], u)
-            
-        self.io_lines["GEOMETRY"] = [geometry]
-
     
+    @assert_flags("wmull")
     def _write_bondparam(self,):
         ...
     
+    @assert_flags("ci")
     def _write_ci(self,):
         ...
     
+    @assert_flags("tddftb")
     def _write_tddftb(self,):
         ...
     
+    @assert_flags("cutsys")
     def _write_cutsys(self,):
         ...
     
+    @assert_flags("freq")
     def _write_freq(self,):
         ...
     
+    @assert_flags("qmmm")
     def _write_qmmm(self,):
-        self.flags.add("qmmm")
         ...
     
+    @assert_flags("debug")
     def _write_debug(self,):
         ...
+
+
 
     def write(self, 
               input="deMon.inp",

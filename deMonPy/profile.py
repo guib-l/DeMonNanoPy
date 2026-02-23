@@ -77,6 +77,25 @@ class Process:
                 raise ExecuteFailed(msg)
 
 
+from functools import wraps
+
+
+def assert_flags(myset):
+    def decorateur(func):
+    
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+
+            _flags = getattr(self, "flags")
+
+            if myset not in _flags:
+                return 
+
+            return func(self, *args, **kwargs)
+
+        return wrapper
+    return decorateur
+
 
 
 
