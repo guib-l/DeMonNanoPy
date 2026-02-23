@@ -75,20 +75,58 @@ class write_input:
                 self.io_lines['DFTB'].append(f"{key}={item}")
     
     @assert_flags("wmull")
-    def _write_bondparam(self,):
+    def _write_bondparam(self, params=None):
         ...
     
     @assert_flags("ci")
-    def _write_ci(self,):
-        ...
+    def _write_ci(self, params=None):
+        if params is None:
+            params = self.parameters["CI"]
+
+        if "CONST" in params.keys(): 
+            if params["CONST"] is None:
+                params.pop("CONST")
+        if "CONST" not in params.keys():
+            self.io_lines['DFTB'].append('CI')
+
+        for key,item in params.items():
+            
+            if item is True:
+                self.io_lines['DFTB'].append(f"{key}")
+            elif item > 0.0:
+                self.io_lines['DFTB'].append(f"{key}={item}")
+        
+    @assert_flags("cutsys")
+    def _write_cutsys(self, params=None):
+        if params is None:
+            params = self.parameters["CUTSYS"]
+        print(params)
+
+        frags = params.pop("FRAGMENT")
+        self.io_lines['CUTSYS'] = []
+        self.io_lines['CUTSYS'].append(f"NMOL={len(frags)}")
+
+        txt = ""
+        for frgs in frags:
+            txt += f"\n{frgs}"
+
+        for key,item in params.items():
+
+            if item is True:
+                self.io_lines['CUTSYS'].append(f"{key}")
+
+
+
+        self.io_lines['CUTSYS'].append(txt)
+        
+
+
+
     
     @assert_flags("tddftb")
     def _write_tddftb(self,):
         ...
     
-    @assert_flags("cutsys")
-    def _write_cutsys(self,):
-        ...
     
     @assert_flags("freq")
     def _write_freq(self,):

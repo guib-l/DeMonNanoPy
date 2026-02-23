@@ -195,10 +195,11 @@ class deMonNano(BasicCalculation):
             geometry):
         
         self._wi._write_dftb()
+        self._wi._write_cutsys()
+        self._wi._write_ci()
         self._wi._write_basis()
         self._wi._write_geometry(symbols=symbols,
                                 positions=geometry)
-        
         
         self._wi._write_qmmm()
         

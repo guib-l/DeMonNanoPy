@@ -11,6 +11,15 @@
                 "L-DEP":true,
                 "FERMI":40.0,
                 "LEV_S":0.0
+            },
+            "CUTSYS":{
+                "FRAGMENT":[3,3],
+                "RIGID":false
+            },
+            "CI":{
+                "SIZECI":1,
+                "NOSLAT":false,
+                "CONST":null
             }
         },
         "DISABLE":{
