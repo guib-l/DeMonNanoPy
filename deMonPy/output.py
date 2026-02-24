@@ -69,7 +69,7 @@ class IOread(object):
 class read_output(IOread):
 
     _criteria_energy_str = {
-        "DFTB total energy":"energy,",
+        "DFTB total energy":"energy",
         "DFTB electronic energy": "electronic_energy",
         "DFTB band energy"      : "band_energy",
         "DFTB repulsive energy" : "repulsive_energy",
@@ -124,11 +124,65 @@ class read_output(IOread):
         
         for line in self.lines:
                         
-            self.get_energies(line,start_search=start_search)
+            _energy = self.get_energies(line,start_search=start_search)
+            self.complet_results.update(_energy)
 
-            if 'DFTB total energy' in self.complet_results.keys():
+            if 'energy' in self.complet_results.keys():
+                start_search = True
+    
+    def get_energies(self, 
+                     line, 
+                     criteria="DFTB total energy",
+                     start_search=False):
+        
+        _energy = {}
+
+        if self.is_inside(criteria, line):
+            label = self._criteria_energy_str[criteria]
+            _energy[label] = self.get_float( line, index=-1)
+            
+        if start_search:
+            
+            for cs,it in self._criteria_energy_str.items():
+                if self.is_inside(cs, line):
+                    _energy[it] = self.get_float(line, index=-1) 
+        return _energy
+
+
+
+
+    def read_ci(self):
+        start_search = False
+
+        _state = {}
+        count = 0
+        
+        for line in self.lines:
+                        
+            _energy = self.get_energies(line,start_search=start_search)
+            _state.update(_energy)
+
+            if 'energy' in _state.keys():
                 start_search = True
                 
+
+            if "*********   CONFIGURATIONS   *********" in line:
+                count += 1
+                self.complet_results[f"state_{count}"] = _state
+                _state = {}
+                start_search = False
+
+
+        
+
+    def read_tddftb(self):
+        pass
+
+    def read_freq(self):
+        pass
+
+    def read_debug(self):
+        pass
 
     def read_geometry(self, output='deMon.mol',is_charges=False, keep=1):
 
@@ -146,19 +200,6 @@ class read_output(IOread):
             self.complet_results["output_geometry"] = data[-1]
 
 
-    def get_energies(self, 
-                     line, 
-                     criteria="DFTB total energy",
-                     start_search=False):
-
-        if self.is_inside(criteria, line):
-            self.complet_results[criteria] = self.get_float( line, index=-1)
-            
-        if start_search:
-            
-            for cs,it in self._criteria_energy_str.items():
-                if self.is_inside(cs, line):
-                    self.complet_results[it] = self.get_float(line, index=-1) 
 
 
 

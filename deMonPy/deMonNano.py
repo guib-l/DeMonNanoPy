@@ -69,27 +69,6 @@ class BasicCalculation:
 
 
 
-
-
-
-available_flags = {
-    "qmmm":"QMMM",
-    "dftb":"DFTB",
-    "tddftb":"TD-DFTB",
-    "ci":"CI",
-    "":"FREQ",
-    "":"CM3",
-    "":"CHARGE",
-    "":"MULTI",
-    "":"CUTSYS",
-    "":"DEBUG",
-    "":"DIPOLE",
-    "":"OPT",
-    "":"MD",
-    "":"PTMC",
-}
-
-
 class deMonNano(BasicCalculation):
 
     available_properties = ["energies","forces"]
@@ -196,11 +175,13 @@ class deMonNano(BasicCalculation):
         
         self._wi._write_dftb()
         self._wi._write_cutsys()
+        self._wi._write_charge()
         self._wi._write_ci()
         self._wi._write_basis()
         self._wi._write_geometry(symbols=symbols,
                                 positions=geometry)
-        
+        self._wi._write_freq()
+        self._wi._write_tddftb()
         self._wi._write_qmmm()
         
         self._wi.write(
@@ -215,7 +196,9 @@ class deMonNano(BasicCalculation):
         self._wo.read_geometry(output='deMon.mol',
                                is_charges=False, 
                                keep=1,)
+        
         self._wo.read_energy()
+        self._wo.read_ci()
 
 
         print(self._wo.complet_results)

@@ -78,6 +78,13 @@ class write_input:
     def _write_bondparam(self, params=None):
         ...
     
+    @assert_flags("charge")
+    def _write_charge(self, params=None):
+        if params is None:
+            params = self.parameters["CHARGE"]
+        
+        self.io_lines['CHARGE'] = {params:""}        
+    
     @assert_flags("ci")
     def _write_ci(self, params=None):
         if params is None:
@@ -100,7 +107,6 @@ class write_input:
     def _write_cutsys(self, params=None):
         if params is None:
             params = self.parameters["CUTSYS"]
-        print(params)
 
         frags = params.pop("FRAGMENT")
         self.io_lines['CUTSYS'] = []
@@ -115,8 +121,6 @@ class write_input:
             if item is True:
                 self.io_lines['CUTSYS'].append(f"{key}")
 
-
-
         self.io_lines['CUTSYS'].append(txt)
         
 
@@ -124,21 +128,36 @@ class write_input:
 
     
     @assert_flags("tddftb")
-    def _write_tddftb(self,):
-        ...
-    
+    def _write_tddftb(self, params=None):
+        if params is None:
+            params = self.parameters["TDDFTB"]
+
+        value = params.pop("TDDFTB")
+        if isinstance(value, int):
+            self.io_lines['DFTB'].append(f"LRESP={value}")
+        if isinstance(value, bool):
+            self.io_lines['DFTB'].append("LRESP")
+
+
     
     @assert_flags("freq")
-    def _write_freq(self,):
-        ...
+    def _write_freq(self, params=None):
+        if params is None:
+            params = self.parameters["FREQ"]
+        
+        value = params.pop("FREQ")
+        if isinstance(value, bool):
+            self.io_lines['DFTB'].append("FREQ")
     
+
     @assert_flags("qmmm")
     def _write_qmmm(self,):
         ...
     
     @assert_flags("debug")
-    def _write_debug(self,):
-        ...
+    def _write_debug(self, params=None):
+        if params is None:
+            params = self.parameters["DEBUG"]
 
 
 

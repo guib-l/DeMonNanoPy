@@ -7,17 +7,15 @@
     "DEMON_PARAMETERS":{
         "ACTIVE":{
             "DFTB":{
-                "SCC":true,
-                "L-DEP":true,
-                "FERMI":40.0,
-                "LEV_S":0.0
+                "SCC":true
             },
+            "CHARGE":1.0,
             "CUTSYS":{
                 "FRAGMENT":[3,3],
                 "RIGID":false
             },
             "CI":{
-                "SIZECI":1,
+                "SIZECI":2,
                 "NOSLAT":false,
                 "CONST":null
             }
