@@ -13,7 +13,18 @@ from deMonPy.input import write_input
 from deMonPy.output import read_output
 
 
-
+import json
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return float(obj)
+        if isinstance(obj, np.bool_):
+            return bool(obj)
+        return super().default(obj)
 
 
 
@@ -176,18 +187,19 @@ class deMonNano(BasicCalculation):
         self._wi._write_dftb()
         self._wi._write_cutsys()
         self._wi._write_charge()
+        self._wi._write_bondparam(symbols)
         self._wi._write_ci()
+        self._wi._write_multi()
         self._wi._write_basis()
-        self._wi._write_geometry(symbols=symbols,
-                                positions=geometry)
         self._wi._write_freq()
         self._wi._write_tddftb()
+        self._wi._write_geometry(symbols=symbols,
+                                positions=geometry)
         self._wi._write_qmmm()
         
         self._wi.write(
             workdir=self.workdir
         )
-
 
 
     def read_output(self,):
@@ -199,10 +211,9 @@ class deMonNano(BasicCalculation):
         
         self._wo.read_energy()
         self._wo.read_ci()
+        self._wo.read_tddftb()
 
-
-        print(self._wo.complet_results)
-
+        print(json.dumps(self._wo.complet_results, indent=4, ensure_ascii=True, cls=NumpyEncoder))
 
 
 

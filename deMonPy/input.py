@@ -75,8 +75,18 @@ class write_input:
                 self.io_lines['DFTB'].append(f"{key}={item}")
     
     @assert_flags("wmull")
-    def _write_bondparam(self, params=None):
-        ...
+    def _write_bondparam(self, symbols, params=None):
+        if params is None:
+            params = self.parameters["WMULL"]
+        
+        self.io_lines["BONDPARAM"] = []
+        for key,item in params["BONDPARAMS"].items():
+            elmts = key.split()
+            
+            if np.all([True if np.all(elm in symbols) else False for elm in elmts ]):
+                self.io_lines["BONDPARAM"].append(f"\n{str(key)} {float(item)}")
+        
+        
     
     @assert_flags("charge")
     def _write_charge(self, params=None):
@@ -85,6 +95,14 @@ class write_input:
         
         self.io_lines['CHARGE'] = {params:""}        
     
+    
+    @assert_flags("multi")
+    def _write_multi(self, params=None):
+        if params is None:
+            params = self.parameters["MULTI"]
+        
+        self.io_lines['MULTI'] = {params:""}        
+
     @assert_flags("ci")
     def _write_ci(self, params=None):
         if params is None:
@@ -127,17 +145,16 @@ class write_input:
 
 
     
-    @assert_flags("tddftb")
+    @assert_flags("td-dftb")
     def _write_tddftb(self, params=None):
         if params is None:
-            params = self.parameters["TDDFTB"]
+            params = self.parameters["TD-DFTB"]
 
-        value = params.pop("TDDFTB")
-        if isinstance(value, int):
-            self.io_lines['DFTB'].append(f"LRESP={value}")
+        value = params
         if isinstance(value, bool):
             self.io_lines['DFTB'].append("LRESP")
-
+        elif isinstance(value, int):
+            self.io_lines['DFTB'].append(f"LRESP={value}")
 
     
     @assert_flags("freq")

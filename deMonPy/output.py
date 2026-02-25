@@ -122,14 +122,18 @@ class read_output(IOread):
 
         start_search = False
         
+        _state = {}
+        self.complet_results[f"energy"] = {}
+
         for line in self.lines:
                         
             _energy = self.get_energies(line,start_search=start_search)
-            self.complet_results.update(_energy)
+            _state.update(_energy)
 
             if 'energy' in self.complet_results.keys():
                 start_search = True
-    
+        self.complet_results[f"energy"].update(_state)
+
     def get_energies(self, 
                      line, 
                      criteria="DFTB total energy",
@@ -151,38 +155,133 @@ class read_output(IOread):
 
 
 
+    @assert_flags("ci")
     def read_ci(self):
-        start_search = False
+        start_search = True
+        state_search = False
 
-        _state = {}
+        _conf = {}
         count = 0
+        state = {}
+
+        self.complet_results["states"] = {}
+        
         
         for line in self.lines:
                         
             _energy = self.get_energies(line,start_search=start_search)
-            _state.update(_energy)
-
-            if 'energy' in _state.keys():
-                start_search = True
-                
+            _conf.update(_energy)
 
             if "*********   CONFIGURATIONS   *********" in line:
+                if count>0:
+                    self.complet_results[f"configuration_{count}"] = _conf
                 count += 1
-                self.complet_results[f"state_{count}"] = _state
-                _state = {}
-                start_search = False
+                _conf = {}
 
+            if self.is_inside("************    STATES    ************",line):
+                state_search = True
+
+            if self.is_inside("for state", line) and state_search:
+                sl = line.split()
+                num = int(sl[2])
+                sub = float(sl[4])
+                wgh = []
+                state = {f"state {num}":{"energy":sub}}
+
+            if self.is_inside("weight of conf", line) and state_search:
+                sl = line.split()
+                wgh.append(float(sl[5]))
+                state[f"state {num}"].update({"weight":wgh})
+
+            self.complet_results["states"].update(state)
+
+        self.complet_results[f"configuration_{count}"] = _conf
 
         
+        if "states" in self.complet_results.keys():
+            if len(self.complet_results["states"].keys())>0:
+                self.complet_results.pop("energy")
 
+                energies = [ state["energy"] for k,state in self.complet_results["states"].items()]       
+                self.complet_results["energy"] = {"energy":min(energies)}
+        
+
+    
+
+
+    
+        
+
+    @assert_flags("td-dftb")
     def read_tddftb(self):
-        pass
+        
+        singlet,triplet = {},{}
+
+        
+        for line in self.lines:
+            
+            if self.is_inside("requested transitions to calculate",line):
+                N = self.get_int(line,-1)
+                break
+
+        count = 0
+        for line in self.lines:
+
+            self.compute_block(line,"SUMMARY TRIPLET:","",nb_line=N+4)
+            if self._tocken_block:
+                
+                values = line.split()
+                try:
+                    triplet.update(
+                        {f"state_{count}":{
+                            "w":float(values[0]),
+                            "ocillator":float(values[1]),
+                            "from":int(values[2]),
+                            "to":int(values[4]),
+                            "weight":float(values[5]),
+                            "energy":float(values[6]),
+                        }}
+                    )
+                    count += 1
+                except:
+                    pass
+        self.complet_results["triplet"] = triplet
+
+        count = 0
+        for line in self.lines:
+
+            self.compute_block(line,"SUMMARY SINGLET","",nb_line=N+4)
+            if self._tocken_block:
+                
+                values = line.split()
+                try:
+                    singlet.update(
+                        {f"state_{count}":{
+                            "w":float(values[0]),
+                            "ocillator":float(values[1]),
+                            "from":int(values[2]),
+                            "to":int(values[4]),
+                            "weight":float(values[5]),
+                            "energy":float(values[6]),
+                        }}
+                    )
+                    count += 1
+                except:
+                    pass
+        self.complet_results["singlet"] = singlet
+
+
+
 
     def read_freq(self):
         pass
 
     def read_debug(self):
         pass
+
+
+
+
 
     def read_geometry(self, output='deMon.mol',is_charges=False, keep=1):
 

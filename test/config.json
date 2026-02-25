@@ -9,15 +9,21 @@
             "DFTB":{
                 "SCC":true
             },
-            "CHARGE":1.0,
+            "CHARGE":0.0,
             "CUTSYS":{
                 "FRAGMENT":[3,3],
                 "RIGID":false
             },
-            "CI":{
-                "SIZECI":2,
-                "NOSLAT":false,
-                "CONST":null
+            "TD-DFTB":true, 
+            "WMULL":{
+                "BONDPARAMS":{
+                    "N C":0.39,
+                    "C H":0.48,
+                    "N H":0.60,
+                    "O H":0.18,
+                    "O C":0.0,
+                    "O N":0.0 
+                }
             }
         },
         "DISABLE":{
