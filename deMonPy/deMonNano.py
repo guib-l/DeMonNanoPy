@@ -184,6 +184,7 @@ class deMonNano(BasicCalculation):
             symbols, 
             geometry):
         
+        # Parameters
         self._wi._write_dftb()
         self._wi._write_cutsys()
         self._wi._write_charge()
@@ -196,6 +197,9 @@ class deMonNano(BasicCalculation):
         self._wi._write_geometry(symbols=symbols,
                                 positions=geometry)
         self._wi._write_qmmm()
+
+        # Modules
+
         
         self._wi.write(
             workdir=self.workdir
@@ -213,7 +217,14 @@ class deMonNano(BasicCalculation):
         self._wo.read_ci()
         self._wo.read_tddftb()
 
-        print(json.dumps(self._wo.complet_results, indent=4, ensure_ascii=True, cls=NumpyEncoder))
+        print(
+            json.dumps(
+                self._wo.complet_results, 
+                indent=4, 
+                ensure_ascii=True, 
+                cls=NumpyEncoder
+            )
+        )
 
 
 

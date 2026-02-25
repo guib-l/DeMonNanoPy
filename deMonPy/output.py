@@ -116,7 +116,8 @@ class read_output(IOread):
                 self.lines.append(line)
 
 
-
+    # =================================
+    # READ ENERGY (basics)
 
     def read_energy(self):
 
@@ -153,7 +154,36 @@ class read_output(IOread):
         return _energy
 
 
+    # =================================
+    # READ GEOMETRY (basics)
 
+    def read_geometry(self, output='deMon.mol',is_charges=False, keep=1):
+
+        
+        filename = os.path.join(self.workdir,output)
+        data,info = read_XYZ(filename,is_charges=is_charges, keep=keep)
+
+        if len(data)==2:
+            self.complet_results["input_geometry"]  = data[0]
+            self.complet_results["output_geometry"] = data[-1]
+
+        if  len(data)>2:
+            self.complet_results["input_geometry"]  = data[0]
+            self.complet_results["trajectory"] = data
+            self.complet_results["output_geometry"] = data[-1]
+
+
+
+
+
+
+
+
+
+
+
+    # =================================
+    # READ PARAMETERS (basics)
 
     @assert_flags("ci")
     def read_ci(self):
@@ -204,12 +234,6 @@ class read_output(IOread):
 
                 energies = [ state["energy"] for k,state in self.complet_results["states"].items()]       
                 self.complet_results["energy"] = {"energy":min(energies)}
-        
-
-    
-
-
-    
         
 
     @assert_flags("td-dftb")
@@ -270,33 +294,15 @@ class read_output(IOread):
                     pass
         self.complet_results["singlet"] = singlet
 
-
-
-
+    @assert_flags("freq")
     def read_freq(self):
         pass
 
+    @assert_flags("debug")
     def read_debug(self):
         pass
 
 
-
-
-
-    def read_geometry(self, output='deMon.mol',is_charges=False, keep=1):
-
-        
-        filename = os.path.join(self.workdir,output)
-        data,info = read_XYZ(filename,is_charges=is_charges, keep=keep)
-
-        if len(data)==2:
-            self.complet_results["input_geometry"]  = data[0]
-            self.complet_results["output_geometry"] = data[-1]
-
-        if  len(data)>2:
-            self.complet_results["input_geometry"]  = data[0]
-            self.complet_results["trajectory"] = data
-            self.complet_results["output_geometry"] = data[-1]
 
 
 

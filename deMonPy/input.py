@@ -22,11 +22,6 @@ class write_input:
             BASIS=None,
             **parameters):
 
-        params = parameters.get("DEMON_PARAMETERS",None)
-        self.parameters = params.get("ACTIVE",{})
-
-        assert self.parameters!={}, ValueError("No parameters")
-
         self.io_lines = {
             "TITLE":TITLE,
             "DFTB":[],
@@ -34,10 +29,65 @@ class write_input:
             "GEOMETRY":[],
         }
 
+        # Update Parameters Flags
+        params = parameters.get("DEMON_PARAMETERS",None)
+        self.parameters = params.get("ACTIVE",{})
+
+        assert self.parameters!={}, ValueError("No parameters")
         self.flags = set(key.lower() for key in self.parameters.keys())
         
+        # Update Modules Flags
+        params = parameters.get("DEMON_MODULE",{})
+        self.module = params.get("ACTIVE",{})
+
+        self.flags.add(key.lower() for key in self.module.keys())
 
 
+
+
+    # =========================================================================
+    # =========== MODULES -----------------------------------------------------
+    # =========================================================================
+
+    @assert_flags("opt")
+    def _write_opt(self, params=None):
+        if params is None:
+            params = self.module["OPT"]
+
+    @assert_flags("ptmc")
+    def _write_ptmc(self, params=None):
+        if params is None:
+            params = self.module["PTMC"]
+
+    @assert_flags("md")
+    def _write_md(self, params=None):
+        if params is None:
+            params = self.module["MD"]
+
+    @assert_flags("neb")
+    def _write_neb(self, params=None):
+        if params is None:
+            params = self.module["NEB"]
+
+
+
+
+    # =========================================================================
+    # =========== PARAMETERS --------------------------------------------------
+    # =========================================================================
+
+    @assert_flags("dftb")
+    def _write_dftb(self, params=None):
+        if params is None:
+            params = self.parameters["DFTB"]
+        
+        for key,item in params.items():
+            
+            if item is True:
+                self.io_lines['DFTB'].append(f"{key}")
+            elif item > 0.0:
+                self.io_lines['DFTB'].append(f"{key}={item}")
+    
     def _write_basis(self):
         params = self.io_lines.pop("PARAM")
         new = [ "PTYPE="+params["PTYPE"]+f"\n{params["SKFILE"]}" ]
@@ -58,22 +108,7 @@ class write_input:
             
         self.io_lines["GEOMETRY"] = [geometry]
 
-
-
-
-
-    @assert_flags("dftb")
-    def _write_dftb(self, params=None):
-        if params is None:
-            params = self.parameters["DFTB"]
         
-        for key,item in params.items():
-            
-            if item is True:
-                self.io_lines['DFTB'].append(f"{key}")
-            elif item > 0.0:
-                self.io_lines['DFTB'].append(f"{key}={item}")
-    
     @assert_flags("wmull")
     def _write_bondparam(self, symbols, params=None):
         if params is None:
@@ -141,9 +176,6 @@ class write_input:
 
         self.io_lines['CUTSYS'].append(txt)
         
-
-
-
     
     @assert_flags("td-dftb")
     def _write_tddftb(self, params=None):
@@ -177,6 +209,12 @@ class write_input:
             params = self.parameters["DEBUG"]
 
 
+
+
+
+    # =========================================================================
+    # =========== WRITABLE ----------------------------------------------------
+    # =========================================================================
 
     def write(self, 
               input="deMon.inp",

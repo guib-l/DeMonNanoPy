@@ -45,12 +45,22 @@
             },
             "MULTI":null,
             "BAND":null,
-            "DEBUG":false,
             "DIPOLE":{
                 "OUTFILE":false,
                 "DIPBIN":false
             },
-            "CARPAR":null
+            "DEBUG":false
+        }
+    },
+    "DEMON_MODULE":{
+        "ACTIVE":{},
+        "DISABLE":{
+            "OPT":{
+                
+            },
+            "PTMC":{
+
+            }
         }
     }
 }

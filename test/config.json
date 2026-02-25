@@ -68,8 +68,7 @@
             "DIPOLE":{
                 "OUTFILE":false,
                 "DIPBIN":false
-            },
-            "CARPAR":null
+            }
         }
     }
 }
