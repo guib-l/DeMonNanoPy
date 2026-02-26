@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import __future__
 
+import sys
 # Import standard de python3
 import os
 import numpy as np
@@ -11,7 +12,25 @@ import deMonPy
 
 from deMonPy.profile import assert_flags
 
+def parse_range_string(range_string: str) -> list[int]:
+    if not range_string:
+        return []
+    result = []
 
+    for part in range_string.split(","):
+        part = part.strip()
+
+        if "-" in part:
+            start_str, end_str = part.split("-", 1)
+            start = int(start_str)
+            end = int(end_str)
+
+            step = 1 if start <= end else -1
+            result.extend(range(start, end + step, step))
+        else:
+            result.append(int(part))
+
+    return result
 
 
 class write_input:
@@ -40,8 +59,10 @@ class write_input:
         params = parameters.get("DEMON_MODULE",{})
         self.module = params.get("ACTIVE",{})
 
-        self.flags.add(key.lower() for key in self.module.keys())
+        self.flags.add(*[key.lower() for key in self.module.keys()])
+        self.complement = None
 
+        print(self.flags)
 
 
 
@@ -53,6 +74,21 @@ class write_input:
     def _write_opt(self, params=None):
         if params is None:
             params = self.module["OPT"]
+
+        self.io_lines["OPTIMIZATION"] = []
+
+        for key,item in params.items():
+            
+            if item is True:
+                self.io_lines['OPTIMIZATION'].append(f"{key}")
+            elif item > 0.0:
+                self.io_lines['OPTIMIZATION'].append(f"{key}={item}")
+        
+        self.flags.remove("opt")
+        if "TRAJECTORY" in params:
+            if params["TRAJECTORY"]:
+                self.flags.add("traj")
+
 
     @assert_flags("ptmc")
     def _write_ptmc(self, params=None):
@@ -97,16 +133,20 @@ class write_input:
     def _write_geometry(self, symbols, positions, fmt = '%10.7f'):
         
         geometry = "GEOMETRY\n"
-        updt = ["",]*len(symbols)
+
+        if self.complement is None:
+            self.complement = ["",]*len(symbols)
 
         if "QMMM" in self.flags:
             raise NotImplementedError("Flags QMMM set True")
         
-        for s,p,u in zip(symbols,positions,updt):
+        for s,p,u in zip(symbols,positions,self.complement):
             geometry += "%s %s %s %s %s\n" % \
                         (s,fmt % p[0],fmt % p[1],fmt % p[2], u)
             
         self.io_lines["GEOMETRY"] = [geometry]
+
+        self.complement = None
 
         
     @assert_flags("wmull")
@@ -184,7 +224,10 @@ class write_input:
 
         value = params
         if isinstance(value, bool):
-            self.io_lines['DFTB'].append("LRESP")
+            if value:
+                self.io_lines['DFTB'].append("LRESP")
+            else:
+                self.flags.remove("td-dftb")
         elif isinstance(value, int):
             self.io_lines['DFTB'].append(f"LRESP={value}")
 
@@ -200,9 +243,40 @@ class write_input:
     
 
     @assert_flags("qmmm")
-    def _write_qmmm(self,):
-        ...
-    
+    def _write_qmmm(self, params=None):
+        if params is None:
+            params = self.parameters["QMMM"]
+
+        self.io_lines['QMMM'] = ["QM/MM"]
+
+        if "RG" in params.keys():
+            rg    = params["RG"].upper()
+            self.io_lines['QMMM'].append(f"COUPLING={rg}")
+
+            polaqm = params.get("polaqm".upper(),True)
+            polamm = params.get("polamm".upper(),True)
+
+            if not polaqm:
+                self.io_lines['DFTB'].append("NOPOLQM")
+            if not polamm:
+                self.io_lines['DFTB'].append("NOPOLMM")
+            
+            alpha = params.get("alpha".upper(),0.0)
+            self.io_lines['DFTB'].append(f"ALPHARG={alpha}")
+
+
+        qm = parse_range_string(params["QM"])
+        mm = parse_range_string(params["MM"])
+        
+        self.complement = ["",] * sum(qm+mm)
+        for idx in qm:
+            self.complement[idx] = "Q=0.0 QMMM=QM"
+        for idx in mm:
+            self.complement[idx] = "Q=0.0 QMMM=MM"
+
+
+
+
     @assert_flags("debug")
     def _write_debug(self, params=None):
         if params is None:

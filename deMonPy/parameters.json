@@ -12,6 +12,7 @@
                 "SCC":true,
                 "TOL":1e-8,
                 "MEMOSCC":false,
+                "POLA":false,
                 "MAX":100,
                 "MIX":0.2,
                 "SIMPLE":false,
@@ -37,7 +38,11 @@
             "CHARGE":0,
             "QMMM":{
                 "RG":"ARGON",
-                "TYPE":[]
+                "ALPHA":11.07,
+                "POLAQM":false,
+                "POLAMM":true,
+                "QM":"1-15,16-20",
+                "MM":"21"
             },
             "CUTSYS":{
                 "FRAGMENT":[],

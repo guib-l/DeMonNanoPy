@@ -7,14 +7,15 @@
     "DEMON_PARAMETERS":{
         "ACTIVE":{
             "DFTB":{
-                "SCC":true
+                "SCC":true,
+                "POLA":false
             },
             "CHARGE":0.0,
             "CUTSYS":{
                 "FRAGMENT":[3,3],
                 "RIGID":false
             },
-            "TD-DFTB":true, 
+            "TD-DFTB":false, 
             "WMULL":{
                 "BONDPARAMS":{
                     "N C":0.39,
@@ -37,6 +38,7 @@
                 "L-DEP":false,
                 "FERMI":0.0,
                 "THRID":false,
+                "POLA":false,
                 "DISP":1,
                 "LEV_S":0.0
             },
@@ -56,7 +58,11 @@
             "CHARGE":0,
             "QMMM":{
                 "RG":"ARGON",
-                "TYPE":[]
+                "ALPHA":11.07,
+                "POLAQM":false,
+                "POLAMM":true,
+                "QM":"1-15,16-20",
+                "MM":"21"
             },
             "CUTSYS":{
                 "FRAGMENT":[],
@@ -70,5 +76,40 @@
                 "DIPBIN":false
             }
         }
+    },
+    "DEMON_MODULE":{
+        "ACTIVE":{
+            "OPT":{
+                "MAX":999,
+                "TOL":3e-4,
+                "GRADTOL":4e-6,
+                "STEP":0.3,
+                "CGRAD":true,
+                "OUT":1,
+                "NUCFRIC":false,
+                "TRAJECTORY":true
+            }
+        },
+        "DISABLE":{
+            "OPT":{
+                "MAX":999,
+                "TOL":3e-4,
+                "GRADTOL":4e-6,
+                "STEP":0.3,
+                "CGRAD":true,
+                "SDC":0.1,
+                "OUT":1,
+                "NUCFRIC":false,
+                "TRAJECTORY":true
+            },
+            "PTMC":{
+                
+            },
+            "MD":{
+                
+            },
+            "NEB":{}
+        }
     }
 }
+

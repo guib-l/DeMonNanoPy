@@ -169,7 +169,8 @@ class read_output(IOread):
 
         if  len(data)>2:
             self.complet_results["input_geometry"]  = data[0]
-            self.complet_results["trajectory"] = data
+            if "traj" in self.flags:
+                self.complet_results["trajectory"] = data
             self.complet_results["output_geometry"] = data[-1]
 
 
@@ -296,17 +297,32 @@ class read_output(IOread):
 
     @assert_flags("freq")
     def read_freq(self):
-        pass
+        raise NotImplemented
 
     @assert_flags("debug")
     def read_debug(self):
+        raise NotImplemented
+
+
+
+    # =================================
+    # READ MODULES (basics)
+
+    @assert_flags("opt")
+    def _read_opt(self):
         pass
 
+    @assert_flags("ptmc")
+    def _read_ptmc(self):
+        pass
 
+    @assert_flags("md")
+    def _read_md(self):
+        pass
 
-
-
-
+    @assert_flags("neb")
+    def _read_neb(self):
+        pass
 
 
 

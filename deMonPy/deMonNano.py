@@ -192,14 +192,20 @@ class deMonNano(BasicCalculation):
         self._wi._write_ci()
         self._wi._write_multi()
         self._wi._write_basis()
+        self._wi._write_debug()
         self._wi._write_freq()
         self._wi._write_tddftb()
-        self._wi._write_geometry(symbols=symbols,
-                                positions=geometry)
         self._wi._write_qmmm()
 
         # Modules
-
+        self._wi._write_opt()
+        self._wi._write_ptmc()
+        self._wi._write_md()
+        self._wi._write_neb()
+        
+        # Geometry writting
+        self._wi._write_geometry(symbols=symbols,
+                                positions=geometry)
         
         self._wi.write(
             workdir=self.workdir
@@ -208,14 +214,27 @@ class deMonNano(BasicCalculation):
 
     def read_output(self,):
 
+        # Parameters
         self._wo.read_file()
-        self._wo.read_geometry(output='deMon.mol',
-                               is_charges=False, 
-                               keep=1,)
         
         self._wo.read_energy()
         self._wo.read_ci()
         self._wo.read_tddftb()
+
+        self._wo.read_debug()
+        self._wo.read_freq()
+
+        # Modules
+        self._wo._read_opt()
+        self._wo._read_ptmc()
+        self._wo._read_md()
+        self._wo._read_neb()
+
+        # Geometry reading
+        self._wo.read_geometry(output='deMon.mol',
+                               is_charges=False, 
+                               keep=1,)
+
 
         print(
             json.dumps(
