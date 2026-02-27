@@ -13,7 +13,12 @@ from deMonPy.input import write_input
 from deMonPy.output import read_output
 
 
+
+
+# Provisoir !!!
 import json
+import ase 
+
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray):
@@ -24,9 +29,11 @@ class NumpyEncoder(json.JSONEncoder):
             return float(obj)
         if isinstance(obj, np.bool_):
             return bool(obj)
+        if isinstance(obj, ase.Atoms):
+            return obj.todict()
         return super().default(obj)
 
-
+# !!!
 
 
 
@@ -83,9 +90,6 @@ class BasicCalculation:
 class deMonNano(BasicCalculation):
 
     available_properties = ["energies","forces"]
-
-
-
 
     def __init__(
             self,
@@ -186,7 +190,6 @@ class deMonNano(BasicCalculation):
         
         # Parameters
         self._wi._write_dftb()
-        self._wi._write_cutsys()
         self._wi._write_charge()
         self._wi._write_bondparam(symbols)
         self._wi._write_ci()
@@ -196,6 +199,7 @@ class deMonNano(BasicCalculation):
         self._wi._write_freq()
         self._wi._write_tddftb()
         self._wi._write_qmmm()
+        self._wi._write_cutsys()
 
         # Modules
         self._wi._write_opt()
@@ -235,7 +239,7 @@ class deMonNano(BasicCalculation):
                                is_charges=False, 
                                keep=1,)
 
-
+        
         print(
             json.dumps(
                 self._wo.complet_results, 
@@ -244,6 +248,7 @@ class deMonNano(BasicCalculation):
                 cls=NumpyEncoder
             )
         )
+        print(self._wo.complet_results)
 
 
 

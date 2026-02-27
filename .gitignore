@@ -4,10 +4,15 @@ data/
 archive/
 
 # DeMonNano files
+.run/
 deMon.inp
 deMon.mol
 deMon.keep.mol
 deMon.out
+deMon.*.mol
+deMon.*.quat
+deMon.quat
+deMon.qmd
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

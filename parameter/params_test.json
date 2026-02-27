@@ -1,0 +1,41 @@
+{
+    "PARAMETERS": {
+        "DFTB": {
+            "TYPE": "BLOCK",
+            "ARGUMENTS": {
+                "SCC": {
+                    "TYPE": "FLAG",
+                    "DEFAULT": false,
+                    "MANDATORY_IF": [],
+                    "EXCLUDE_IF": [],
+                    "FORMAT": {
+                        "INLINE": true
+                    },
+                    "DESCRIPTION":""
+                },
+                "MAX": {
+                    "TYPE": "INTEGER",
+                    "DEFAULT": 100,
+                    "RANGE": [1, 999999],
+                    "MANDATORY_IF": [
+                        {
+                            "PATH": ["DFTB"],
+                            "VALUE": true
+                        }
+                    ],
+                    "EXCLUDE_IF": [],
+                    "FORMAT": {
+                        "INLINE": true
+                    },
+                    "DESCRIPTION":""
+                }
+            },
+            "DEFAULT": null,
+            "MANDATORY": false,
+            "FORMAT": {
+                "NEWLINE": true
+            },
+            "DESCRIPTION":""
+        }
+    }
+}

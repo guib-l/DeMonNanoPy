@@ -158,7 +158,7 @@ class read_output(IOread):
     # READ GEOMETRY (basics)
 
     def read_geometry(self, output='deMon.mol',is_charges=False, keep=1):
-
+        
         
         filename = os.path.join(self.workdir,output)
         data,info = read_XYZ(filename,is_charges=is_charges, keep=keep)
@@ -240,7 +240,7 @@ class read_output(IOread):
     @assert_flags("td-dftb")
     def read_tddftb(self):
         
-        singlet,triplet = {},{}
+        args = {}
 
         
         for line in self.lines:
@@ -250,50 +250,31 @@ class read_output(IOread):
                 break
 
         count = 0
-        for line in self.lines:
 
-            self.compute_block(line,"SUMMARY TRIPLET:","",nb_line=N+4)
-            if self._tocken_block:
-                
-                values = line.split()
-                try:
-                    triplet.update(
-                        {f"state_{count}":{
-                            "w":float(values[0]),
-                            "ocillator":float(values[1]),
-                            "from":int(values[2]),
-                            "to":int(values[4]),
-                            "weight":float(values[5]),
-                            "energy":float(values[6]),
-                        }}
-                    )
-                    count += 1
-                except:
-                    pass
-        self.complet_results["triplet"] = triplet
+        for key,signature in zip(["triplet","singlet"],["SUMMARY TRIPLET:","SUMMARY SINGLET"]):
 
-        count = 0
-        for line in self.lines:
+            for line in self.lines:
 
-            self.compute_block(line,"SUMMARY SINGLET","",nb_line=N+4)
-            if self._tocken_block:
-                
-                values = line.split()
-                try:
-                    singlet.update(
-                        {f"state_{count}":{
-                            "w":float(values[0]),
-                            "ocillator":float(values[1]),
-                            "from":int(values[2]),
-                            "to":int(values[4]),
-                            "weight":float(values[5]),
-                            "energy":float(values[6]),
-                        }}
-                    )
-                    count += 1
-                except:
-                    pass
-        self.complet_results["singlet"] = singlet
+                self.compute_block(line,signature,"",nb_line=N+4)
+                if self._tocken_block:
+                    
+                    values = line.split()
+                    try:
+                        args.update(
+                            {f"state_{count}":{
+                                "w":float(values[0]),
+                                "ocillator":float(values[1]),
+                                "from":int(values[2]),
+                                "to":int(values[4]),
+                                "weight":float(values[5]),
+                                "energy":float(values[6]),
+                            }}
+                        )
+                        count += 1
+                    except:
+                        pass
+            self.complet_results[key] = args
+
 
     @assert_flags("freq")
     def read_freq(self):

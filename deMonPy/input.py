@@ -59,16 +59,42 @@ class write_input:
         params = parameters.get("DEMON_MODULE",{})
         self.module = params.get("ACTIVE",{})
 
-        self.flags.add(*[key.lower() for key in self.module.keys()])
+        try:
+            self.flags.add(*[key.lower() for key in self.module.keys()])
+        except:
+            pass
+
         self.complement = None
 
-        print(self.flags)
+
+
+    def handler_writen(self, params):
+        
+        _inline = []
+
+        for key,item in params.items():
+
+            if isinstance(item,dict):
+                _inline.append( self.handler_writen(item) )
+            elif item is None:
+                continue
+            elif isinstance(item,bool):
+                if item:
+                    _inline.append( str(key) )
+            elif isinstance(item,(float,int)):
+                _inline.append( f"{key}={item}" )
+            else:
+                pass
+        return _inline
+
 
 
 
     # =========================================================================
     # =========== MODULES -----------------------------------------------------
     # =========================================================================
+
+
 
     @assert_flags("opt")
     def _write_opt(self, params=None):
@@ -95,10 +121,34 @@ class write_input:
         if params is None:
             params = self.module["PTMC"]
 
+        self.io_lines["MONTECARLO"] = self.handler_writen(params.pop('MC'))
+
+        self.io_lines["MCTEMP"] = self.handler_writen(params.pop('MCTEMP'))
+
+
+
+        
+
     @assert_flags("md")
     def _write_md(self, params=None):
         if params is None:
             params = self.module["MD"]
+        
+        self.io_lines["MDYNAMICS"] = self.handler_writen(params.pop('MDYNAMICS'))
+
+        self.io_lines["TIMESTEP"] = [str(params.pop('TIMESTEP'))]
+
+        mdtemp = params.pop('MDTEMP',None)
+        if mdtemp is not None:
+            self.io_lines["MDTEMP"] = [str(mdtemp)]
+
+        self.io_lines["MDSTEP"] = self.handler_writen(params.pop('MDSTEP'))
+
+
+        if "TRAJECTORY" in params:
+            if params["TRAJECTORY"]:
+                self.flags.add("traj")
+
 
     @assert_flags("neb")
     def _write_neb(self, params=None):
@@ -117,12 +167,8 @@ class write_input:
         if params is None:
             params = self.parameters["DFTB"]
         
-        for key,item in params.items():
-            
-            if item is True:
-                self.io_lines['DFTB'].append(f"{key}")
-            elif item > 0.0:
-                self.io_lines['DFTB'].append(f"{key}={item}")
+        self.io_lines["DFTB"] = self.handler_writen(params)
+        
     
     def _write_basis(self):
         params = self.io_lines.pop("PARAM")
@@ -277,12 +323,12 @@ class write_input:
 
 
 
-    @assert_flags("debug")
+    @assert_flags("print")
     def _write_debug(self, params=None):
         if params is None:
-            params = self.parameters["DEBUG"]
+            params = self.parameters["PRINT"]
 
-
+        self.io_lines["PRINT"] = self.handler_writen(params)
 
 
 

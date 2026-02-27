@@ -1,9 +1,14 @@
 
-import numpy as np
+import importlib
 
-from ase import Atoms
+def optional_import(module_name):
+    try:
+        return importlib.import_module(module_name)
+    except ImportError:
+        return None
 
-
+np  = optional_import("numpy")
+ase = optional_import("ase")
 
 
 def _read_xyz_ext(fileobj, is_charges=True, keep=1):
@@ -45,11 +50,27 @@ def _read_xyz_ext(fileobj, is_charges=True, keep=1):
                 symbols.append(symbol)
                 positions.append([float(x), float(y), float(z)])
                 charges.append( 0.00 )
+
             
             nread -= 1
 
         if nread==0:
-            img = {'symbols':np.array(symbols), 'positions':np.array(positions), 'charges':np.array(charges)}
+            if ase:
+                img = ase.Atoms(
+                    symbols, 
+                    positions=positions,
+                    charges=charges
+                )
+            elif np:
+                img = {'symbols':np.array(symbols), 
+                       'positions':np.array(positions), 
+                       'charges':np.array(charges)}
+            else:
+                img = {'symbols':symbols, 
+                       'positions':positions, 
+                       'charges':charges}
+
+            
 
         nbmol += 1
         

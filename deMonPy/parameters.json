@@ -22,6 +22,12 @@
                 "DISP":1,
                 "LEV_S":0.0
             },
+            "GEOMETRY":{
+                "UNITS":"CARTE"
+            },
+            "QUATERNION":{
+                "UNITS":"BOHR"
+            },
             "TD-DFTB":false,
             "CM3":{
                 "BONDPARAMS":{}
@@ -34,7 +40,9 @@
                 "NOSLAT":false,
                 "CONST":null
             },
-            "FREQ":false,
+            "FREQ":{
+                "VIB":null
+            },
             "CHARGE":0,
             "QMMM":{
                 "RG":"ARGON",
@@ -54,17 +62,105 @@
                 "OUTFILE":false,
                 "DIPBIN":false
             },
-            "DEBUG":false
+            "PRINT":{
+                "MOE":false,
+                "MOS":false,
+                "ASE":false,
+                "DEBUG":false,
+                "DE2":false,
+                "MC":false
+            }
         }
     },
     "DEMON_MODULE":{
         "ACTIVE":{},
         "DISABLE":{
             "OPT":{
-                
+                "MAX":999,
+                "TOL":3e-4,
+                "GRADTOL":4e-6,
+                "STEP":0.3,
+                "CGRAD":true,
+                "SDC":0.1,
+                "OUT":1,
+                "NUCFRIC":false,
+                "TRAJECTORY":true
             },
             "PTMC":{
-
+                "MC":{
+                    "MAX":999,
+                    "SEED":true,
+                    "WALL":null
+                },
+                "MCTEMP":{
+                    "TMC":300,
+                    "NTEMP":10,
+                    "LIST":{},
+                    "GEOM":true,
+                    "LINEAR":false,
+                    "TEMPMIN":30,
+                    "TEMPMAX":300,
+                    "X":null,
+                    "Q":null,
+                    "RESCALE":10,
+                    "SWAP":"AE",
+                    "SMOD":10,
+                    "SPERCENT":0.1,
+                    "SDBG":true,
+                    "OUT":1,
+                    "SOUT":1
+                }
+            },
+            "MD":{
+                "MDYNAMICS":{
+                    "ZERO":true,
+                    "RANDOM":300,
+                    "RAN":true,
+                    "READ":{
+                        "VELOCITIES":[]
+                    },
+                    "RESET":false,
+                    "WALL":null,
+                    "EXP":null,
+                    "ENER":null
+                },
+                "TIMESTEP":0.4,
+                "MDSTEP":{
+                    "MAX":1,
+                    "OUT":10,
+                    "SOUT":1,
+                    "TSIM":null
+                },
+                "CONSERVE":{
+                    "ALL":false,
+                    "COM":false,
+                    "ANG":false,
+                    "MOM":false
+                },
+                "MDCONSTRAINTS":{
+                    "POSIITON":"1-15,16-20",
+                    "X":"1-15,16-20"
+                },
+                "MDBATH":{
+                    "SCAL":false,
+                    "BERE":false,
+                    "NOSE":false,
+                    "LANGE":false,
+                    "STOCH_R":false,
+                    "ANDERSEN":false,
+                    "LOCA":false,
+                    "VAL":0.5,
+                    "NTHER":4,
+                    "FREQTH":100
+                },
+                "MDTEMP":300,
+                "CARPAR":{
+                    "FOM":null,
+                    "LGTOL":1e-10,
+                    "BO":false,
+                    "DELMO":0.1,
+                    "MOMD":0.1
+                }
             }
         }
     }
