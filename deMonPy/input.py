@@ -127,7 +127,15 @@ class write_input:
 
 
 
-        
+    def _write_constraint(self, constraint):
+        out = ""
+        for dir,value in constraint.items():
+            value = parse_range_string(value)
+            
+            out = f"\n{dir} {value[0]}"
+            for v in value[1:]:
+                out += f" {v}"
+        return [out]
 
     @assert_flags("md")
     def _write_md(self, params=None):
@@ -144,6 +152,14 @@ class write_input:
 
         self.io_lines["MDSTEP"] = self.handler_writen(params.pop('MDSTEP'))
 
+        if 'MDCONSTRAINTS' in params.keys():
+            self.io_lines["MDCONSTRAINTS"] =self._write_constraint(params.pop('MDCONSTRAINTS'))
+
+        if 'CONSERVE' in params.keys():
+            self.io_lines["CONSERVE"] = self.handler_writen(params.pop('CONSERVE'))
+
+        if 'MDBATH' in params.keys():
+            self.io_lines["MDBATH"] = self.handler_writen(params.pop('MDBATH'))
 
         if "TRAJECTORY" in params:
             if params["TRAJECTORY"]:

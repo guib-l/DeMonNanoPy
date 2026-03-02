@@ -299,7 +299,30 @@ class read_output(IOread):
 
     @assert_flags("md")
     def _read_md(self):
-        pass
+        print("md")
+
+        energies_flags = {
+            "average_potential_energy":"Average POTENTIAL ENERGY",
+            "std_potential_energy":"Std Dev POTENTIAL ENERGY",
+            "average_kinetic_energy":"Average KINETIC ENERGY",
+            "std_kinetic_energy":"Std Dev KINETIC ENERGY",
+            "average_total_energy":"Average TOTAL ENERGY",
+            "std_total_energy":"Std Dev TOTAL ENERGY",
+            "average_temperature":"Average TEMPERATURE",
+            "std_temperature":"Std Dev TEMPERATURE",
+            "energy_from_thermostat":"Energy transfer from thermostat",
+            "energy_loss":"Energy loss from constraints"
+        }
+
+        for line in self.lines:
+            for it,_flag in energies_flags.items():
+                if _flag in line:
+                    self.complet_results["energy"].update(
+                        {
+                            it:float(line.split()[-2])
+                        }
+                    )
+                
 
     @assert_flags("neb")
     def _read_neb(self):
