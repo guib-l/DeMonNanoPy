@@ -299,8 +299,7 @@ class read_output(IOread):
 
     @assert_flags("md")
     def _read_md(self):
-        print("md")
-
+        
         energies_flags = {
             "average_potential_energy":"Average POTENTIAL ENERGY",
             "std_potential_energy":"Std Dev POTENTIAL ENERGY",

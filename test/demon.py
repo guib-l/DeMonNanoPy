@@ -47,8 +47,14 @@ if __name__=='__main__':
         positions=image.positions
     )
 
+    dem.print_results()
+
 
     
+    
+
+
+
 
 
 

@@ -13,23 +13,19 @@ from deMonPy.input import write_input
 from deMonPy.output import read_output
 
 
+from deMonPy.modules.module import Modules
 
 
+class _relax_geometry(Modules):
+
+    def __init__(
+            self,
+            **kwargs):
+        
+
+        super().__init__(self, **kwargs)
 
 
+    def forward(self,):
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        pass

@@ -161,6 +161,9 @@ class write_input:
         if 'MDBATH' in params.keys():
             self.io_lines["MDBATH"] = self.handler_writen(params.pop('MDBATH'))
 
+        if 'CARPAR' in params.keys():
+            self.io_lines["CARPAR"] = self.handler_writen(params.pop('CARPAR'))
+
         if "TRAJECTORY" in params:
             if params["TRAJECTORY"]:
                 self.flags.add("traj")

@@ -86,26 +86,29 @@
     },
     "DEMON_MODULE":{
         "ACTIVE":{
-            "MD":{
-                "TRAJECTORY":false,
-                "MDYNAMICS":{
-                    "RANDOM":300
+            "PTMC":{
+                "MC":{
+                    "MAX":999,
+                    "SEED":3141591,
+                    "WALL":15
                 },
-                "TIMESTEP":0.4,
-                "MDSTEP":{
-                    "MAX":100,
-                    "OUT":10,
-                    "SOUT":1,
-                    "TSIM":null
-                },
-                "MDCONSTRAINTS":{
-                    "POSITION":"1-3"
-                },
-                "CONSERVE":{
-                    "ALL":true,
-                    "COM":false,
-                    "ANG":false,
-                    "MOM":false
+                "MCTEMP":{
+                    "TMC":300,
+                    "NTEMP":10,
+                    "LIST":[],
+                    "GEOM":true,
+                    "LINEAR":false,
+                    "TEMPMIN":30,
+                    "TEMPMAX":300,
+                    "X":null,
+                    "Q":null,
+                    "RESCALE":10,
+                    "SWAP":"AE",
+                    "SMOD":10,
+                    "SPERCENT":0.1,
+                    "SDBG":true,
+                    "OUT":1,
+                    "SOUT":1
                 }
             }
         },

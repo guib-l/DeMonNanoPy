@@ -2,7 +2,7 @@
 import __future__
 
 # Import standard de python3
-import os
+import os,sys
 import numpy as np
 
 
@@ -30,7 +30,7 @@ class NumpyEncoder(json.JSONEncoder):
         if isinstance(obj, np.bool_):
             return bool(obj)
         if isinstance(obj, ase.Atoms):
-            return obj.todict()
+            return obj.__repr__()
         return super().default(obj)
 
 # !!!
@@ -239,16 +239,16 @@ class deMonNano(BasicCalculation):
                                is_charges=False, 
                                keep=1,)
 
-        
+    def print_results(self, files=sys.stdout):
         print(
             json.dumps(
                 self._wo.complet_results, 
                 indent=4, 
                 ensure_ascii=True, 
                 cls=NumpyEncoder
-            )
+            ),
+            file=files
         )
-        print(self._wo.complet_results)
 
 
 
