@@ -9,5 +9,5 @@ DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 # from the main project
 sys.path.append(os.path.dirname(DIRECTORY))
 
-
+EXECUTABLE = "~/Documents/dev_deMon/deMon.x"
 

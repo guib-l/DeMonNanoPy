@@ -2,7 +2,7 @@
     "DEMON_EXECUTABLE":"~/Documents/dev_deMon/deMon.x",
     "BASIS":{
         "PTYPE":"BIO",
-        "SKFILE":"/home/pguibourg/Documents/DeMonNanoPy/test/basis"
+        "SKFILE":"../basis"
     },
     "DEMON_PARAMETERS":{
         "ACTIVE":{
