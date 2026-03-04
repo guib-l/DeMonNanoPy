@@ -103,9 +103,14 @@ class deMonNano(BasicCalculation):
             basis={},
             **parameters):
         
+        _execut  = parameters.pop("DEMON_EXECUTABLE",execut)
+        _prefix  = parameters.pop("PREFIX",prefix)
+        _workdir = parameters.pop("DEMON_WORKDIR",workdir)
 
         BasicCalculation.__init__(self,
-                                  execut,workdir,prefix,
+                                  _execut,
+                                  _workdir,
+                                  _prefix,
                                   omp_threads=omp_threads,
                                   system=system )
         
@@ -220,13 +225,13 @@ class deMonNano(BasicCalculation):
 
         # Parameters
         self._wo.read_file()
+        self._wo.read_freq()
         
         self._wo.read_energy()
         self._wo.read_ci()
         self._wo.read_tddftb()
 
         self._wo.read_debug()
-        self._wo.read_freq()
 
         # Modules
         self._wo._read_opt()
@@ -238,6 +243,8 @@ class deMonNano(BasicCalculation):
         self._wo.read_geometry(output='deMon.mol',
                                is_charges=False, 
                                keep=1,)
+        
+        self.results = self._wo.complet_results
 
     def print_results(self, files=sys.stdout):
         print(

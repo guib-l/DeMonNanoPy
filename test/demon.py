@@ -49,6 +49,8 @@ if __name__=='__main__':
 
     dem.print_results()
 
+    results = dem.results
+    print(results)
 
     
     

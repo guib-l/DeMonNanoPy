@@ -159,6 +159,8 @@ class read_output(IOread):
 
     def read_geometry(self, output='deMon.mol',is_charges=False, keep=1):
         
+        if "freq" in self.flags:
+            return
         
         filename = os.path.join(self.workdir,output)
         data,info = read_XYZ(filename,is_charges=is_charges, keep=keep)
@@ -221,7 +223,10 @@ class read_output(IOread):
 
             if self.is_inside("weight of conf", line) and state_search:
                 sl = line.split()
-                wgh.append(float(sl[5]))
+                try:
+                    wgh.append(float(sl[5]))
+                except:
+                    wgh.append(None)
                 state[f"state {num}"].update({"weight":wgh})
 
             self.complet_results["states"].update(state)
@@ -241,8 +246,6 @@ class read_output(IOread):
     def read_tddftb(self):
         
         args = {}
-
-        
         for line in self.lines:
             
             if self.is_inside("requested transitions to calculate",line):
@@ -278,7 +281,7 @@ class read_output(IOread):
 
     @assert_flags("freq")
     def read_freq(self):
-        raise NotImplemented
+        pass
 
     @assert_flags("debug")
     def read_debug(self):

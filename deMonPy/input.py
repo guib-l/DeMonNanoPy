@@ -196,7 +196,7 @@ class write_input:
         self.io_lines["PARAM"] = new
         
     def _write_geometry(self, symbols, positions, fmt = '%10.7f'):
-        
+
         geometry = "GEOMETRY\n"
 
         if self.complement is None:
@@ -219,12 +219,12 @@ class write_input:
         if params is None:
             params = self.parameters["WMULL"]
         
-        self.io_lines["BONDPARAM"] = []
+        self.io_lines["BONDPARAMS"] = []
         for key,item in params["BONDPARAMS"].items():
             elmts = key.split()
             
             if np.all([True if np.all(elm in symbols) else False for elm in elmts ]):
-                self.io_lines["BONDPARAM"].append(f"\n{str(key)} {float(item)}")
+                self.io_lines["BONDPARAMS"].append(f"\n{str(key)} {float(item)}")
         
         
     
@@ -302,9 +302,10 @@ class write_input:
         if params is None:
             params = self.parameters["FREQ"]
         
-        value = params.pop("FREQ")
-        if isinstance(value, bool):
-            self.io_lines['DFTB'].append("FREQ")
+        if isinstance(params, bool):
+            self.io_lines['FREQUENCY'] = []
+        if isinstance(params, float):
+            self.io_lines[f'FREQUENCY={params}'] = []
     
 
     @assert_flags("qmmm")

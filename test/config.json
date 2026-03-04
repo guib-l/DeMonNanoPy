@@ -10,21 +10,14 @@
                 "SCC":true,
                 "POLA":false
             },
-            "CHARGE":0.0,
             "CUTSYS":{
                 "FRAGMENT":[3,3],
                 "RIGID":false
             },
-            "TD-DFTB":false, 
-            "WMULL":{
-                "BONDPARAMS":{
-                    "N C":0.39,
-                    "C H":0.48,
-                    "N H":0.60,
-                    "O H":0.18,
-                    "O C":0.0,
-                    "O N":0.0 
-                }
+            "CI":{
+                "SIZECI":2,
+                "NOSLAT":false,
+                "CONST":null
             }
         },
         "DISABLE":{
@@ -86,31 +79,6 @@
     },
     "DEMON_MODULE":{
         "ACTIVE":{
-            "PTMC":{
-                "MC":{
-                    "MAX":999,
-                    "SEED":3141591,
-                    "WALL":15
-                },
-                "MCTEMP":{
-                    "TMC":300,
-                    "NTEMP":10,
-                    "LIST":[],
-                    "GEOM":true,
-                    "LINEAR":false,
-                    "TEMPMIN":30,
-                    "TEMPMAX":300,
-                    "X":null,
-                    "Q":null,
-                    "RESCALE":10,
-                    "SWAP":"AE",
-                    "SMOD":10,
-                    "SPERCENT":0.1,
-                    "SDBG":true,
-                    "OUT":1,
-                    "SOUT":1
-                }
-            }
         },
         "DISABLE":{
             "OPT":{
