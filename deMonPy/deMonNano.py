@@ -159,6 +159,8 @@ class deMonNano(BasicCalculation):
             properies=['energy'],
             basis={},
             **parameters):
+        
+        self.parameters = parameters.copy()
 
         # Build parameters
         self.basis = parameters.pop("BASIS",basis)
@@ -330,13 +332,6 @@ class Module_DeMonNano(deMonNano):
         
         args.update(**kwds)
         params.update(**args)
-
-        print(
-            json.dumps( 
-                params,
-                indent=4, 
-            )
-        )
 
         self.build = module(context=self, **params)
         self.is_build = True

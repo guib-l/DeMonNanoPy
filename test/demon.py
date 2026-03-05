@@ -60,7 +60,7 @@ if __name__=='__main__':
         **parameter_config
     )
 
-    mod(image=image)
+    mod(image=image, max=10)
 
     
     
