@@ -10,6 +10,7 @@ import deMonPy
 from deMonPy.profile import read_json
 from deMonPy.deMonNano import deMonNano
 
+from deMonPy.deMonNano import Module_DeMonNano
 
 import numpy as np
 import ase 
@@ -49,8 +50,17 @@ if __name__=='__main__':
 
     dem.print_results()
 
-    results = dem.results
-    print(results)
+    
+    mod = Module_DeMonNano(
+        module="opt", 
+        title="CALCULATION DEMONANO",
+        basis={},
+        execut="~/Documents/dev_deMon/deMon.x",
+        workdir=".run/",
+        **parameter_config
+    )
+
+    mod(image=image)
 
     
     

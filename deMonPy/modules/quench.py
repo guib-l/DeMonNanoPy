@@ -13,19 +13,29 @@ from deMonPy.input import write_input
 from deMonPy.output import read_output
 
 
-from deMonPy.modules.module import Modules
+from deMonPy.modules.module import modules
 
 
-class _relax_geometry(Modules):
+
+class _relax_geometry(modules):
 
     def __init__(
             self,
+            context,
             **kwargs):
         
+        super().__init__(context=context, **kwargs)
 
-        super().__init__(self, **kwargs)
-
-
-    def forward(self,):
-
+    def restart(self,):
         pass
+
+    def check_distances(self,):
+        pass
+        
+
+    def forward(self, image):
+        
+        self.context.calculate(
+            symbols=image.symbols,
+            positions=image.positions
+        )

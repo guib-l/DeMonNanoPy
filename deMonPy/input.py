@@ -101,6 +101,11 @@ class write_input:
         if params is None:
             params = self.module["OPT"]
 
+        self.flags.remove("opt")
+        if "TRAJECTORY" in params:
+            if params.pop("TRAJECTORY",None):
+                self.flags.add("traj")
+                
         self.io_lines["OPTIMIZATION"] = []
 
         for key,item in params.items():
@@ -110,10 +115,6 @@ class write_input:
             elif item > 0.0:
                 self.io_lines['OPTIMIZATION'].append(f"{key}={item}")
         
-        self.flags.remove("opt")
-        if "TRAJECTORY" in params:
-            if params["TRAJECTORY"]:
-                self.flags.add("traj")
 
 
     @assert_flags("ptmc")

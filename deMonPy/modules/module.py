@@ -14,26 +14,26 @@ from deMonPy.output import read_output
 
 
 
-class Modules:
+
+class modules:
 
     def __init__(
             self,
-            deMonNano_object,
+            context=None,
             **parameters):
         
-        self._demon = deMonNano_object
-        self._demon.update(**parameters)
+        self.context = context or None
 
-    
-
-    def forward(self, **kwargs):
-        ...
+        self.context.reset()
+        self.context.update(**parameters)
 
 
-
-    def __call__(self, *args, **kwds):
+    def __call__(self, **kwds):
         
-        self.forward(**kwds)
+        if hasattr(self, "forward"):
+            self.forward(**kwds)
+
+
 
 
 

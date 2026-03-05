@@ -103,6 +103,8 @@ class deMonNano(BasicCalculation):
             basis={},
             **parameters):
         
+        self.parameters = parameters.copy()
+        
         _execut  = parameters.pop("DEMON_EXECUTABLE",execut)
         _prefix  = parameters.pop("PREFIX",prefix)
         _workdir = parameters.pop("DEMON_WORKDIR",workdir)
@@ -141,21 +143,35 @@ class deMonNano(BasicCalculation):
                                workdir=self.workdir,
                                flags=self.flags,
                                output="deMon.out")
+        
+    def reset(self,):
+        
+        self.state   = {}
+        self.results = {}
 
+        self.flags = set()
 
-    def __repr__(self):
-        import time
-        txt  = "* ============================================ *\n"
-        txt += f" - DEMONANO CODE at {time.asctime()}\n"
-        txt += f"   > BASIS   : {self.basis} \n"
-        txt += f"   > WORKDIR : {self.workdir} \n"
-        txt += f"   > EXEC    : {self.execut} \n"
-        txt += "* ============================================ *"
-        return txt
+        for props in self.available_properties:
+            self.results.update({ props:None })
 
+    def update(
+            self, 
+            properies=['energy'],
+            basis={},
+            **parameters):
 
+        # Build parameters
+        self.basis = parameters.pop("BASIS",basis)
 
-
+        self._wi = write_input(BASIS=self.basis,
+                               **parameters)
+        self.flags = self._wi.flags
+        
+        self._wo = read_output(properties=properies,
+                               workdir=self.workdir,
+                               flags=self.flags,
+                               output="deMon.out")
+        
 
     def calculate(
             self,
@@ -184,9 +200,6 @@ class deMonNano(BasicCalculation):
                 "calculator":self.to_dict()
             }
         )
-
-
-
 
     def write_input(
             self,
@@ -259,10 +272,87 @@ class deMonNano(BasicCalculation):
 
 
 
+from deMonPy import available_modules
 
 
+class Module_DeMonNano(deMonNano):
 
 
+    def __init__(
+            self,
+            module=None,
+            execut=None,
+            workdir=".",
+            omp_threads=1,
+            system=True,
+            prefix="DEMON",
+            title="CALCULATION MODULE-DEMONANO",
+            properies=['energy'],
+            basis={},
+            available_modules=available_modules,
+            **parameters):  
+        
+        super().__init__(
+            execut=execut,
+            workdir=workdir,
+            omp_threads=omp_threads,
+            system=system,
+            prefix=prefix,
+            title=title,
+            properies=properies,
+            basis=basis,
+            **parameters
+        )
+
+        self.module   = module
+
+        self.is_build = False
+        self.build    = None
+
+
+    @property
+    def module(self):
+        return self._module
+
+    @module.setter
+    def module(self, module):
+        if module not in available_modules.keys():
+            raise NotImplementedError(f"{module} is not available")
+        self._module = available_modules[module]
+
+
+    def initialize(self, **kwds):
+        params = self.parameters
+        module = self._module.pop("module", None)
+        args   = self._module.pop("args", {})
+
+        assert module is not None, ValueError("Unknow module")
+        
+        args.update(**kwds)
+        params.update(**args)
+
+        print(
+            json.dumps( 
+                params,
+                indent=4, 
+            )
+        )
+
+        self.build = module(context=self, **params)
+        self.is_build = True
+
+
+    def reset(self):
+        self.is_build = False
+        self.build    = None
+
+
+    def __call__(self, **kwds):
+        
+        if not self.is_build:
+            self.initialize()
+
+        return self.build.__call__(**kwds)
 
 
 

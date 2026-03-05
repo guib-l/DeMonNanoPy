@@ -9,72 +9,9 @@
             "DFTB":{
                 "SCC":true,
                 "POLA":false
-            },
-            "CUTSYS":{
-                "FRAGMENT":[3,3],
-                "RIGID":false
-            },
-            "CI":{
-                "SIZECI":2,
-                "NOSLAT":false,
-                "CONST":null
             }
         },
         "DISABLE":{
-            "DFTB":{
-                "SCC":true,
-                "TOL":1e-8,
-                "MEMOSCC":false,
-                "MAX":100,
-                "MIX":0.2,
-                "SIMPLE":false,
-                "L-DEP":false,
-                "FERMI":0.0,
-                "THRID":false,
-                "POLA":false,
-                "DISP":1,
-                "LEV_S":0.0
-            },
-            "TD-DFTB":false,
-            "CM3":{
-                "BONDPARAMS":null
-            },
-            "WMULL":{
-                "BONDPARAMS":null
-            },
-            "CI":{
-                "SIZECI":null,
-                "NOSLAT":false,
-                "CONST":null
-            },
-            "FREQ":false,
-            "CHARGE":0,
-            "QMMM":{
-                "RG":"ARGON",
-                "ALPHA":11.07,
-                "POLAQM":false,
-                "POLAMM":true,
-                "QM":"1-15,16-20",
-                "MM":"21"
-            },
-            "CUTSYS":{
-                "FRAGMENT":[],
-                "RIGID":false
-            },
-            "MULTI":null,
-            "BAND":null,
-            "PRINT":{
-                "MOE":false,
-                "MOS":false,
-                "ASE":false,
-                "DEBUG":false,
-                "DE2":false,
-                "MC":false
-            },
-            "DIPOLE":{
-                "OUTFILE":false,
-                "DIPBIN":false
-            }
         }
     },
     "DEMON_MODULE":{
