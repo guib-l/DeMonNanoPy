@@ -13,22 +13,28 @@ from deMonPy.input import write_input
 from deMonPy.output import read_output
 
 
-from deMonPy.modules.module import Modules
+from deMonPy.modules.module import modules
 
 
-class _ptmc(Modules):
+class _ptmc(modules):
 
     def __init__(
             self,
+            context,
             **kwargs):
         
+        super().__init__(context=context, **kwargs)
 
-        super().__init__(self, **kwargs)
+        self._module_parameters = None
 
 
-    def forward(self,):
+    def forward(self, image):
 
-        pass
+        self.context.calculate(
+            symbols=image.symbols,
+            positions=image.positions
+        )
+        
 
 
 

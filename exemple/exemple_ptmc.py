@@ -40,43 +40,37 @@ image = Atoms(
 WORKDIR = ".run/"
 
 
+mod = Module_DeMonNano(
+    module="ptmc", 
+    title="CALCULATION DEMONANO",
+    basis={},
+    execut="~/Documents/dev_deMon/deMon.x",
+    workdir=".run/",
+    **parameters
+)
+
+
+mod(image=image)
+results = mod.results
+
+print(results)
 
 
 
-class TestOptimization:
-
-    def test_opt(self):
-
-        mod = Module_DeMonNano(
-            module="opt", 
-            title="CALCULATION DEMONANO",
-            basis={},
-            execut="~/Documents/dev_deMon/deMon.x",
-            workdir=".run/",
-            **parameters
-        )
-
-        mod(image=image, max=10)
-
-        results = mod.results
-        assert results["energy"]["energy"] == -8.14876390       
 
 
-class TestMonteCarlo:
-
-    def test_mc(self):
-        pass
 
 
-class TestPTMC:
-
-    def test_ptmc(self):
-        pass
 
 
-class TestDynamics:
 
-    def test_dyn(self):
-        pass
+
+
+
+
+
+
+
+
 
 

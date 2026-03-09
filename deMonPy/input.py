@@ -122,6 +122,10 @@ class write_input:
         if params is None:
             params = self.module["PTMC"]
 
+        if "SEED" in params["MC"].keys():
+            if params["MC"]["SEED"] is True:
+                params["MC"]["SEED"] = np.random.randint(1,99999)
+
         self.io_lines["MONTECARLO"] = self.handler_writen(params.pop('MC'))
 
         self.io_lines["MCTEMP"] = self.handler_writen(params.pop('MCTEMP'))

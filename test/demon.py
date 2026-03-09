@@ -52,7 +52,7 @@ if __name__=='__main__':
 
     
     mod = Module_DeMonNano(
-        module="opt", 
+        module="mc", 
         title="CALCULATION DEMONANO",
         basis={},
         execut="~/Documents/dev_deMon/deMon.x",

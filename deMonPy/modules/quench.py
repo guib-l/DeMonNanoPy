@@ -26,9 +26,21 @@ class _relax_geometry(modules):
         
         super().__init__(context=context, **kwargs)
 
+        self._module_parameters = None
 
-    def restart(self,):
-        pass
+
+    def restart(self, **kwds):
+
+        image = kwds.pop("image", None)
+        if not image:
+            image = self.context.results["output_geometry"]
+        
+        self._module_parameters.update(**kwds)
+        
+        self.forward(
+            image=image,
+            **self._module_parameters
+        )
 
     def check_distances(self,):
         pass
@@ -58,6 +70,13 @@ class _relax_geometry(modules):
             restart=False,
             **args):
         
+        self._module_parameters = dict(
+            max=999,
+            algo='CGRAD',
+            out=1,
+            restart=False,
+            **args
+        )
 
         self.update_parameters({
                 "DEMON_MODULE":{
@@ -76,4 +95,16 @@ class _relax_geometry(modules):
         )
         
         if not self.is_converged():
-            print("Not converged")
+            self.context.results["converged"]=False
+        else:
+            self.context.results["converged"]=True
+
+
+
+
+
+
+
+
+
+
