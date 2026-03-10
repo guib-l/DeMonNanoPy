@@ -54,13 +54,6 @@ class _relax_geometry(modules):
             
         return True
 
-
-    def update_parameters(self, kwds):
-
-        params = self.context.parameters
-        params.update(kwds)
-        self.context.update(**params)
-
     def forward(
             self, 
             image,

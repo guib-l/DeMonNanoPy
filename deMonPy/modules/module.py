@@ -17,6 +17,11 @@ class modules:
         self.context.reset()
         self.context.update(**parameters)
 
+    def update_parameters(self, kwds):
+
+        params = self.context.parameters
+        params.update(kwds)
+        self.context.update(**params)
 
     def __call__(self, **kwds):
         

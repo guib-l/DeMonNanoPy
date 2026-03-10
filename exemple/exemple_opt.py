@@ -1,4 +1,4 @@
-
+import sys
 import pytest
 import configs
 import numpy as np
@@ -40,21 +40,31 @@ image = Atoms(
 WORKDIR = ".run/"
 
 
-mod = Module_DeMonNano(
-    module="opt", 
-    title="CALCULATION DEMONANO",
-    basis={},
-    execut="~/Documents/dev_deMon/deMon.x",
-    workdir=".run/",
-    **parameters
-)
 
-mod(image=image, max=10)
-results = mod.results
 
-print(results)
 
-mod.build.restart(max=100)
-results = mod.results
+def exemple_run_opt():
 
-print(results)
+    mod = Module_DeMonNano(
+        module="opt", 
+        title="CALCULATION DEMONANO",
+        basis={},
+        execut="~/Documents/dev_deMon/deMon.x",
+        workdir=".run/",
+        **parameters
+    )
+
+    mod(image=image, max=10)
+
+    mod.print_results()
+
+
+if __name__=='__main__':
+
+
+
+    exemple_run_opt()
+
+    sys.exit()
+
+

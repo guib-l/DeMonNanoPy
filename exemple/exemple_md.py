@@ -37,4 +37,34 @@ image = Atoms(
         ])
     )
 
-WORKDIR = ".run/"
+WORKDIR = ".run/md/"
+
+
+
+def exemple_run_md():
+
+    mod = Module_DeMonNano(
+        module="opt", 
+        title="CALCULATION DEMONANO",
+        basis={},
+        execut="~/Documents/dev_deMon/deMon.x",
+        workdir=WORKDIR,
+        **parameters
+    )
+
+    mod(image=image, max=10)
+
+    mod.print_results()
+
+
+if __name__=='__main__':
+
+
+
+    exemple_run_md()
+
+    sys.exit()
+
+
+
+

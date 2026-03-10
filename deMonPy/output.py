@@ -8,7 +8,7 @@ import numpy as np
 
 import deMonPy
 from deMonPy.molden import read_XYZ
-from deMonPy.profile import assert_flags
+from deMonPy.profile import assert_flags,exclude_flags
 
 
 
@@ -157,10 +157,8 @@ class read_output(IOread):
     # =================================
     # READ GEOMETRY (basics)
 
-    def read_geometry(self, output='deMon.mol',is_charges=False, keep=1):
-        
-        if "freq" in self.flags:
-            return
+    @exclude_flags(["ptmc","freq"])
+    def read_geometry(self, output='deMon.mol',is_charges=False, keep=1):       
         
         filename = os.path.join(self.workdir,output)
         data,info = read_XYZ(filename,is_charges=is_charges, keep=keep)

@@ -15,25 +15,8 @@ from deMonPy.output import read_output
 
 
 
-# Provisoir !!!
-import json
-import ase 
+from deMonPy.encoder import AseEncoder
 
-class NumpyEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, np.ndarray):
-            return obj.tolist()
-        if isinstance(obj, np.integer):
-            return int(obj)
-        if isinstance(obj, np.floating):
-            return float(obj)
-        if isinstance(obj, np.bool_):
-            return bool(obj)
-        if isinstance(obj, ase.Atoms):
-            return obj.__repr__()
-        return super().default(obj)
-
-# !!!
 
 
 
@@ -262,12 +245,13 @@ class deMonNano(BasicCalculation):
         self.results = self._wo.complet_results
 
     def print_results(self, files=sys.stdout):
+        import json
         print(
             json.dumps(
                 self._wo.complet_results, 
                 indent=4, 
                 ensure_ascii=True, 
-                cls=NumpyEncoder
+                cls=AseEncoder
             ),
             file=files
         )
@@ -320,7 +304,7 @@ class Module_DeMonNano(deMonNano):
     def module(self, module):
         if module not in available_modules.keys():
             raise NotImplementedError(f"{module} is not available")
-        self._module = available_modules[module]
+        self._module = available_modules[module].copy()
 
 
     def initialize(self, **kwds):
@@ -342,12 +326,24 @@ class Module_DeMonNano(deMonNano):
         self.build    = None
 
 
-    def __call__(self, **kwds):
+    def __call__(self, method=None, **kwds):
         
         if not self.is_build:
             self.initialize()
 
-        return self.build.__call__(**kwds)
+        if method is None:
+            return self.build.__call__(**kwds)
+        
+        elif hasattr(self.build, method):
+            func = getattr(self.build, method)
+            print(func)
+            return func(**kwds)
+        
+        else:
+            raise NotImplementedError(
+                f"Method {method} is unknow in module {self.build.__name__}"
+            )
+
 
 
 

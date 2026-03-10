@@ -97,6 +97,28 @@ def assert_flags(myset):
     return decorateur
 
 
+def exclude_flags(myset):
+    def decorateur(func):
+    
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+
+            _flags = getattr(self, "flags")
+
+            if isinstance(myset, list):
+                for ms in myset:
+                    if ms in _flags:
+                        return 
+            else:
+                if myset in _flags:
+                    return 
+
+
+            return func(self, *args, **kwargs)
+
+        return wrapper
+    return decorateur
+
 
 
 

@@ -3,7 +3,7 @@ import json
 
 from deMonPy.modules.quench import _relax_geometry
 from deMonPy.modules.ptmc import _ptmc
-
+from deMonPy.modules.dyn import _dyn
 
 available_modules = {
     "opt":{
@@ -27,7 +27,7 @@ available_modules = {
                 "ACTIVE":{
                     "PTMC":{
                         "MC":{
-                            "MAX":999,
+                            "MAX":30,
                             "SEED":True,
                             "WALL":8.
                         },
@@ -45,6 +45,17 @@ available_modules = {
                         }
                     },
                 },
+            }
+        }
+    },
+    "md":{
+        "module":_dyn,
+        "args":{
+
+            "DEMON_MODULE":{
+                "ACTIVE":{
+                    
+                }
             }
         }
     }

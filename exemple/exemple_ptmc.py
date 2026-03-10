@@ -1,3 +1,4 @@
+import sys 
 
 import pytest
 import configs
@@ -14,7 +15,7 @@ parameters = {
     "DEMON_EXECUTABLE":configs.EXECUTABLE,
     "BASIS":{
         "PTYPE":"BIO",
-        "SKFILE":"../basis"
+        "SKFILE":"../../basis"
     },
     "DEMON_PARAMETERS":{
         "ACTIVE":{
@@ -37,38 +38,56 @@ image = Atoms(
         ])
     )
 
-WORKDIR = ".run/"
+
+WORKDIR = ".run/ptmc/"
 
 
-mod = Module_DeMonNano(
-    module="ptmc", 
-    title="CALCULATION DEMONANO",
-    basis={},
-    execut="~/Documents/dev_deMon/deMon.x",
-    workdir=".run/",
-    **parameters
-)
+def exemple_run_ptmc():
+
+    mod = Module_DeMonNano(
+        module="ptmc", 
+        title="CALCULATION DEMONANO",
+        basis={},
+        execut="~/Documents/dev_deMon/deMon.x",
+        workdir=WORKDIR,
+        **parameters
+    )
+
+    # Run PTMC
+    mod(image=image, max=30,)
+
+    # Print results
+    mod.print_results()
+
+def exemple_run_mc():
+
+    mod = Module_DeMonNano(
+        module="ptmc", 
+        title="CALCULATION DEMONANO",
+        basis={},
+        execut="~/Documents/dev_deMon/deMon.x",
+        workdir=WORKDIR,
+        **parameters
+    )
+
+    # Run PTMC
+    mod(method="mc",image=image, max=30,)
+
+    # Print results
+    mod.print_results()
 
 
-mod(image=image)
-results = mod.results
-
-print(results)
 
 
+if __name__=='__main__':
+
+    
 
 
+    exemple_run_mc()
+    exemple_run_ptmc()
 
-
-
-
-
-
-
-
-
-
-
+    sys.exit()
 
 
 
