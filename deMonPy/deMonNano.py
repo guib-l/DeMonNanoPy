@@ -21,6 +21,7 @@ from deMonPy.encoder import AseEncoder
 
 
 class BasicCalculation:
+    """Base class used to execute a deMonNano calculation."""
     
     execut  = ""
     workdir = None
@@ -32,6 +33,15 @@ class BasicCalculation:
             prefix,
             omp_threads=1,
             system=False):
+        """Initialize the calculation process wrapper.
+
+        Args:
+            exec: Path to the deMonNano executable.
+            workdir: Working directory used for input and output files.
+            prefix: Prefix used by the process manager.
+            omp_threads: Number of OpenMP threads to request.
+            system: Whether the executable should be launched through the shell.
+        """
         
         self.process = Process(
             executable=exec,
@@ -44,6 +54,14 @@ class BasicCalculation:
     def execute(
             self,
             ignore_fails=False):
+        """Run the underlying process.
+
+        Args:
+            ignore_fails: If True, suppress execution exceptions.
+
+        Raises:
+            Exception: Propagated when execution fails and failures are not ignored.
+        """
 
         try:
             self.process.execute()
@@ -53,17 +71,33 @@ class BasicCalculation:
 
 
     def set_workdir(self,):
+        """Create the working directory if it does not already exist."""
 
         if not os.path.exists(self.workdir):
             os.makedirs(self.workdir)
 
     def set_state(self, index=1, **props):
+        """Store a calculation state snapshot.
+
+        Args:
+            index: Identifier used to build the state key.
+            **props: Properties to associate with the stored state.
+        """
         self.state.update({"state-%s" % index: props})
 
     def get_state(self, index=1):
+        """Return a previously stored state.
+
+        Args:
+            index: Identifier of the state to retrieve.
+
+        Returns:
+            dict: Stored state properties.
+        """
         return self.state["state-%s" % index]
     
     def to_dict(self,):
+        """Return the local namespace for serialization."""
         return locals()
     
 
@@ -71,6 +105,7 @@ class BasicCalculation:
 
 
 class deMonNano(BasicCalculation):
+    """High-level wrapper for preparing, running, and reading deMonNano jobs."""
 
     available_properties = ["energies","forces"]
 
@@ -85,6 +120,19 @@ class deMonNano(BasicCalculation):
             properies=['energy'],
             basis={},
             **parameters):
+        """Initialize a deMonNano calculator.
+
+        Args:
+            execut: Path to the deMonNano executable.
+            workdir: Directory where calculation files are written.
+            omp_threads: Number of OpenMP threads.
+            system: Whether the executable is launched through the system shell.
+            prefix: Prefix used by the process manager.
+            title: Title written to the generated input.
+            properies: Output properties requested from the parser.
+            basis: Basis configuration passed to the input writer.
+            **parameters: Additional input and runtime parameters.
+        """
         
         self.parameters = parameters.copy()
         
@@ -128,6 +176,7 @@ class deMonNano(BasicCalculation):
                                output="deMon.out")
         
     def reset(self,):
+        """Clear stored states, results, and active flags."""
         
         self.state   = {}
         self.results = {}
@@ -142,6 +191,13 @@ class deMonNano(BasicCalculation):
             properies=['energy'],
             basis={},
             **parameters):
+        """Refresh the input and output handlers with new parameters.
+
+        Args:
+            properies: Output properties requested from the parser.
+            basis: Basis configuration passed to the input writer.
+            **parameters: Additional input parameters.
+        """
         
         self.parameters = parameters.copy()
 
@@ -165,6 +221,14 @@ class deMonNano(BasicCalculation):
             positions,
             index=0,
             **kwargs):
+        """Run a full calculation for a given structure.
+
+        Args:
+            symbols: Atomic symbols describing the system.
+            positions: Atomic positions associated with the symbols.
+            index: Identifier used to store the resulting state.
+            **kwargs: Reserved for future calculation options.
+        """
         
         self.write_input(
             symbols,
@@ -190,6 +254,12 @@ class deMonNano(BasicCalculation):
             self,
             symbols, 
             geometry):
+        """Write the deMonNano input files for the current calculation.
+
+        Args:
+            symbols: Atomic symbols describing the system.
+            geometry: Atomic coordinates written to the geometry section.
+        """
         
         # Parameters
         self._wi._write_dftb()
@@ -220,6 +290,7 @@ class deMonNano(BasicCalculation):
 
 
     def read_output(self,):
+        """Parse deMonNano output files and update cached results."""
 
         # Parameters
         self._wo.read_file()
@@ -245,6 +316,11 @@ class deMonNano(BasicCalculation):
         self.results = self._wo.complet_results
 
     def print_results(self, files=sys.stdout):
+        """Serialize parsed results as formatted JSON.
+
+        Args:
+            files: Writable stream receiving the JSON output.
+        """
         import json
         print(
             json.dumps(
@@ -262,6 +338,7 @@ from deMonPy import available_modules
 
 
 class Module_DeMonNano(deMonNano):
+    """deMonNano calculator extended with pluggable runtime modules."""
 
 
     def __init__(
@@ -277,6 +354,21 @@ class Module_DeMonNano(deMonNano):
             basis={},
             available_modules=available_modules,
             **parameters):  
+        """Initialize a module-aware deMonNano calculator.
+
+        Args:
+            module: Name of the module to load.
+            execut: Path to the deMonNano executable.
+            workdir: Directory where calculation files are written.
+            omp_threads: Number of OpenMP threads.
+            system: Whether the executable is launched through the system shell.
+            prefix: Prefix used by the process manager.
+            title: Title written to the generated input.
+            properies: Output properties requested from the parser.
+            basis: Basis configuration passed to the input writer.
+            available_modules: Registry of available module definitions.
+            **parameters: Additional input and runtime parameters.
+        """
         
         super().__init__(
             execut=execut,
@@ -298,16 +390,30 @@ class Module_DeMonNano(deMonNano):
 
     @property
     def module(self):
+        """Return the selected module definition."""
         return self._module
 
     @module.setter
     def module(self, module):
+        """Set the active module from the available module registry.
+
+        Args:
+            module: Name of the module to activate.
+
+        Raises:
+            NotImplementedError: If the requested module is unknown.
+        """
         if module not in available_modules.keys():
             raise NotImplementedError(f"{module} is not available")
         self._module = available_modules[module].copy()
 
 
     def initialize(self, **kwds):
+        """Instantiate the configured module with the current context.
+
+        Args:
+            **kwds: Additional keyword arguments merged into the module options.
+        """
         params = self.parameters
         module = self._module.pop("module", None)
         args   = self._module.pop("args", {})
@@ -322,11 +428,24 @@ class Module_DeMonNano(deMonNano):
 
 
     def reset(self):
+        """Clear the built module instance."""
         self.is_build = False
         self.build    = None
 
 
     def __call__(self, method=None, **kwds):
+        """Dispatch a call to the built module.
+
+        Args:
+            method: Optional module method name to invoke.
+            **kwds: Keyword arguments forwarded to the module call.
+
+        Returns:
+            Any: Result returned by the module call.
+
+        Raises:
+            NotImplementedError: If the requested method does not exist.
+        """
         
         if not self.is_build:
             self.initialize()

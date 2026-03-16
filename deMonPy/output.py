@@ -13,8 +13,10 @@ from deMonPy.profile import assert_flags,exclude_flags
 
 
 class IOread(object):
+    """Base helper providing low-level parsing utilities for output files."""
 
     def __init__(self,):
+        """Initialize parsing state."""
 
         self._block = ""
         self._tocken_block = False
@@ -23,6 +25,15 @@ class IOread(object):
 
     def compute_block(self, line, 
             ctrl_in="", ctrl_out="", nb_line=None, add=1 ):
+        """Track and accumulate a fixed-size text block.
+
+        Args:
+            line: Current line being parsed.
+            ctrl_in: Marker indicating the beginning of the block.
+            ctrl_out: Unused end-of-block marker placeholder.
+            nb_line: Number of lines to collect once the block starts.
+            add: Unused compatibility argument.
+        """
 
         if self.is_inside(control=ctrl_in, line=line ):
             self._tocken_block = True
@@ -35,14 +46,43 @@ class IOread(object):
             self._tocken_block = False
 
     def get_float(self, line, index=-1):
+        """Extract a float from a split line.
+
+        Args:
+            line: Input line.
+            index: Token index to convert.
+
+        Returns:
+            float: Parsed floating-point value.
+        """
         assert index!=None, ValueError("index need to ba an integer")
         return float(line.split()[index])
 
     def get_int(self, line, index=-1):
+        """Extract an integer from a split line.
+
+        Args:
+            line: Input line.
+            index: Token index to convert.
+
+        Returns:
+            int: Parsed integer value.
+        """
         assert index!=None, ValueError("index need to ba an integer")
         return int(line.split()[index])
 
     def get_list(self, line, index_in=None, index_out=None, ctype=np.float64):
+        """Extract a typed slice of tokens from a line.
+
+        Args:
+            line: Input line.
+            index_in: First token index to include.
+            index_out: First token index to exclude.
+            ctype: Target NumPy-compatible type constructor.
+
+        Returns:
+            Any: Converted token slice.
+        """
         if index_in==None:
             return ctype( line.split()[:index_out] )
         if index_out==None:
@@ -50,15 +90,38 @@ class IOread(object):
         return ctype( line.split()[index_in:index_out] )
         
     def get_dict(self,):
+        """Return a dictionary representation of parsed content.
+
+        Raises:
+            NotImplementedError: Always raised in the base class.
+        """
         raise NotImplementedError
 
     def get_string(self, line, index=None):
+        """Extract a string token or return the raw line.
+
+        Args:
+            line: Input line.
+            index: Optional token index.
+
+        Returns:
+            str: Extracted token or original line.
+        """
         if index==None:
             return line
         return str(line.split()[index])
 
 
     def is_inside(self, control="", line="" ): 
+        """Check whether a control substring is present in a line.
+
+        Args:
+            control: Substring to search for.
+            line: Line to inspect.
+
+        Returns:
+            bool: True when the substring is found.
+        """
         if control in line: return  True
         else: False
 
@@ -67,6 +130,7 @@ class IOread(object):
 
 
 class read_output(IOread):
+    """Parser for deMonNano output files and derived results."""
 
     _criteria_energy_str = {
         "DFTB total energy":"energy",
@@ -91,6 +155,15 @@ class read_output(IOread):
             output="deMon.out", 
             flags=set(),
             type_calculation={}, ): 
+        """Initialize the output reader.
+
+        Args:
+            properties: Requested properties to parse.
+            workdir: Directory containing output files.
+            output: Main output file name.
+            flags: Active parser flags.
+            type_calculation: Reserved calculation metadata.
+        """
         
         IOread.__init__(self, )
 
@@ -108,6 +181,7 @@ class read_output(IOread):
 
 
     def read_file(self,):
+        """Load the main output file into memory."""
 
         filename = os.path.join(self.workdir,self.output)
         with open(filename,'r') as fd:
@@ -120,6 +194,7 @@ class read_output(IOread):
     # READ ENERGY (basics)
 
     def read_energy(self):
+        """Parse energy values from the loaded output lines."""
 
         start_search = False
         
@@ -139,6 +214,16 @@ class read_output(IOread):
                      line, 
                      criteria="DFTB total energy",
                      start_search=False):
+        """Extract energy terms from a single output line.
+
+        Args:
+            line: Line to inspect.
+            criteria: Primary energy marker used to seed parsing.
+            start_search: Whether extended energy parsing is active.
+
+        Returns:
+            dict: Parsed energy terms found on the line.
+        """
         
         _energy = {}
 
@@ -159,6 +244,13 @@ class read_output(IOread):
 
     @exclude_flags(["ptmc","freq"])
     def read_geometry(self, output='deMon.mol',is_charges=False, keep=1):       
+        """Read input, output, or trajectory geometries.
+
+        Args:
+            output: Geometry file name.
+            is_charges: Whether the XYZ reader should parse charges.
+            keep: Geometry sampling interval.
+        """
         
         filename = os.path.join(self.workdir,output)
         data,info = read_XYZ(filename,is_charges=is_charges, keep=keep)
@@ -188,6 +280,7 @@ class read_output(IOread):
 
     @assert_flags("ci")
     def read_ci(self):
+        """Parse configuration interaction states and configurations."""
         start_search = True
         state_search = False
 
@@ -242,6 +335,7 @@ class read_output(IOread):
 
     @assert_flags("td-dftb")
     def read_tddftb(self):
+        """Parse TD-DFTB singlet and triplet transitions."""
         
         args = {}
         for line in self.lines:
@@ -279,10 +373,12 @@ class read_output(IOread):
 
     @assert_flags("freq")
     def read_freq(self):
+        """Parse vibrational frequency results."""
         pass
 
     @assert_flags("debug")
     def read_debug(self):
+        """Parse debug output sections."""
         raise NotImplemented
 
 
@@ -292,14 +388,17 @@ class read_output(IOread):
 
     @assert_flags("opt")
     def _read_opt(self):
+        """Parse optimization-specific output sections."""
         pass
 
     @assert_flags("ptmc")
     def _read_ptmc(self):
+        """Parse PTMC-specific output sections."""
         pass
 
     @assert_flags("md")
     def _read_md(self):
+        """Parse molecular dynamics summary values."""
         
         energies_flags = {
             "average_potential_energy":"Average POTENTIAL ENERGY",
@@ -326,6 +425,7 @@ class read_output(IOread):
 
     @assert_flags("neb")
     def _read_neb(self):
+        """Parse nudged elastic band output sections."""
         pass
 
 

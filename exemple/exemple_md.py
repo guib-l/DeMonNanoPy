@@ -63,8 +63,5 @@ if __name__=='__main__':
 
     exemple_run_md()
 
-    sys.exit()
-
-
 
 

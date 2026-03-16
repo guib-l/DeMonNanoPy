@@ -65,6 +65,5 @@ if __name__=='__main__':
 
     exemple_run_opt()
 
-    sys.exit()
 
 
