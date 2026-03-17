@@ -14,7 +14,7 @@ parameters = {
     "DEMON_EXECUTABLE":configs.EXECUTABLE,
     "BASIS":{
         "PTYPE":"BIO",
-        "SKFILE":"../basis"
+        "SKFILE":"../../basis"
     },
     "DEMON_PARAMETERS":{
         "ACTIVE":{
@@ -37,7 +37,7 @@ image = Atoms(
         ])
     )
 
-WORKDIR = ".run/"
+WORKDIR = ".run/opt/"
 
 
 
@@ -50,7 +50,7 @@ def exemple_run_opt():
         title="CALCULATION DEMONANO",
         basis={},
         execut="~/Documents/dev_deMon/deMon.x",
-        workdir=".run/",
+        workdir=WORKDIR,
         **parameters
     )
 
@@ -60,8 +60,6 @@ def exemple_run_opt():
 
 
 if __name__=='__main__':
-
-
 
     exemple_run_opt()
 

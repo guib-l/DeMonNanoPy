@@ -14,7 +14,7 @@ parameters = {
     "DEMON_EXECUTABLE":configs.EXECUTABLE,
     "BASIS":{
         "PTYPE":"BIO",
-        "SKFILE":"../basis"
+        "SKFILE":"../../basis"
     },
     "DEMON_PARAMETERS":{
         "ACTIVE":{
@@ -44,24 +44,48 @@ WORKDIR = ".run/md/"
 def exemple_run_md():
 
     mod = Module_DeMonNano(
-        module="opt", 
+        module="md", 
         title="CALCULATION DEMONANO",
-        basis={},
         execut="~/Documents/dev_deMon/deMon.x",
         workdir=WORKDIR,
         **parameters
     )
 
-    mod(image=image, max=10)
+    mod(image=image, temp=10)
 
     mod.print_results()
 
+def exemple_run_md_velocities():
+
+    mod = Module_DeMonNano(
+        module="md", 
+        title="CALCULATION DEMONANO",
+        execut="~/Documents/dev_deMon/deMon.x",
+        workdir=WORKDIR,
+        **parameters
+    )
+
+    mod(image=image,
+        velocities=[
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0],
+        ])
+
+    mod.print_results()
 
 if __name__=='__main__':
 
-
-
     exemple_run_md()
+
+    exemple_run_md_velocities()
+
+
+
+
 
 
 

@@ -12,6 +12,20 @@ import deMonPy
 
 from deMonPy.profile import assert_flags
 
+
+_atoms_symbols_to_numbers = {
+    "H": 1,    "He": 2,    "Li": 3,    "Be": 4,
+    "B": 5,    "C": 6,    "N": 7,    "O": 8,
+    "F": 9,   "Ne": 10,    "Na": 11,    "Mg": 12,
+    "Al": 13,    "Si": 14,    "P": 15,    "S": 16,
+    "Cl": 17,    "Ar": 18,    "K": 19,    "Ca": 20,
+    "Sc": 21,    "Ti": 22,   "V": 23,    "Cr": 24,
+    "Mn": 25,    "Fe": 26,    "Co": 27,    "Ni": 28,
+    "Cu": 29,    "Zn": 30,    "Ga": 31,    "Ge": 32,   
+    "As": 33,    "Se": 34,    "Br": 35,    "I": 53,
+}
+
+
 def parse_range_string(range_string: str) -> list[int]:
     """Expand a comma-separated range expression into a list of integers.
 
@@ -108,10 +122,29 @@ class write_input:
                     _inline.append( str(key) )
             elif isinstance(item,(float,int)):
                 _inline.append( f"{key}={item}" )
+            elif isinstance(item,str):
+                _inline.append( f"{key} {item}" )
             else:
                 pass
         return _inline
 
+    def _write_table(self, table, symbols=None, fmt = '10.8f'):
+        """Serialize a generic table of parameters.
+
+        Args:
+            table: Mapping of table names to parameter lists.
+
+        Returns:
+            list[str]: Serialized table lines.
+        """
+        out = ""
+        if symbols is None:
+            symbols = [""] * len(table)
+        for symb,values in zip(symbols, table):
+            out += f"\n{symb}"
+            for v in values:
+                out += f" {v:{fmt}}"
+        return out
 
 
 
@@ -184,6 +217,32 @@ class write_input:
             for v in value[1:]:
                 out += f" {v}"
         return [out]
+    
+    
+    def _io_write_mddynamics(self, params=None):
+        """ Write the MDYNAMICS block, which may contain a read section for velocities.
+        Args:
+            params: MDYNAMICS parameter block.
+        """        
+        read = params.pop("READ",None)
+        if "RANDOM" and "ZERO" in params.keys():
+            params.pop("ZERO")
+        
+        if read is not None:
+
+            veloc = False
+            if hasattr(read,"keys") and "VELOCITIES" in read.keys():
+                
+                if read["VELOCITIES"]is not None and read["VELOCITIES"]!=[]:
+                    value = range(1,len(read["VELOCITIES"])+1)
+                    txt = self._write_table(read["VELOCITIES"],value)
+                    veloc = txt
+
+            params["READ"] = veloc
+
+        self.io_lines["MDYNAMICS"] = self.handler_writen(params)
+
+        
 
     @assert_flags("md")
     def _write_md(self, params=None):
@@ -192,10 +251,11 @@ class write_input:
         Args:
             params: Molecular dynamics parameter block.
         """
+        
         if params is None:
             params = self.module["MD"]
-        
-        self.io_lines["MDYNAMICS"] = self.handler_writen(params.pop('MDYNAMICS'))
+                    
+        self._io_write_mddynamics(params.pop('MDYNAMICS'))
 
         self.io_lines["TIMESTEP"] = [str(params.pop('TIMESTEP'))]
 

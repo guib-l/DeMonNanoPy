@@ -455,7 +455,6 @@ class Module_DeMonNano(deMonNano):
         
         elif hasattr(self.build, method):
             func = getattr(self.build, method)
-            print(func)
             return func(**kwds)
         
         else:

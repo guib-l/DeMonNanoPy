@@ -51,10 +51,30 @@ available_modules = {
     "md":{
         "module":_dyn,
         "args":{
-
             "DEMON_MODULE":{
                 "ACTIVE":{
-                    
+                    "MD":{
+                        "MDYNAMICS":{
+                            "ZERO":True,
+                            "RANDOM":300,
+                            "RAN":True,
+                            "READ":{
+                                "VELOCITIES":[]
+                            },
+                            "RESET":False,
+                            "WALL":None,
+                            "EXP":None,
+                            "ENER":None
+                        },
+                        "TIMESTEP":0.4,
+                        "MDSTEP":{
+                            "MAX":50,
+                            "OUT":10,
+                            "SOUT":1,
+                            "TSIM":None
+                        },
+                        "MDTEMP":300   
+                    } 
                 }
             }
         }
