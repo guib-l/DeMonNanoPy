@@ -49,6 +49,26 @@ class _dyn(modules):
         params["TRAJECTORY"] = out_traj
 
 
+    def restart(self, **kwds):
+
+        image = kwds.pop("image", None)
+        if not image:
+            image = self.context.results["output_geometry"]
+
+        try:
+            velocities = image.get_velocities()
+        except Exception as e:
+            print(f"Warning: Could not retrieve velocities from the image. Error: {e}")
+            velocities = None
+        
+        kwds["velocities"] = velocities
+        
+        self._module_parameters.update(**kwds)
+        
+        self.forward(
+            image=image,
+            **self._module_parameters
+        )
 
     def forward(
             self, 
@@ -67,8 +87,16 @@ class _dyn(modules):
         self._module_parameters = dict(
             restart=restart,
             velocities=velocities,
+            temp=temp,
+            timestep=timestep,
+            max_steps=max_steps,
+            wall=wall,
+            out=out,
+            out_traj=out_traj,
             **args
         )
+
+
         self.update_mddynamics(velocities, temp, wall)
         self.update_mdstep(max_steps, out)
         self.add_trajectory_output(out_traj)

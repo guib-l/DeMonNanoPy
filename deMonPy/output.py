@@ -243,7 +243,7 @@ class read_output(IOread):
     # READ GEOMETRY (basics)
 
     @exclude_flags(["ptmc","freq"])
-    def read_geometry(self, output='deMon.mol',is_charges=False, keep=1):       
+    def read_geometry(self, output='deMon.mol',is_charges=False, velocities=False, keep=1):       
         """Read input, output, or trajectory geometries.
 
         Args:
@@ -253,7 +253,8 @@ class read_output(IOread):
         """
         
         filename = os.path.join(self.workdir,output)
-        data,info = read_XYZ(filename,is_charges=is_charges, keep=keep)
+        data,info = read_XYZ(filename,is_charges=is_charges, velocities=velocities, keep=keep)
+        
 
         if len(data)==2:
             self.complet_results["input_geometry"]  = data[0]

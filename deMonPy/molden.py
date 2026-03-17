@@ -11,7 +11,7 @@ np  = optional_import("numpy")
 ase = optional_import("ase")
 
 
-def _read_xyz_ext(fileobj, is_charges=True, keep=1):
+def _read_xyz_ext(fileobj, is_charges=True, velocities=False, keep=1):
     info = []
     lines = fileobj.readlines()
     if lines[0] == "\n":
@@ -24,7 +24,7 @@ def _read_xyz_ext(fileobj, is_charges=True, keep=1):
     while len(lines) > 0:
 
         symbols = []
-        positions,charges = [],[]
+        positions,charges,veloc = [],[],[]
         natoms = int(lines.pop(0))
         comment = lines[0]
         info.append(  comment  )
@@ -44,6 +44,9 @@ def _read_xyz_ext(fileobj, is_charges=True, keep=1):
                 symbols.append(symbol)
                 positions.append([float(x), float(y), float(z)])
                 charges.append( float(c) )
+                if velocities:
+                    vx, vy, vz = line.split()[5:8]
+                    veloc.append([float(vx), float(vy), float(vz)])
             else:
                 symbol, x, y, z = line.split()[:4]
                 symbol = symbol.lower().capitalize()
@@ -59,16 +62,19 @@ def _read_xyz_ext(fileobj, is_charges=True, keep=1):
                 img = ase.Atoms(
                     symbols, 
                     positions=positions,
-                    charges=charges
+                    charges=charges,
+                    velocities=veloc if velocities else None
                 )
             elif np:
                 img = {'symbols':np.array(symbols), 
                        'positions':np.array(positions), 
-                       'charges':np.array(charges)}
+                       'charges':np.array(charges),
+                       'velocities':np.array(veloc) if velocities else None}
             else:
                 img = {'symbols':symbols, 
                        'positions':positions, 
-                       'charges':charges}
+                       'charges':charges,
+                       'velocities':veloc if velocities else None}
 
             
 

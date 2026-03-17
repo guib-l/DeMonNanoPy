@@ -309,8 +309,12 @@ class deMonNano(BasicCalculation):
         self._wo._read_neb()
 
         # Geometry reading
+        is_md = False
+        if "md" in self.flags:
+            is_md = True
         self._wo.read_geometry(output='deMon.mol',
-                               is_charges=False, 
+                               is_charges=True, 
+                               velocities=is_md,
                                keep=1,)
         
         self.results = self._wo.complet_results
