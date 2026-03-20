@@ -77,12 +77,32 @@ def exemple_run_md_velocities():
 
     mod.print_results()
 
+def exemple_run_restart_md():
+    
+    mod = Module_DeMonNano(
+        module="md", 
+        title="CALCULATION DEMONANO",
+        execut="~/Documents/dev_deMon/deMon.x",
+        workdir=WORKDIR,
+        **parameters
+    )
+
+    mod(image=image, temp=10)
+
+    mod.print_results()
+    print("Restarting MD with previous results...")
+    mod(restart=True,max_steps=15, out=5)
+
+    mod.print_results()
+
 
 if __name__=='__main__':
 
     exemple_run_md()
 
     exemple_run_md_velocities()
+
+    exemple_run_restart_md()
 
 
 

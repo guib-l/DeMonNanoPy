@@ -291,6 +291,8 @@ class deMonNano(BasicCalculation):
 
     def read_output(self,):
         """Parse deMonNano output files and update cached results."""
+        is_md = False
+        is_charges = False
 
         # Parameters
         self._wo.read_file()
@@ -309,11 +311,12 @@ class deMonNano(BasicCalculation):
         self._wo._read_neb()
 
         # Geometry reading
-        is_md = False
         if "md" in self.flags:
+            is_charges = True
             is_md = True
+
         self._wo.read_geometry(output='deMon.mol',
-                               is_charges=True, 
+                               is_charges=is_charges, 
                                velocities=is_md,
                                keep=1,)
         

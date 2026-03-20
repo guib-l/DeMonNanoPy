@@ -26,14 +26,15 @@ class _dyn(modules):
         super().__init__(context=context, **kwargs)
 
         self._module_parameters = None
+        self._old_context_parameters = None
 
-    def update_mddynamics(self, velocities=None,temp=300, wall=None):
-
+    def update_mddynamics(self, velocities=None, temp=300, wall=None):
+        
         params = self.context.parameters["DEMON_MODULE"]["ACTIVE"]["MD"]['MDYNAMICS']
-
-        params["READ"] = {"VELOCITIES": velocities} if velocities is not None else False
+        params["READ"] = {"VELOCITIES": list(velocities)} if velocities is not None else False
         params["RANDOM"] = temp 
         params["WALL"] = wall
+
 
 
     def update_mdstep(self, max=100, out=1):
@@ -49,30 +50,10 @@ class _dyn(modules):
         params["TRAJECTORY"] = out_traj
 
 
-    def restart(self, **kwds):
-
-        image = kwds.pop("image", None)
-        if not image:
-            image = self.context.results["output_geometry"]
-
-        try:
-            velocities = image.get_velocities()
-        except Exception as e:
-            print(f"Warning: Could not retrieve velocities from the image. Error: {e}")
-            velocities = None
-        
-        kwds["velocities"] = velocities
-        
-        self._module_parameters.update(**kwds)
-        
-        self.forward(
-            image=image,
-            **self._module_parameters
-        )
 
     def forward(
             self, 
-            image,
+            image=None,
             restart=False,
             temp=300,
             velocities=None,
@@ -83,9 +64,20 @@ class _dyn(modules):
             out_traj=True,
             **args):
         
+        if restart:
+
+            image = self.context.results.get("output_geometry", None)
+
+            try:
+                velocities = image.get_velocities()
+            except Exception as e:
+                print(f"Warning: Could not retrieve velocities from the image. Error: {e}")
+                velocities = None
+                
+
+            self.context.parameters = self._old_context_parameters.copy() 
         
         self._module_parameters = dict(
-            restart=restart,
             velocities=velocities,
             temp=temp,
             timestep=timestep,
@@ -97,16 +89,22 @@ class _dyn(modules):
         )
 
 
+
         self.update_mddynamics(velocities, temp, wall)
         self.update_mdstep(max_steps, out)
         self.add_trajectory_output(out_traj)
         self.update_time_step(timestep)
 
+        self._old_context_parameters = self.context.parameters.copy()
+
+
         self.update_parameters(self.context.parameters)
         
 
+        
         self.context.calculate(
             symbols=image.symbols,
             positions=image.positions
         )
+        return 
         

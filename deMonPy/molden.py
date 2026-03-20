@@ -11,7 +11,7 @@ np  = optional_import("numpy")
 ase = optional_import("ase")
 
 
-def _read_xyz_ext(fileobj, is_charges=True, velocities=False, keep=1):
+def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1):
     info = []
     lines = fileobj.readlines()
     if lines[0] == "\n":
