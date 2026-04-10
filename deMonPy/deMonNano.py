@@ -4,7 +4,7 @@ import __future__
 # Import standard de python3
 import os,sys
 import numpy as np
-
+import glob
 
 
 import deMonPy
@@ -175,6 +175,11 @@ class deMonNano(BasicCalculation):
                                flags=self.flags,
                                output="deMon.out")
         
+    def clean_workdir(self,):
+        files = glob.glob(os.path.join(self.workdir,"*"))
+        for f in files:
+            os.remove(f)
+                
     def reset(self,):
         """Clear stored states, results, and active flags."""
         
@@ -320,6 +325,7 @@ class deMonNano(BasicCalculation):
                                velocities=is_md,
                                keep=1,)
         
+        self._wo.read_errors()
         self.results = self._wo.complet_results
 
     def print_results(self, files=sys.stdout):

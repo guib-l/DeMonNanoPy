@@ -233,7 +233,8 @@ class write_input:
             veloc = False
             if hasattr(read,"keys") and "VELOCITIES" in read.keys():
                 
-                if read["VELOCITIES"]is not None and read["VELOCITIES"]!=[]:
+                if read["VELOCITIES"] is not None and len(read["VELOCITIES"])>0:
+                    
                     value = range(1,len(read["VELOCITIES"])+1)
                     txt = self._write_table(read["VELOCITIES"],value)
                     veloc = txt
@@ -278,7 +279,7 @@ class write_input:
             self.io_lines["CARPAR"] = self.handler_writen(params.pop('CARPAR'))
 
         if "TRAJECTORY" in params:
-            if params["TRAJECTORY"]:
+            if params.pop("TRAJECTORY",None):
                 self.flags.add("traj")
 
 

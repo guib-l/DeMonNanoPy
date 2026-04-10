@@ -10,7 +10,11 @@ import deMonPy
 from deMonPy.molden import read_XYZ
 from deMonPy.profile import assert_flags,exclude_flags
 
-
+def convert_float(val, safe=False):
+    try:
+        return float(val)
+    except ValueError:
+        return val if not safe else None
 
 class IOread(object):
     """Base helper providing low-level parsing utilities for output files."""
@@ -255,7 +259,7 @@ class read_output(IOread):
         filename = os.path.join(self.workdir,output)
         data,info = read_XYZ(filename,is_charges=is_charges, velocities=velocities, keep=keep)
         
-
+        
         if len(data)==2:
             self.complet_results["input_geometry"]  = data[0]
             self.complet_results["output_geometry"] = data[-1]
@@ -265,6 +269,13 @@ class read_output(IOread):
             if "traj" in self.flags:
                 self.complet_results["trajectory"] = data
             self.complet_results["output_geometry"] = data[-1]
+
+        if "md" in self.flags:
+            self.complet_results["time"] = info[:,3]
+            self.complet_results["potential_energy"] = info[:,0]
+            self.complet_results["kinetic_energy"] = info[:,1]
+            self.complet_results["total_energy"] = info[:,2]
+            
 
 
 
@@ -375,13 +386,68 @@ class read_output(IOread):
     @assert_flags("freq")
     def read_freq(self):
         """Parse vibrational frequency results."""
-        pass
+        freq,temp = [],[]
+        zpe,Nbatm = 0.00,0
+
+        for line in self.lines:
+            if 'NUMBER OF ATOMS:' in line:
+                Nbatm = int(line.split()[-1])
+            if 'ZERO-POINT ENERGY =' in line:
+                zpe = float(line.split()[3])
+
+            self.compute_block(
+                line, "MODE:", "", 6 + Nbatm
+            )
+
+            if self.counter==0 and self._block!="":
+                temp.append(self._block)
+                self._block = ""
+
+        for frq in temp:
+            mode,frequency,intensity,vect = 0,0.0,0.0,np.zeros((Nbatm,3))
+
+            for line in frq.split('\n'):
+                if self.is_inside(control='MODE:', line=line ):
+                    mode = int(line.split()[1])
+                if self.is_inside(control='FREQUENCY:', line=line ):
+                    frequency = float(line.split()[1])
+                if self.is_inside(control='INTENSITY:', line=line ):
+                    intensity = float(line.split()[1])
+
+            table = []
+            for lin in frq.split('\n')[6:-1]:
+                valeurs = lin.strip().split()
+                nombres = [convert_float(v, False) for v in valeurs]
+                table.append(nombres)
+            
+            table = np.array(table)[:,2:]
+
+            freq.append( {
+                    "mode":mode,
+                    "frequency":frequency,
+                    "intensity":intensity,
+                    "vect":table
+                } )
+
+
+
+        self.complet_results["frequency"] = freq
+
+        self.complet_results["zpe"] = zpe
+
 
     @assert_flags("debug")
     def read_debug(self):
         """Parse debug output sections."""
         raise NotImplemented
-
+    
+    def read_errors(self,):
+        err = []
+        for line in self.lines:
+            if 'ERROR :' in line:
+                _str = line.split(':')[-1]
+                err.append(_str.strip())
+        self.complet_results["errors"] = err
 
 
     # =================================

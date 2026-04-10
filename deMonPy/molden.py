@@ -11,6 +11,12 @@ np  = optional_import("numpy")
 ase = optional_import("ase")
 
 
+def convert_float(val, safe=False):
+    try:
+        return float(val)
+    except ValueError:
+        return val if not safe else None
+
 def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1):
     info = []
     lines = fileobj.readlines()
@@ -27,9 +33,19 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1):
         positions,charges,veloc = [],[],[]
         natoms = int(lines.pop(0))
         comment = lines[0]
-        info.append(  comment  )
         
-        lines.pop(0)  # Comment line; ignored
+        if not velocities:
+            info.append(  comment  )
+            lines.pop(0)  # Comment line; ignored
+        else:
+            comment = lines.pop(0)  # Comment line; ignored
+            #print(comment.split()[2:])
+            
+            _values = list(map(float,comment.split()[2:]))
+            #print(_values)
+            info.append( [*_values[:4]] )
+            
+
         
         nread = natoms
         while nread>0:
@@ -63,18 +79,18 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1):
                     symbols, 
                     positions=positions,
                     charges=charges,
-                    velocities=veloc if velocities else None
+                    velocities=np.array(veloc) / ase.units.fs if velocities else None
                 )
             elif np:
                 img = {'symbols':np.array(symbols), 
                        'positions':np.array(positions), 
                        'charges':np.array(charges),
-                       'velocities':np.array(veloc) if velocities else None}
+                       'velocities':np.array(veloc) / ase.units.fs if velocities else None}
             else:
                 img = {'symbols':symbols, 
                        'positions':positions, 
                        'charges':charges,
-                       'velocities':veloc if velocities else None}
+                       'velocities':veloc / ase.units.fs if velocities else None}
 
             
 

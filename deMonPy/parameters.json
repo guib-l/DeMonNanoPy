@@ -18,7 +18,6 @@
                 "SIMPLE":false,
                 "L-DEP":false,
                 "FERMI":0.0,
-                "THRID":false,
                 "DISP":1,
                 "LEV_S":0.0
             },
@@ -81,7 +80,7 @@
                 "GRADTOL":4e-6,
                 "STEP":0.3,
                 "CGRAD":true,
-                "SDC":0.1,
+                "SDC":false,
                 "OUT":1,
                 "NUCFRIC":false,
                 "TRAJECTORY":true

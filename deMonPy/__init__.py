@@ -5,6 +5,16 @@ from deMonPy.modules.quench import _relax_geometry
 from deMonPy.modules.ptmc import _ptmc
 from deMonPy.modules.dyn import _dyn
 
+
+"""
+Available module in the deMonNanoAPI
+ - opt  : Optimization
+ - ptmc : Paralel Tempering Monte Carlo
+ - md   : Simple molecular dynamics
+ 
+"""
+
+
 available_modules = {
     "opt":{
         "module":_relax_geometry,
