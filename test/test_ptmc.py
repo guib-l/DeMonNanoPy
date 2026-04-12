@@ -1,6 +1,5 @@
+import os
 
-import pytest
-import configs
 import numpy as np
 
 import copy
@@ -10,16 +9,22 @@ from ase.atoms import Atoms
 from deMonPy.deMonNano import deMonNano
 from deMonPy.deMonNano import Module_DeMonNano
 
+import deMonPy
+from deMonPy.deMonNano import deMonNano
+
+
+deMonPy.configure_from_file(os.path.join("..", "global.json"))
+
 parameters = {
-    "DEMON_EXECUTABLE":configs.EXECUTABLE,
+    "DEMON_EXECUTABLE":deMonPy.DEMON_EXECUTABLE,
     "BASIS":{
         "PTYPE":"BIO",
-        "SKFILE":"../basis"
+        "SKFILE":deMonPy.DEMON_BASIS
     },
     "DEMON_PARAMETERS":{
         "ACTIVE":{
             "DFTB":{
-                "SCC":True,
+                "SCC":True
             },
         },
     }
@@ -50,9 +55,7 @@ class TestOptimization:
         mod = Module_DeMonNano(
             module="opt", 
             title="CALCULATION DEMONANO",
-            basis={},
-            execut="~/Documents/dev_deMon/deMon.x",
-            workdir=".run/",
+            workdir=WORKDIR,
             **parameters
         )
 

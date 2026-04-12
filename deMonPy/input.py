@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-import __future__
-
 import sys
 # Import standard de python3
 import os

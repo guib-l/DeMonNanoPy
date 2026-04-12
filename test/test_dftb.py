@@ -1,4 +1,5 @@
 import sys
+import os
 
 import pytest
 #import configs
@@ -11,19 +12,22 @@ from ase.atoms import Atoms
 from deMonPy.deMonNano import deMonNano
 from deMonPy.deMonNano import Module_DeMonNano
 
+import deMonPy
+from deMonPy.deMonNano import deMonNano
 
-EXECUTABLE = "~/Documents/dev_deMon/deMon.x"
-BASIS = "~/Documents/DeMonNanoPy/test/basis"
+
+deMonPy.configure_from_file(os.path.join("..", "global.json"))
 
 parameters = {
-    "DEMON_EXECUTABLE":EXECUTABLE,
+    "DEMON_EXECUTABLE":deMonPy.DEMON_EXECUTABLE,
     "BASIS":{
         "PTYPE":"BIO",
-        "SKFILE":BASIS
+        "SKFILE":deMonPy.DEMON_BASIS
     },
     "DEMON_PARAMETERS":{
         "ACTIVE":{
             "DFTB":{
+                "SCC":True
             },
         },
     }
@@ -53,7 +57,7 @@ class TestDftbBasis:
             {
                 "BASIS":{
                     "PTYPE":"NSC",
-                    "SKFILE":BASIS
+                    "SKFILE":deMonPy.DEMON_BASIS
                 },
                 "DEMON_PARAMETERS":{
                     "ACTIVE":{
@@ -87,7 +91,7 @@ class TestDftbBasis:
             {
                 "BASIS":{
                     "PTYPE":"BIO",
-                    "SKFILE":BASIS
+                    "SKFILE":deMonPy.DEMON_BASIS
                 },
                 "DEMON_PARAMETERS":{
                     "ACTIVE":{
@@ -121,7 +125,7 @@ class TestDftbBasis:
             {
                 "BASIS":{
                     "PTYPE":"MAT",
-                    "SKFILE":BASIS
+                    "SKFILE":deMonPy.DEMON_BASIS
                 },
                 "DEMON_PARAMETERS":{
                     "ACTIVE":{

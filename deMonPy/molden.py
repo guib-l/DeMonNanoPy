@@ -16,6 +16,7 @@ def convert_float(val, safe=False):
         return float(val)
     except ValueError:
         return val if not safe else None
+    
 
 def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1):
     info = []

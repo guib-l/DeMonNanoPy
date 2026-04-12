@@ -4,8 +4,6 @@ import __future__
 import os
 import sys
 
-import configs
-
 import deMonPy
 from deMonPy.profile import read_json
 from deMonPy.deMonNano import deMonNano
@@ -13,12 +11,15 @@ from deMonPy.deMonNano import deMonNano
 from deMonPy.deMonNano import Module_DeMonNano
 
 import numpy as np
-import ase 
+import ase
 from ase.atoms import Atoms
 
 import json
 
-parameter_config = read_json("./config.json")
+
+deMonPy.configure_from_file(os.path.join("..", "global.json"))
+
+parameter_config = read_json("config.json")
 
 
 if __name__=='__main__':
@@ -37,8 +38,6 @@ if __name__=='__main__':
 
     dem = deMonNano(
         title="CALCULATION DEMONANO",
-        basis={},
-        execut="~/Documents/dev_deMon/deMon.x",
         workdir=".run/",
         **parameter_config
     )
@@ -50,17 +49,13 @@ if __name__=='__main__':
 
     dem.print_results()
 
-    
+
     mod = Module_DeMonNano(
-        module="mc", 
+        module="mc",
         title="CALCULATION DEMONANO",
-        basis={},
-        execut="~/Documents/dev_deMon/deMon.x",
         workdir=".run/",
         **parameter_config
     )
-
-    mod(image=image, max=10)
 
     
     

@@ -1,10 +1,12 @@
-
+import os
 import numpy as np
 
 import copy
 from copy import deepcopy
 
 from ase.atoms import Atoms
+
+import deMonPy
 from deMonPy.deMonNano import deMonNano
 
 # [MANDATORY]
@@ -12,18 +14,17 @@ from deMonPy.deMonNano import deMonNano
 # Where the calculation is done
 WORKDIR = ".run/opt/"
 
-# Where is bryan (executable)
-EXECUTABLE = "~/Documents/dev_deMon/deMon.x"
-BASIS = "~/Documents/DeMonNanoPy/test/basis"
+deMonPy.configure_from_file(os.path.join("..", "global.json"))
+
 
 def MyFirstCalculation():
 
     # Minimal parameters
     parameters = {
-        "DEMON_EXECUTABLE":EXECUTABLE,
+        "DEMON_EXECUTABLE":deMonPy.DEMON_EXECUTABLE,
         "BASIS":{
             "PTYPE":"BIO",
-            "SKFILE":BASIS
+            "SKFILE":deMonPy.DEMON_BASIS
         },
         "DEMON_PARAMETERS":{
             "ACTIVE":{
@@ -70,9 +71,9 @@ def MyFirstCalculation():
                                     "VELOCITIES":[]
                                 },
                                 "RESET":False,
-                                "WALL":12.,
-                                "EXP":1.0,
-                                "ENER":0.1,
+                                "WALL":None,
+                                "EXP":None,
+                                "ENER":None,
                             },
                             "TIMESTEP":0.4,
                             "MDSTEP":{

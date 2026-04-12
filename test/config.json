@@ -1,8 +1,8 @@
 {
-    "DEMON_EXECUTABLE":"~/Documents/dev_deMon/deMon.x",
+    "DEMON_EXECUTABLE":"~/Documents/DeMonNano/deMon.static-website.x",
     "BASIS":{
         "PTYPE":"BIO",
-        "SKFILE":"../basis"
+        "SKFILE":"~/Documents/DeMonNano/basis"
     },
     "DEMON_PARAMETERS":{
         "ACTIVE":{

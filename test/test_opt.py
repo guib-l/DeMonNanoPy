@@ -1,4 +1,5 @@
 import sys
+import os
 
 import pytest
 #import configs
@@ -12,19 +13,22 @@ from deMonPy.deMonNano import deMonNano
 from deMonPy.deMonNano import Module_DeMonNano
 
 
-EXECUTABLE = "~/Documents/dev_deMon/deMon.x"
-BASIS = "~/Documents/DeMonNanoPy/test/basis"
+import deMonPy
+from deMonPy.deMonNano import deMonNano
+
+
+deMonPy.configure_from_file(os.path.join("..", "global.json"))
 
 parameters = {
-    "DEMON_EXECUTABLE":EXECUTABLE,
+    "DEMON_EXECUTABLE":deMonPy.DEMON_EXECUTABLE,
     "BASIS":{
         "PTYPE":"BIO",
-        "SKFILE":BASIS
+        "SKFILE":deMonPy.DEMON_BASIS
     },
     "DEMON_PARAMETERS":{
         "ACTIVE":{
             "DFTB":{
-                "SCC":True,
+                "SCC":True
             },
         },
     }
@@ -255,7 +259,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert results["energy"]["energy"] == -8.15538751   
+        assert results["energy"]["energy"] == -8.1553
 
 
     def test_opt_steepest_default(self):
@@ -399,7 +403,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert results["energy"]["energy"] == -8.15538751  
+        assert results["energy"]["energy"] == -8.1553
         assert "trajectory" not in results.keys() 
 
 

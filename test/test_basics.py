@@ -7,17 +7,18 @@ import numpy as np
 from copy import deepcopy
 
 from ase.atoms import Atoms
+
+import deMonPy
 from deMonPy.deMonNano import deMonNano
 
 
-EXECUTABLE = "~/Documents/dev_deMon/deMon.x"
-BASIS = "~/Documents/DeMonNanoPy/test/basis"
+deMonPy.configure_from_file(os.path.join("..", "global.json"))
 
 parameters = {
-    "DEMON_EXECUTABLE":EXECUTABLE,
+    "DEMON_EXECUTABLE":deMonPy.DEMON_EXECUTABLE,
     "BASIS":{
         "PTYPE":"BIO",
-        "SKFILE":BASIS
+        "SKFILE":deMonPy.DEMON_BASIS
     },
     "DEMON_PARAMETERS":{
         "ACTIVE":{
@@ -77,7 +78,7 @@ class TestFreq:
 
         parameter_config = deepcopy(parameters)
         parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(
-            {"FREQ":10,}
+            {"FREQ":{"VIB":10},}
         )
         dem = deMonNano(
             title="CALCULATION DEMONANO",

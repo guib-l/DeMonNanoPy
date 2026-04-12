@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import __future__
 
 # Import standard de python3
 import os
@@ -127,7 +126,7 @@ class IOread(object):
             bool: True when the substring is found.
         """
         if control in line: return  True
-        else: False
+        else: return False
 
 
 
@@ -439,7 +438,7 @@ class read_output(IOread):
     @assert_flags("debug")
     def read_debug(self):
         """Parse debug output sections."""
-        raise NotImplemented
+        raise NotImplementedError
     
     def read_errors(self,):
         err = []
