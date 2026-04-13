@@ -97,7 +97,7 @@ class write_input:
 
 
 
-    def handler_writen(self, params):
+    def handler_writen(self, params, bind_str=" "):
         """Convert a parameter dictionary into inline deMonNano tokens.
 
         Args:
@@ -121,7 +121,7 @@ class write_input:
             elif isinstance(item,(float,int)):
                 _inline.append( f"{key}={item}" )
             elif isinstance(item,str):
-                _inline.append( f"{key} {item}" )
+                _inline.append( f"{key}{bind_str}{item}" )
             else:
                 pass
         return _inline
@@ -163,9 +163,9 @@ class write_input:
             params = self.module["OPT"]
 
         self.flags.remove("opt")
-        if "TRAJECTORY" in params:
-            if params.pop("TRAJECTORY",None):
-                self.flags.add("traj")
+        
+        if params.pop("TRAJECTORY",False):
+            self.flags.add("traj")
                 
         self.io_lines["OPTIMIZATION"] = []
 
@@ -188,13 +188,16 @@ class write_input:
         if params is None:
             params = self.module["PTMC"]
 
+        if params.pop("TRAJECTORY",False):
+            self.flags.add("traj")
+            
         if "SEED" in params["MC"].keys():
             if params["MC"]["SEED"] is True:
                 params["MC"]["SEED"] = np.random.randint(1,99999)
 
         self.io_lines["MONTECARLO"] = self.handler_writen(params.pop('MC'))
 
-        self.io_lines["MCTEMP"] = self.handler_writen(params.pop('MCTEMP'))
+        self.io_lines["MCTEMP"] = self.handler_writen(params.pop('MCTEMP'),bind_str="=")
 
 
 
@@ -242,6 +245,23 @@ class write_input:
         self.io_lines["MDYNAMICS"] = self.handler_writen(params)
 
         
+    def _io_write_bath(self, params=None,):
+
+        temp = ["SCAL","BERE","NOSE","LANGE","STOCH_R","ANDERSEN","LOCA"]
+
+        _is_thermo = 0
+        for elm in temp:
+            if params[elm]: _is_thermo += 1
+
+        if not params["NOSE"]:
+            params["NTHER"] = None
+            params["FREQTH"] = None
+
+        if _is_thermo==0:
+            return
+        elif _is_thermo==1:
+            self.io_lines["MDBATH"] = self.handler_writen(params)
+
 
     @assert_flags("md")
     def _write_md(self, params=None):
@@ -249,8 +269,7 @@ class write_input:
 
         Args:
             params: Molecular dynamics parameter block.
-        """
-        
+        """        
         if params is None:
             params = self.module["MD"]
                     
@@ -271,7 +290,11 @@ class write_input:
             self.io_lines["CONSERVE"] = self.handler_writen(params.pop('CONSERVE'))
 
         if 'MDBATH' in params.keys():
-            self.io_lines["MDBATH"] = self.handler_writen(params.pop('MDBATH'))
+            self._io_write_bath(params.pop('MDBATH'))
+
+        if 'PARATEMP' in params.keys():
+            self.flags.add("ptmd")
+            self.io_lines["PARATEMP"] = self.handler_writen(params.pop('PARATEMP'))
 
         if 'CARPAR' in params.keys():
             self.io_lines["CARPAR"] = self.handler_writen(params.pop('CARPAR'))
@@ -470,8 +493,8 @@ class write_input:
         
         if isinstance(params, bool):
             self.io_lines['FREQUENCY'] = []
-        if isinstance(params, float):
-            self.io_lines[f'FREQUENCY={params}'] = []
+        if isinstance(params, dict):
+            self.io_lines[f'FREQUENCY VIB={params['VIB']}'] = []
     
 
     @assert_flags("qmmm")

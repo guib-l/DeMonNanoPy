@@ -45,7 +45,8 @@ image = Atoms(
         ])
     )
 
-WORKDIR = ".run/dftb/"
+WORKDIR = ".run/basics/"
+
 
 
 class TestDftbBasis:
@@ -153,6 +154,7 @@ class TestDftbBasis:
         assert results["energy"]["energy"] == -8.08755742 
 
 
+WORKDIR = ".run/dftb/"
 
 class TestDftb:
 
@@ -456,6 +458,8 @@ class TestDftb:
             title="CALCULATION DEMONANO",
             workdir=WORKDIR,
             **copy_parameters )
+        
+        mod.clean_workdir()
             
         mod.calculate(
             symbols=image.symbols,

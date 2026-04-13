@@ -12,10 +12,11 @@ from deMonPy.deMonNano import deMonNano
 # [MANDATORY]
 
 # Where the calculation is done
-WORKDIR = ".run/opt/"
+WORKDIR = ".run/basics/"
 
 deMonPy.configure_from_file(os.path.join("..", "global.json"))
-
+print(deMonPy.DEMON_EXECUTABLE)
+print(deMonPy.DEMON_BASIS)
 
 def MyFirstCalculation():
 
@@ -60,31 +61,22 @@ def MyFirstCalculation():
     
     parameters.update(
             {
-                "DEMON_MODULE":{
+                "DEMON_PARAMETERS":{
                     "ACTIVE":{
-                        "MD":{
-                            "MDYNAMICS":{
-                                "ZERO":False,
-                                "RANDOM":300,
-                                "RAN":False,
-                                "READ":{
-                                    "VELOCITIES":[]
-                                },
-                                "RESET":False,
-                                "WALL":None,
-                                "EXP":None,
-                                "ENER":None,
-                            },
-                            "TIMESTEP":0.4,
-                            "MDSTEP":{
-                                "MAX":500,
-                                "OUT":1,
-                                "SOUT":1,
-                                "TSIM":None
-                            },
-                            "MDTEMP":300   ,
-                            "TRAJECTORY":True
-                            },
+                        "DFTB":{
+                            "SCC":True,
+                            "TOL":1e-8,
+                            "MEMOSCC":False,
+                            "POLA":False,
+                            "MAX":100,
+                            "MIX":0.2,
+                            "SIMPLE":False,
+                            "L-DEP":True,
+                            "FERMI":None,
+                            "THRID":False,
+                            "DISP":False,
+                            "LEV_S":None
+                        },
                     },
                 }
             }

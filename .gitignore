@@ -1,7 +1,14 @@
+# IA tools
+CLAUDE.md
+.claude/
+
+# Enivironment local
 .env/
 basis/
 data/
 archive/
+global.json
+.suspect_problems.md
 
 # DeMonNano files
 .run/

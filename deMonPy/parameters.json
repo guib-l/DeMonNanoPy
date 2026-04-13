@@ -152,6 +152,15 @@
                     "NTHER":4,
                     "FREQTH":100
                 },
+                "PARATEMP":{
+                    "TMINIMUM":100,
+                    "TMAXIMUM":300,
+                    "NUMREP":3,
+                    "NBREQ":100,
+                    "EXSTEP":10,
+                    "SHORT":false,
+                    "LINEAR":false
+                },
                 "MDTEMP":300,
                 "CARPAR":{
                     "FOM":null,

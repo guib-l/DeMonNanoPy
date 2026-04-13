@@ -100,8 +100,6 @@ class TestMDbasic:
         kine = results["kinetic_energy"]
         tote = results["total_energy"]
 
-        print( np.sum((tote - (pote+kine))[1:]) )
-
         assert np.sum((tote - (pote+kine))[1:]) <= 1e-5
         
 
@@ -281,7 +279,8 @@ class TestMDbasic:
         traj = results["trajectory"]
         temperature = [atm.get_temperature() for atm in traj]
 
-        assert temperature[0]<224.1 and temperature[0]>223.9
+        diff = np.abs(temperature[0] - 224)
+        assert diff < 0.1, "Starting temperature of RAN parameters is not tacken into account"
 
         velocity = traj[0].get_velocities()
         #print( traj[0].get_angular_momentum( ) )
@@ -428,10 +427,61 @@ class TestMDbasic:
         traj = results["trajectory"]
         temperature = [atm.get_temperature() for atm in traj]
 
-        assert temperature[0]<482.1 and temperature[0]>481.9
+        assert temperature[0]<224.1 and temperature[0]>223.9
 
-        velocity = traj[0].get_velocities()
 
+    def test_md_reset(self):
+        
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_MODULE":{
+                    "ACTIVE":{
+                    "MD":{
+                        "MDYNAMICS":{
+                            "ZERO":True,
+                            "RANDOM":300,
+                            "RAN":True,
+                            "READ":{
+                                "VELOCITIES":[]
+                            },
+                            "RESET":True,
+                            "WALL":None,
+                            "EXP":None,
+                            "ENER":None
+                        },
+                        "TIMESTEP":0.4,
+                        "MDSTEP":{
+                            "MAX":1500,
+                            "OUT":1,
+                            "SOUT":1,
+                            "TSIM":None
+                        },
+                        "MDTEMP":300,
+                        "TRAJECTORY":True 
+                        },
+                    },
+                }
+            }
+        )
+
+        mod = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **copy_parameters
+        )
+
+        mod.calculate(
+            symbols=image.symbols,
+            positions=image.positions
+        )
+
+        results = mod.results
+        pote = results["potential_energy"]
+        kine = results["kinetic_energy"]
+        tote = results["total_energy"]
+
+        assert np.sum((tote - (pote+kine))[1:]) <= 1e-5
 
 
 

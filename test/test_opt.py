@@ -49,9 +49,6 @@ image = Atoms(
 WORKDIR = ".run/opt/"
 
 
-
-
-
 class TestOptimization:
 
     def test_opt_basic(self):
@@ -259,7 +256,8 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert results["energy"]["energy"] == -8.1553
+        diff = np.abs(results["energy"]["energy"] - -8.15538751)
+        assert diff < 1e-5, 'Errors in CGRAD'
 
 
     def test_opt_steepest_default(self):
@@ -295,6 +293,7 @@ class TestOptimization:
         )
         results = mod.results
         assert results["energy"]["energy"] == -8.14859822   
+        assert results["errors"][0] == "optimization not converged"
 
 
     def test_opt_steepest(self):
@@ -330,6 +329,7 @@ class TestOptimization:
         )
         results = mod.results
         assert results["energy"]["energy"] == -8.14858038   
+        assert results["errors"][0] == "optimization not converged"
 
 
     def test_opt_out(self):
@@ -347,7 +347,6 @@ class TestOptimization:
                             "STEP":0.3,
                             "CGRAD":True,
                             "SDC":False,
-                            "NUCFRIC":False,
                             "TRAJECTORY":True
                         },
                     },
@@ -367,7 +366,6 @@ class TestOptimization:
         results = mod.results
         assert results["energy"]["energy"] == -8.14955388  
         assert len(results["trajectory"]) == 3
-        #print(" > FAILED IN PRACTICE")
 
 
 
@@ -403,7 +401,8 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert results["energy"]["energy"] == -8.1553
+        diff = np.abs(results["energy"]["energy"] - -8.15538751)
+        assert diff < 1e-5, 'Errors TRAJECTORY optimization'
         assert "trajectory" not in results.keys() 
 
 

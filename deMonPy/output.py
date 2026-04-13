@@ -347,6 +347,12 @@ class read_output(IOread):
     @assert_flags("td-dftb")
     def read_tddftb(self):
         """Parse TD-DFTB singlet and triplet transitions."""
+
+        msg = "LINEAR RESPONSE FOR CLOSED SHELL MOLECULES ONLY."
+        for line in self.lines:
+            if msg in line:
+                self.complet_results["errors"] = [msg.lower()]
+                return 
         
         args = {}
         for line in self.lines:
@@ -428,8 +434,6 @@ class read_output(IOread):
                     "vect":table
                 } )
 
-
-
         self.complet_results["frequency"] = freq
 
         self.complet_results["zpe"] = zpe
@@ -441,11 +445,19 @@ class read_output(IOread):
         raise NotImplementedError
     
     def read_errors(self,):
-        err = []
+        err = self.complet_results["errors"] if "errors" in self.complet_results.keys()  else  []
         for line in self.lines:
             if 'ERROR :' in line:
                 _str = line.split(':')[-1]
                 err.append(_str.strip())
+
+        msg = ["optimization not converged",]
+        for line in self.lines:
+            for m in msg:
+                if m in line:
+                    err.append(m)
+
+
         self.complet_results["errors"] = err
 
 
@@ -455,12 +467,82 @@ class read_output(IOread):
     @assert_flags("opt")
     def _read_opt(self):
         """Parse optimization-specific output sections."""
-        pass
 
     @assert_flags("ptmc")
     def _read_ptmc(self):
         """Parse PTMC-specific output sections."""
-        pass
+        import re
+        text = '\n'.join(self.lines)
+        data = {}
+
+        seed_match = re.findall(r"SEED\s*=\s*((?:\d+\s+)+)", text)
+        if seed_match:
+            seeds = list(map(int, seed_match[0].split()))
+            data["seeds"] = seeds
+
+        patterns = {
+            "nb_step": r"NB STEP\s*=\s*(\d+)",
+            "optout": r"OPTOUT\s*=\s*(\d+)",
+            "nb_temp": r"NB TEMP\s*=\s*(\d+)"
+        }
+
+        for key, pattern in patterns.items():
+            match = re.search(pattern, text)
+            if match:
+                data[key] = int(match.group(1))
+
+        temps = []
+        temp_matches = re.findall(r"\n\s*(\d+)\s+([\d\.]+)\s+([\d\.E\-\+]+)", text)
+
+        for idx, t, val in temp_matches:
+            temps.append({
+                "index": int(idx),
+                "temperature": float(t),
+                "value": float(val)
+            })
+
+        data["temperatures"] = temps
+
+        exchange = {}
+
+        # 👉 méthode
+        method_match = re.search(r"Method\s*:\s*(.+)", text)
+        if method_match:
+            exchange["method"] = method_match.group(1).strip()
+
+        start_match = re.search(r"Start after\s+(\d+)\s+steps", text)
+        if start_match:
+            exchange["start_after"] = int(start_match.group(1))
+
+        each_match = re.search(r"Each\s+(\d+)\s+step", text)
+        if each_match:
+            exchange["each_step"] = int(each_match.group(1))
+
+        prob_match = re.search(r"probability of swap\s*:\s*([\d\.]+)", text)
+        if prob_match:
+            exchange["swap_probability"] = float(prob_match.group(1))
+
+        data["exchange"] = exchange
+
+        self.complet_results['ptmc'] = data
+
+        _traj = {}
+        if 'traj' in self.flags:
+
+            for out in range(len(data["temperatures"])):
+                output = f"deMon.{(out+1):02}.mol"
+                filename = os.path.join(self.workdir,output)
+                data,info = read_XYZ(filename,is_charges=False, velocities=False, keep=1)
+
+                energies = np.array(list(map(lambda x:float(x.split()[2]),info)))
+
+                _traj[output] = {
+                    "trajectory":data,
+                    "energies":energies,
+                }
+
+            self.complet_results["trajectory"] = _traj
+
 
     @assert_flags("md")
     def _read_md(self):
