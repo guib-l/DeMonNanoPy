@@ -75,7 +75,6 @@ class TestDftbBasis:
             workdir=WORKDIR,
             **copy_parameters
         )
-
             
         mod.calculate(
             symbols=image.symbols,
@@ -621,7 +620,13 @@ class TestDftb:
             positions=image.positions )
 
         results = mod.results
-        assert results["energy"]["energy"] == -8.06209343 
+
+
+        assert np.allclose(
+            results["energy"]["energy"], 
+            -8.06209343, 
+            atol=1e-7
+        )
 
         
 

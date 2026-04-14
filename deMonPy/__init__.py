@@ -99,7 +99,7 @@ available_modules = {
                         "MDYNAMICS":{
                             "ZERO":True,
                             "RANDOM":300,
-                            "RAN":True,
+                            "RAN":False,
                             "READ":{
                                 "VELOCITIES":[]
                             },

@@ -114,7 +114,7 @@
                 "MDYNAMICS":{
                     "ZERO":true,
                     "RANDOM":300,
-                    "RAN":true,
+                    "RAN":false,
                     "READ":{
                         "VELOCITIES":[]
                     },

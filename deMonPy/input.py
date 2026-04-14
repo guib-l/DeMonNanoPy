@@ -243,7 +243,7 @@ class write_input:
             params["READ"] = veloc
 
         self.io_lines["MDYNAMICS"] = self.handler_writen(params)
-
+        
         
     def _io_write_bath(self, params=None,):
 

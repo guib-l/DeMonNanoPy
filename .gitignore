@@ -4,6 +4,7 @@ CLAUDE.md
 
 # Enivironment local
 .env/
+test_perso/
 basis/
 data/
 archive/

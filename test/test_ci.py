@@ -125,7 +125,6 @@ class TestDFTBCI:
         )
 
         results = dem.results
-        print(results)
         energy = results["energy"]
 
         

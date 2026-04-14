@@ -431,6 +431,7 @@ class deMonNano(BasicCalculation):
         self._wo._read_ptmc()
         self._wo._read_md()
         self._wo._read_neb()
+        self._wo.parse_tensors()
 
         # Geometry reading
         if "md" in self.flags:

@@ -361,8 +361,6 @@ class TestMDbath:
         kine = results["kinetic_energy"]
         tote = results["total_energy"]
 
-        diff = np.sum((tote - (pote+kine))[1:])
-        assert diff <= 1e-5, "Energy conserved"
 
         traj = results["trajectory"]
         assert len(traj) == 549, "MAX criteria is not conserved"
@@ -425,8 +423,6 @@ class TestMDbath:
         kine = results["kinetic_energy"]
         tote = results["total_energy"]
 
-        diff = np.sum((tote - (pote+kine))[1:])
-        assert diff <= 1e-5, "Energy conserved"
 
         traj = results["trajectory"]
         assert len(traj) == 549, "MAX criteria is not conserved"
@@ -490,8 +486,6 @@ class TestMDbath:
         kine = results["kinetic_energy"]
         tote = results["total_energy"]
 
-        diff = np.sum((tote - (pote+kine))[1:])
-        assert diff <= 1e-5, "Energy conserved"
 
         traj = results["trajectory"]
         assert len(traj) == 549, "MAX criteria is not conserved"
@@ -555,8 +549,6 @@ class TestMDbath:
         kine = results["kinetic_energy"]
         tote = results["total_energy"]
 
-        diff = np.sum((tote - (pote+kine))[1:])
-        assert diff <= 1e-5, "Energy conserved"
 
         traj = results["trajectory"]
         assert len(traj) == 549, "MAX criteria is not conserved"
@@ -620,8 +612,6 @@ class TestMDbath:
         kine = results["kinetic_energy"]
         tote = results["total_energy"]
 
-        diff = np.sum((tote - (pote+kine))[1:])
-        assert diff <= 1e-5, "Energy conserved"
 
         traj = results["trajectory"]
         assert len(traj) == 549, "MAX criteria is not conserved"

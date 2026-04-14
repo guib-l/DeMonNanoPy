@@ -460,6 +460,74 @@ class read_output(IOread):
 
         self.complet_results["errors"] = err
 
+    @exclude_flags(["ptmc","freq"])
+    def parse_tensors(self):
+
+        import re
+        text = '\n'.join(self.lines)
+        data = {}
+
+        # Helpers
+        def extract_vector(pattern):
+            match = re.search(pattern, text)
+            if match:
+                return [float(x) for x in match.groups()]
+            return None
+
+        # Scalars / vectors
+        data["mass_center"] = extract_vector(
+            r"mass center\s*=\s*([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)"
+        )
+        
+        data["charge_center"] = extract_vector(
+            r"charge center\s*=\s*([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)"
+        )
+
+        monopole = re.search(r"charge monopole\s*=\s*([-\d\.]+)", text)
+        if monopole:
+            data["charge_monopole"] = float(monopole.group(1))
+
+        data["charge_dipole"] = extract_vector(
+            r"charge dipole\s*=\s*([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)"
+        )
+
+        norme = re.search(r"norme dipole\s*=\s*([-\d\.]+)", text)
+        if norme:
+            data["dipole_norm"] = float(norme.group(1))
+
+        # Matrices
+        inertia = [[0]*3 for _ in range(3)]
+        quadrupole = [[0]*3 for _ in range(3)]
+
+        matrix_pattern = re.findall(
+            r"\(\s*(\d)\s*,\s*(\d)\s*\)\s*=\s*([-\d\.]+)\s+([-\d\.]+)",
+            text
+        )
+
+        for i, j, val1, val2 in matrix_pattern:
+            i, j = int(i)-1, int(j)-1
+            inertia[i][j] = float(val1)
+            quadrupole[i][j] = float(val2)
+
+        data["inertia_matrix"] = inertia
+        data["charge_quadrupole"] = quadrupole
+
+        # Eigenvalues
+        eig_inertia = re.search(
+            r"Inertia eigenvalues\s*=\s*([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)",
+            text
+        )
+        if eig_inertia:
+            data["inertia_eigenvalues"] = [float(x) for x in eig_inertia.groups()]
+
+        eig_charge = re.search(
+            r"Charges eigenvalues\s*=\s*([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)",
+            text
+        )
+        if eig_charge:
+            data["charge_eigenvalues"] = [float(x) for x in eig_charge.groups()]
+
+        self.complet_results['tensors'] = data
 
     # =================================
     # READ MODULES (basics)
