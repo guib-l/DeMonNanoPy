@@ -319,6 +319,8 @@ class deMonNano(BasicCalculation):
             symbols,
             positions,
             index=0,
+            read_charges=False,
+            extract_debug=False,
             **kwargs):
         """Run a full single-point (or flagged) calculation.
 
@@ -346,7 +348,8 @@ class deMonNano(BasicCalculation):
         self.execute(ignore_fails=False)
 
 
-        self.read_output()
+        self.read_output(read_charges=read_charges, 
+                         extract_debug=extract_debug)
 
         
         self.set_state(
@@ -374,10 +377,14 @@ class deMonNano(BasicCalculation):
             geometry: Array-like of shape ``(N, 3)`` with Cartesian
                 coordinates written to the ``GEOMETRY`` section.
         """
+
+        self.clean_workdir()
+
         # Parameters
         self._wi._write_dftb()
         self._wi._write_charge()
-        self._wi._write_bondparam(symbols)
+        self._wi._write_bondparam_wmull(symbols)
+        self._wi._write_bondparam_cm3(symbols)
         self._wi._write_ci()
         self._wi._write_multi()
         self._wi._write_basis()
@@ -400,7 +407,7 @@ class deMonNano(BasicCalculation):
         self._wi.write(workdir=self.workdir)
 
 
-    def read_output(self):
+    def read_output(self, read_charges=False, extract_debug=False):
         """Parse deMonNano output files and populate :attr:`results`.
 
         The method loads ``deMon.out`` into memory, then calls every
@@ -414,17 +421,18 @@ class deMonNano(BasicCalculation):
         :attr:`~deMonPy.output.read_output.complet_results` dictionary.
         """
         is_md = False
-        is_charges = False
+        is_charges = read_charges
 
         # Parameters
         self._wo.read_file()
+        self._wo.read_basics()
         self._wo.read_freq()
 
         self._wo.read_energy()
         self._wo.read_ci()
         self._wo.read_tddftb()
 
-        self._wo.read_debug()
+        self._wo.read_print()
 
         # Modules
         self._wo._read_opt()
@@ -432,6 +440,8 @@ class deMonNano(BasicCalculation):
         self._wo._read_md()
         self._wo._read_neb()
         self._wo.parse_tensors()
+
+        self._wo.read_debug(extract_data=extract_debug)
 
         # Geometry reading
         if "md" in self.flags:

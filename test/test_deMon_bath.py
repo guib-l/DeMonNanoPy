@@ -369,6 +369,10 @@ class TestMDbath:
         diff = np.abs(temperature[0] - 200)
         assert diff < 0.1, "Starting temperature is not tacken into account"
 
+
+
+
+
     def test_md_langevin(self):
         # TODO: Fix correct test
         
@@ -493,6 +497,8 @@ class TestMDbath:
         temperature = [atm.get_temperature() for atm in traj]
         diff = np.abs(temperature[0] - 200)
         assert diff < 0.1, "Starting temperature is not tacken into account"
+
+
 
 
     def test_md_nose(self):

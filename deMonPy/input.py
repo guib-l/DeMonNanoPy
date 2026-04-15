@@ -330,6 +330,11 @@ class write_input:
         """
         if params is None:
             params = self.parameters["DFTB"]
+
+        if "wmull" in self.flags:
+            params.update({"WMULL":True})
+        if "cm3" in self.flags:
+            params.update({"CM3POT":True})
         
         self.io_lines["DFTB"] = self.handler_writen(params)
         
@@ -368,7 +373,7 @@ class write_input:
 
         
     @assert_flags("wmull")
-    def _write_bondparam(self, symbols, params=None):
+    def _write_bondparam_wmull(self, symbols, params=None):
         """Write bond parameters matching the current element set.
 
         Args:
@@ -385,6 +390,23 @@ class write_input:
             if np.all([True if np.all(elm in symbols) else False for elm in elmts ]):
                 self.io_lines["BONDPARAMS"].append(f"\n{str(key)} {float(item)}")
         
+    @assert_flags("cm3")
+    def _write_bondparam_cm3(self, symbols, params=None):
+        """Write bond parameters matching the current element set.
+
+        Args:
+            symbols: Atomic symbols present in the system.
+            params: Bond parameter block.
+        """
+        if params is None:
+            params = self.parameters["CM3"]
+        
+        self.io_lines["BONDPARAMS"] = []
+        for key,item in params["BONDPARAMS"].items():
+            elmts = key.split()
+            
+            if np.all([True if np.all(elm in symbols) else False for elm in elmts ]):
+                self.io_lines["BONDPARAMS"].append(f"\n{str(key)} {float(item)}")
         
     
     @assert_flags("charge")
@@ -548,6 +570,7 @@ class write_input:
             params = self.parameters["PRINT"]
 
         self.io_lines["PRINT"] = self.handler_writen(params)
+        
 
 
 

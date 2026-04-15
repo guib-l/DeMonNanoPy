@@ -13,7 +13,7 @@ from deMonPy.input import write_input
 from deMonPy.output import read_output
 
 
-from deMonPy.modules.module import modules
+from deMonPy.module import modules
 
 
 class _dyn(modules):

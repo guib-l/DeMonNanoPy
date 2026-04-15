@@ -2,6 +2,7 @@
 
 # Import standard de python3
 import os
+import re
 import numpy as np
 
 
@@ -191,10 +192,63 @@ class read_output(IOread):
 
             for line in fd.readlines():
                 self.lines.append(line)
-
+    
 
     # =================================
     # READ ENERGY (basics)
+
+    def read_basics(self):
+        """Read basics things"""
+
+        text = '\n'.join(self.lines)
+
+        data = {
+            "scc_tolerance": None,
+            "max_scc_cycles": None,
+            "scc_mixing": None,
+            "n_atoms": None,
+            "n_atom_types": None,
+            "matrix_dim": None,
+            "n_electrons": None,
+            "n_shells": None,
+        }
+
+        for line in text.splitlines():
+            line = line.strip()
+
+            # -------- SCC PARAMS --------
+            if "Requested SCC tolerance" in line:
+                val = re.findall(r"[-+]?\d+\.\d+E[-+]?\d+", line)
+                if val:
+                    data["scc_tolerance"] = float(val[0])
+
+            elif "Maximum number of SCC cycles" in line:
+                val = re.findall(r"\d+", line)
+                if val:
+                    data["max_scc_cycles"] = int(val[-1])
+
+            elif "SCC mixing" in line:
+                val = re.findall(r"[-+]?\d*\.\d+", line)
+                if val:
+                    data["scc_mixing"] = float(val[0])
+
+            # -------- ELECTRONIC INFO --------
+            elif "Number of DFTB atoms" in line:
+                data["n_atoms"] = int(line.split(":")[-1])
+
+            elif "Number of DFTB atom types" in line:
+                data["n_atom_types"] = int(line.split(":")[-1])
+
+            elif "Dimension of DFTB matrices" in line:
+                data["matrix_dim"] = int(line.split(":")[-1])
+
+            elif "Number of DFTB electrons" in line:
+                data["n_electrons"] = int(line.split(":")[-1])
+
+            elif "Number of DFTB shells" in line:
+                data["n_shells"] = int(line.split(":")[-1])
+
+        self.complet_results['properties'] = data
 
     def read_energy(self):
         """Parse energy values from the loaded output lines."""
@@ -439,11 +493,312 @@ class read_output(IOread):
         self.complet_results["zpe"] = zpe
 
 
-    @assert_flags("debug")
-    def read_debug(self):
-        """Parse debug output sections."""
-        raise NotImplementedError
-    
+
+    def read_AOM_matrix(self,trigger_line = "  S"):
+        """ Read the AOM matrix from a DFTB output file. """
+        
+        lines = self.lines.copy()
+
+        # --- 1. Trouver le début de la section S ---
+        start_idx = None
+        for i, line in enumerate(lines):
+            if trigger_line in line:
+                print(trigger_line, line)
+                start_idx = i + 1
+                break
+
+        if start_idx is None:
+            raise ValueError(f"Section '{trigger_line}' not found in file.")
+
+        # --- 2. Lire les blocs ---
+        data = []
+        i = start_idx
+        
+
+        while i < len(lines):
+            line = lines[i].strip()
+            filled_rows = 0
+
+            # Stop si fin de section
+            if not line or not line.startswith("Orbit"):
+                i += 1
+                continue
+            
+            line = lines[i].strip()
+
+            if not line.startswith("Orbit"):
+                i += 1
+                continue
+
+            # Colonnes du bloc
+            parts = line.split()
+            cols = [int(x) for x in parts[4:]]
+
+            size = self.complet_results["properties"]["matrix_dim"]
+            tab = np.zeros((size, size))
+
+
+            i += 1
+
+            # Lire les lignes du bloc
+            while i < len(lines):
+                line = lines[i].strip()
+                if not line or line.startswith("&&"):
+                    break
+                
+                if not line or line.startswith("Orbit"):
+                    break        
+                
+                parts = line.split()
+
+                try:
+                    row_idx = int(parts[0])
+                except:
+                    break
+
+                row = int(parts[0])
+                values = [float(x) for x in parts[4:]]
+
+
+                for c, v in zip(cols, values):
+
+                    tab[row-1, c-1] = v
+
+                filled_rows += 1
+
+                i += 1
+
+            #print(data)
+
+        # --- 3. Déterminer la taille ---
+        max_index = max(row for row, _, _ in data)
+
+        tab = np.zeros((max_index, max_index))
+
+        # --- 4. Remplir la matrice ---
+        for row_idx, cols, values in data:
+            for col, val in zip(cols, values):
+                tab[row_idx - 1, col - 1] = val
+        return tab
+
+    @assert_flags("print")
+    def read_debug(self, extract_data=False):
+        
+        if extract_data:
+            
+            matrix = {}
+            labels = {}
+            
+            in_section = False
+            text = '\n'.join(self.lines)
+
+            for line in text.splitlines():
+                if "SCC ATOM-DEPENDENT GAMMA MATRIX" in line:
+                    in_section = True
+                    continue
+
+                if in_section:
+                    if not line:
+                        continue
+                    if "&&" in line:
+                        break
+                    
+                    # -------- HEADER (colonnes) --------
+                    if line.startswith("Shell El"):
+                        parts = line.split()
+                        # colonnes = indices après "Shell El"
+                        current_cols = list(map(int, parts[2:]))
+                        continue
+                    
+                    # -------- LIGNES MATRICE --------
+                    parts = line.split()
+                    
+                    # sécurité : ignorer lignes invalides
+                    if len(parts) < 3:
+                        continue
+                    
+                    row_idx = int(parts[0])
+                    element = parts[1]
+                    values = list(map(float, parts[2:]))
+
+                    labels[row_idx] = element
+                    
+                    if row_idx not in matrix:
+                        matrix[row_idx] = {}
+                    
+                    for col_idx, val in zip(current_cols, values):
+                        matrix[row_idx][col_idx] = val
+
+
+            # -------- CONVERSION EN MATRICE 2D --------
+            size = max(matrix.keys())
+            full_matrix = np.zeros((size,size))
+            
+            for i in matrix:
+                for j in matrix[i]:
+                    full_matrix[i-1][j-1] = matrix[i][j]
+
+            print(full_matrix)
+
+            tab = self.read_AOM_matrix("           F ")
+            print(tab)
+            print(tab.shape)
+            tab = self.read_AOM_matrix("           S ")
+            print(tab)
+            print(tab.shape)
+
+
+
+    @assert_flags("print")
+    def read_print(self):
+        """Parse print output sections."""
+        
+        text = '\n'.join(self.lines)
+        
+        occupied = []
+        virtual = []
+        
+        in_section = False
+
+        for line in text.splitlines():
+            if "DFTB Eigen values" in line:
+                in_section = True
+                occupied = []
+                virtual = []
+                continue
+            
+            if in_section:
+                if "Occupied Eigen values" in line:
+                    nums = re.findall(r"[-+]?\d*\.\d+", line)
+                    occupied.extend(map(float, nums))
+                    
+                elif "Virtual Eigen values" in line:
+                    nums = re.findall(r"[-+]?\d*\.\d+", line)
+                    virtual.extend(map(float, nums))
+
+            if "DFTB total energy" in line:
+                in_section = False
+
+
+        self.complet_results['moe'] =  {
+            "occupied": occupied,
+            "virtual": virtual
+        }
+
+        filename = os.path.join(self.workdir, "deMon.coef")
+        if os.path.exists(filename):
+            
+            data = {
+                "n_atoms": None,
+                "n_basis": None,
+                "parameter_type": None,
+                "homo": None,
+                "lumo_range": None,
+                "atoms": [],
+                "mo_energies": [],
+                "occupations": [],
+                "mo_coefficients": []
+            }
+        
+            section = None
+            with open(filename, "r") as f:
+                lines = f.readlines()
+        
+            i = 0
+            while i < len(lines):
+                line = lines[i].strip()
+        
+                # --------- HEADER ----------
+                if line == "NAtoms":
+                    data["n_atoms"] = int(lines[i+1].strip())
+                    i += 2
+                    continue
+                
+                elif line == "N basis":
+                    data["n_basis"] = int(lines[i+1].strip())
+                    i += 2
+                    continue
+                
+                elif line == "PArameter type":
+                    data["parameter_type"] = lines[i+1].strip()
+                    i += 2
+                    continue
+                
+                elif line == "homo":
+                    data["homo"] = int(lines[i+1].strip())
+                    i += 2
+                    continue
+                
+                elif "llmos" in line:
+                    parts = lines[i+1].split()
+                    data["lumo_range"] = tuple(map(int, parts))
+                    i += 2
+                    continue
+                
+                
+                # --------- ATOMS ----------
+                elif line.startswith("atomic position"):
+                    i += 1
+                    data["atoms"] = []
+                    while i < len(lines) and lines[i].strip():
+                        parts = lines[i].split()
+                        if parts[0] == 'occupation':
+                            break
+                        atom = {
+                            "Z": int(parts[0]),
+                            "symbol": parts[1],
+                            "x": float(parts[2]),
+                            "y": float(parts[3]),
+                            "z": float(parts[4]),
+                            "basis_start": int(parts[5]),
+                            "basis_end": int(parts[6]),
+                        }
+                        data["atoms"].append(atom)
+                        i += 1
+                    continue
+                
+                # --------- MO ENERGIES ----------
+                elif line.startswith("occupation and MOE"):
+                    i += 1
+                    data["occupations"] = []
+                    data["mo_energies"] = []
+                    while i < len(lines) and lines[i].strip():
+                        parts = lines[i].split()
+                        if parts[1] == 'Coefficients':
+                            break
+                        data["occupations"].append(float(parts[1]))
+                        data["mo_energies"].append(float(parts[2]))
+                        i += 1
+                    continue
+
+                    data["occupations"] = np.array(data["occupations"])
+                    data["mo_energies"] = np.array(data["mo_energies"])
+                
+                # --------- MO COEFFICIENTS ----------
+                elif line.startswith("MO Coefficients"):
+                    i += 1
+                    coeffs = []
+                    data["mo_coefficients"] = []
+                    while i < len(lines) and lines[i].strip():
+                        parts = lines[i].split()
+                        if parts[0] == 'NAtoms':
+                            break
+                        nums = re.findall(r"[-+]?\d*\.\d+", lines[i])
+                        coeffs.extend(map(float, nums))
+                        i += 1
+                    
+                    data["mo_coefficients"] = np.reshape(
+                        np.array(coeffs),
+                        (data["n_basis"],data["n_basis"])
+                    )
+                    continue
+                
+                i += 1
+
+            self.complet_results['mos'] =  data
+        
+        
+            
     def read_errors(self,):
         err = self.complet_results["errors"] if "errors" in self.complet_results.keys()  else  []
         for line in self.lines:
@@ -457,13 +812,11 @@ class read_output(IOread):
                 if m in line:
                     err.append(m)
 
-
         self.complet_results["errors"] = err
 
     @exclude_flags(["ptmc","freq"])
     def parse_tensors(self):
 
-        import re
         text = '\n'.join(self.lines)
         data = {}
 
