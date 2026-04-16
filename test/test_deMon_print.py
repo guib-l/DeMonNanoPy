@@ -213,14 +213,20 @@ class TestDftbBasis:
         mod.calculate(
             symbols=image.symbols,
             positions=image.positions,
-            extract_debug=True
+            extract_debug=True,
         )
 
         results = mod.results
 
         assert np.allclose(results["energy"]["energy"],-16.64681888, atol=1e-7)
 
-        print(results)
+        assert np.allclose(np.shape(results["Gamma"]),(15,15), atol=1e-7)
+        assert np.allclose(np.shape(results["Overlaps"][-1]),(36,36), atol=1e-7)
+        assert np.allclose(np.shape(results["Ham0"][-1]),(36,36), atol=1e-7)
+        assert np.allclose(np.shape(results["Hamiltonian"][-1]),(36,36), atol=1e-7)
+        assert np.allclose(np.shape(results["Density"][-1]),(36,36), atol=1e-7)
+        assert np.allclose(np.shape(results["Coefficients"][-1]),(36,36), atol=1e-7)
+
 
 
 

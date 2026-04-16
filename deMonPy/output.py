@@ -178,7 +178,9 @@ class read_output(IOread):
         self.flags = flags
 
         self.properties = properties
-        self.complet_results = {}
+        self.complet_results = {
+            "errors":[],
+        }
         
         self.lines = []
 
@@ -299,7 +301,7 @@ class read_output(IOread):
     # =================================
     # READ GEOMETRY (basics)
 
-    @exclude_flags(["ptmc","freq"])
+    @exclude_flags(["ptmc","freq","ptmd"])
     def read_geometry(self, output='deMon.mol',is_charges=False, velocities=False, keep=1):       
         """Read input, output, or trajectory geometries.
 
@@ -397,6 +399,13 @@ class read_output(IOread):
                 energies = [ state["energy"] for k,state in self.complet_results["states"].items()]       
                 self.complet_results["energy"] = {"energy":min(energies)}
         
+    @assert_flags("ptmd")
+    def read_ptmd(self):
+        """Parse PTMD response"""
+        for line in self.lines:
+            if "ERROR IN MPI_INIT" in line:
+                self.complet_results["errors"].append("ERROR IN MPI_INIT".lower())
+                return 
 
     @assert_flags("td-dftb")
     def read_tddftb(self):
@@ -494,95 +503,86 @@ class read_output(IOread):
 
 
 
-    def read_AOM_matrix(self,trigger_line = "  S"):
+    def read_AOM_matrix(
+            self,
+            trigger_line = "  S", 
+            keep_matrix = "all",
+        ):
         """ Read the AOM matrix from a DFTB output file. """
         
         lines = self.lines.copy()
+        if isinstance(keep_matrix,int):
+            keep_matrix = [keep_matrix]
 
-        # --- 1. Trouver le début de la section S ---
         start_idx = None
         for i, line in enumerate(lines):
             if trigger_line in line:
-                print(trigger_line, line)
                 start_idx = i + 1
                 break
 
         if start_idx is None:
             raise ValueError(f"Section '{trigger_line}' not found in file.")
 
-        # --- 2. Lire les blocs ---
         data = []
+        block_num  = 0
+        authorized = True
+        symb_save  = trigger_line.strip()
         i = start_idx
-        
+
+        size = self.complet_results["properties"]["matrix_dim"]
+        tab = np.zeros((size, size))
 
         while i < len(lines):
-            line = lines[i].strip()
-            filled_rows = 0
 
-            # Stop si fin de section
-            if not line or not line.startswith("Orbit"):
-                i += 1
-                continue
-            
             line = lines[i].strip()
-
-            if not line.startswith("Orbit"):
+            if symb_save == lines[i].strip():
+                authorized = True
+            if (not line or not line.startswith("Orbit")) or not authorized:
                 i += 1
                 continue
 
-            # Colonnes du bloc
             parts = line.split()
             cols = [int(x) for x in parts[4:]]
-
-            size = self.complet_results["properties"]["matrix_dim"]
-            tab = np.zeros((size, size))
-
-
-            i += 1
-
-            # Lire les lignes du bloc
+            
+            min_cols = min(cols)
+            max_cols = max(cols)
+            
+            i+=1
             while i < len(lines):
+
                 line = lines[i].strip()
-                if not line or line.startswith("&&"):
+                if not line or line.startswith("Orbit") or line.startswith("&&"):
                     break
-                
-                if not line or line.startswith("Orbit"):
-                    break        
-                
+
                 parts = line.split()
+                try: row = int(parts[0])
+                except: break
 
-                try:
-                    row_idx = int(parts[0])
-                except:
-                    break
+                values = [convert_float(x, safe=True) for x in parts[4:]]
+                tab[min_cols-1:max_cols,row-1] = values
 
-                row = int(parts[0])
-                values = [float(x) for x in parts[4:]]
+                i+=1
 
+            if cols[-1]==size:
+                tab = tab.T
+                if keep_matrix=="all":
+                    data.append(tab.copy())
+                    tab = np.zeros((size, size))
+                elif keep_matrix == [-1]:
+                    data = [tab.copy()]
+                    tab = np.zeros((size, size))
+                else:
+                    if block_num in keep_matrix:
+                        data.append(tab.copy())
+                        tab = np.zeros((size, size))
 
-                for c, v in zip(cols, values):
+                block_num += 1
+                authorized = False
+        return data
 
-                    tab[row-1, c-1] = v
-
-                filled_rows += 1
-
-                i += 1
-
-            #print(data)
-
-        # --- 3. Déterminer la taille ---
-        max_index = max(row for row, _, _ in data)
-
-        tab = np.zeros((max_index, max_index))
-
-        # --- 4. Remplir la matrice ---
-        for row_idx, cols, values in data:
-            for col, val in zip(cols, values):
-                tab[row_idx - 1, col - 1] = val
-        return tab
 
     @assert_flags("print")
-    def read_debug(self, extract_data=False):
+    def read_debug(self, extract_data=False, keep_matrix=-1):
         
         if extract_data:
             
@@ -603,17 +603,13 @@ class read_output(IOread):
                     if "&&" in line:
                         break
                     
-                    # -------- HEADER (colonnes) --------
                     if line.startswith("Shell El"):
                         parts = line.split()
-                        # colonnes = indices après "Shell El"
                         current_cols = list(map(int, parts[2:]))
                         continue
                     
-                    # -------- LIGNES MATRICE --------
                     parts = line.split()
                     
-                    # sécurité : ignorer lignes invalides
                     if len(parts) < 3:
                         continue
                     
@@ -630,7 +626,6 @@ class read_output(IOread):
                         matrix[row_idx][col_idx] = val
 
 
-            # -------- CONVERSION EN MATRICE 2D --------
             size = max(matrix.keys())
             full_matrix = np.zeros((size,size))
             
@@ -638,14 +633,33 @@ class read_output(IOread):
                 for j in matrix[i]:
                     full_matrix[i-1][j-1] = matrix[i][j]
 
-            print(full_matrix)
+            self.complet_results["Gamma"] = full_matrix.copy()
 
-            tab = self.read_AOM_matrix("           F ")
-            print(tab)
-            print(tab.shape)
-            tab = self.read_AOM_matrix("           S ")
-            print(tab)
-            print(tab.shape)
+            tab = self.read_AOM_matrix(
+                trigger_line = "                    S ",
+                keep_matrix = keep_matrix,)
+            self.complet_results["Overlaps"] = tab.copy()
+
+            tab = self.read_AOM_matrix(
+                trigger_line = "                    F0",
+                keep_matrix = keep_matrix,)
+            self.complet_results["Ham0"] = tab.copy()
+
+            tab = self.read_AOM_matrix(
+                trigger_line = "                    F ",
+                keep_matrix = keep_matrix,)
+            self.complet_results["Hamiltonian"] = tab.copy()
+
+            tab = self.read_AOM_matrix(
+                trigger_line = "                    P ",
+                keep_matrix = keep_matrix,)
+            self.complet_results["Density"] = tab.copy()
+
+            tab = self.read_AOM_matrix(
+                trigger_line = "                    C ",
+                keep_matrix = keep_matrix,)
+            self.complet_results["Coefficients"] = tab.copy()
+            
 
 
 

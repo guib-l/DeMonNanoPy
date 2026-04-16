@@ -349,7 +349,8 @@ class deMonNano(BasicCalculation):
 
 
         self.read_output(read_charges=read_charges, 
-                         extract_debug=extract_debug)
+                         extract_debug=extract_debug,
+                         **kwargs)
 
         
         self.set_state(
@@ -407,7 +408,7 @@ class deMonNano(BasicCalculation):
         self._wi.write(workdir=self.workdir)
 
 
-    def read_output(self, read_charges=False, extract_debug=False):
+    def read_output(self, read_charges=False, extract_debug=False, **kwargs):
         """Parse deMonNano output files and populate :attr:`results`.
 
         The method loads ``deMon.out`` into memory, then calls every
@@ -437,11 +438,12 @@ class deMonNano(BasicCalculation):
         # Modules
         self._wo._read_opt()
         self._wo._read_ptmc()
+        self._wo.read_ptmd()
         self._wo._read_md()
         self._wo._read_neb()
         self._wo.parse_tensors()
 
-        self._wo.read_debug(extract_data=extract_debug)
+        self._wo.read_debug(extract_data=extract_debug, **kwargs)
 
         # Geometry reading
         if "md" in self.flags:
