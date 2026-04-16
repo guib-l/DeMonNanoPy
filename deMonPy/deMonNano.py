@@ -390,6 +390,7 @@ class deMonNano(BasicCalculation):
         self._wi._write_charge()
         self._wi._write_bondparam_wmull(symbols)
         self._wi._write_bondparam_cm3(symbols)
+        self._wi._write_bondparam_cm3inter(symbols)
         self._wi._write_ci()
         self._wi._write_multi()
         self._wi._write_basis()

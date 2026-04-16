@@ -629,8 +629,152 @@ class TestDftb:
             atol=1e-7
         )
 
+    @pytest.mark.beta
+    def test_scc_diagDSYGVD(self):
+        
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS":{
+                    "ACTIVE":{
+                        "DFTB":{
+                            "SCC":True,
+                            "DIAG":"DSYGVD",
+                        },},
+            }})
+
+        mod = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **copy_parameters )
+            
+        mod.calculate(
+            symbols=image.symbols,
+            positions=image.positions )
+
+        results = mod.results
+        
+        assert np.allclose(
+            results["energy"]["energy"], 
+            -8.06209343, 
+            atol=1e-7
+        )
+
+    @pytest.mark.beta
+    def test_scc_diagDSYGVD(self):
+        
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS":{
+                    "ACTIVE":{
+                        "DFTB":{
+                            "SCC":True,
+                            "DIAG":"DSYGVD",
+                        },},
+            }})
+
+        mod = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **copy_parameters )
+            
+        mod.calculate(
+            symbols=image.symbols,
+            positions=image.positions )
+
+        results = mod.results
+        
+        assert np.allclose(
+            results["energy"]["energy"], 
+            -8.06209343, 
+            atol=1e-7
+        )
         
 
+    @pytest.mark.beta
+    def test_scc_dftb3(self):
+        import shutil
+        
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS":{
+                    "ACTIVE":{
+                        "DFTB":{
+                            "SCC":True,
+                            "THIRD":True,
+                        },},
+            }})
 
+        mod = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **copy_parameters )
+        
+        shutil.copy2("./data/3ord_param", f"{WORKDIR}/3ord_param")
+        mod.calculate(
+            symbols=image.symbols,
+            positions=image.positions,
+             clean_repository=False )
+
+        results = mod.results
+        
+        assert np.allclose(
+            results["energy"]["energy"], 
+            -8.0483818, 
+            atol=1e-7
+        )
+
+
+    @pytest.mark.beta
+    def test_scc_gcor(self):
+        
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS":{
+                    "ACTIVE":{
+                        "DFTB":{
+                            "SCC":True,
+                            "GCOR":0.3,
+                        },},
+            }})
+
+        mod = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **copy_parameters )
+        
+        mod.calculate(
+            symbols=image.symbols,
+            positions=image.positions,
+             clean_repository=False )
+
+        results = mod.results
+        
+        assert np.allclose(
+            results["energy"]["energy"], 
+            -8.22620688, 
+            atol=1e-7
+        )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
 
 

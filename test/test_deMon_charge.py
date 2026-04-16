@@ -6,6 +6,7 @@ import numpy as np
 
 from copy import deepcopy
 
+import pytest
 from ase.atoms import Atoms
 
 import deMonPy
@@ -140,6 +141,33 @@ class TestCharges:
         assert energy["coulomb_energy"] == 0.06029717
 
 
+    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    def test_cm3inter(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(
+            {"CM3INTER":{
+                "BONDPARAMS":{
+                    "O H":0.08,},
+                }
+            }
+        )
+
+        dem = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **parameter_config
+        )
+
+        dem.calculate(
+            symbols=image.symbols,
+            positions=image.positions
+        )
+
+        results = dem.results
+        energy = results["energy"]
+
+        assert energy["energy"] == -8.0368677
 
 
 

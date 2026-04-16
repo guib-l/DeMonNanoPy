@@ -88,8 +88,13 @@ def assert_flags(myset):
 
             _flags = getattr(self, "flags")
 
-            if myset not in _flags:
-                return 
+            if isinstance(myset, list):
+                for ms in myset:
+                    if ms not in _flags:
+                        return 
+            else:
+                if myset not in _flags:
+                    return 
 
             return func(self, *args, **kwargs)
 

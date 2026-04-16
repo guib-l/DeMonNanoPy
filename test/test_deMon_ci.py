@@ -6,6 +6,7 @@ import numpy as np
 
 from copy import deepcopy
 
+import pytest
 from ase.atoms import Atoms
 
 import deMonPy
@@ -100,6 +101,10 @@ class TestDFTBCI:
         assert conf_2["energy"] == -23.10000944
 
 
+
+
+
+
     def test_const(self):
 
         parameter_config = deepcopy(parameters)
@@ -132,3 +137,48 @@ class TestDFTBCI:
         assert energy["electronic_energy"] == -23.92276564
         assert energy["coulomb_energy"] == 0.12999541
         assert energy["repulsive_energy"] == 0.63529586
+
+    @pytest.mark.beta
+    def test_ci_noslat(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(
+            {
+                "CI":{
+                    "SIZECI":2,
+                    "NOSLAT":True
+                },
+                "CUTSYS":{
+                    "FRAGMENT":[20,3],
+                },
+            }
+        )
+        dem = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **parameter_config
+        )
+
+        dem.calculate(
+            symbols=image.symbols,
+            positions=image.positions
+        )
+
+        results = dem.results
+        conf_1 = results["configuration_1"]
+        conf_2 = results["configuration_2"]
+        
+        assert conf_1["energy"] == -23.34473263
+        assert conf_2["energy"] == -23.10000944
+
+
+
+
+
+
+
+
+
+
+
+

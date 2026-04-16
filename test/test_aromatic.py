@@ -393,8 +393,8 @@ class TestAromatic:
         assert np.allclose(results["energy"]["energy"],-45.94947883, atol=1e-7)
         assert np.allclose(results["energy"]["london_energy"],-0.01330096, atol=1e-7)
 
-
-    def _test_coronene_cm3(self):
+    @pytest.mark.optional
+    def test_coronene_cm3(self):
         
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
@@ -407,11 +407,8 @@ class TestAromatic:
                             "GRADTOL":1e-5,
                             "OUT":1,
                             "TRAJECTORY":False
-                        },
-                    },
-                }
-            }
-        )
+                        },},
+                }})
 
         mod = deMonNano(
             title="CALCULATION DEMONANO",

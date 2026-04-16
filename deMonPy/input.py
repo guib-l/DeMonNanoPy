@@ -335,8 +335,10 @@ class write_input:
             params.update({"WMULL":True})
         if "cm3" in self.flags:
             params.update({"CM3POT":True})
+        if "cm3inter" in self.flags:
+            params.update({"CM3INTER":True})
         
-        self.io_lines["DFTB"] = self.handler_writen(params)
+        self.io_lines["DFTB"] = self.handler_writen(params, bind_str="=")
         
     
     def _write_basis(self):
@@ -409,6 +411,15 @@ class write_input:
         
 
 
+    def _write_bondparams(self, symbols, params):
+
+        self.io_lines["BONDPARAMS"] = []
+        for key,item in params["BONDPARAMS"].items():
+            elmts = key.split()
+            
+            if np.all([True if np.all(elm in symbols) else False for elm in elmts ]):
+                self.io_lines["BONDPARAMS"].append(f"\n{str(key)} {float(item)}")
+
     @assert_flags("wmull")
     def _write_bondparam_wmull(self, symbols, params=None):
         """Write bond parameters matching the current element set.
@@ -420,12 +431,8 @@ class write_input:
         if params is None:
             params = self.parameters["WMULL"]
         
-        self.io_lines["BONDPARAMS"] = []
-        for key,item in params["BONDPARAMS"].items():
-            elmts = key.split()
-            
-            if np.all([True if np.all(elm in symbols) else False for elm in elmts ]):
-                self.io_lines["BONDPARAMS"].append(f"\n{str(key)} {float(item)}")
+        self._write_bondparams(symbols, params)
+        
         
     @assert_flags("cm3")
     def _write_bondparam_cm3(self, symbols, params=None):
@@ -436,15 +443,22 @@ class write_input:
             params: Bond parameter block.
         """
         if params is None:
-            params = self.parameters["CM3"]
+            params = self.parameters.get("CM3", None )
         
-        self.io_lines["BONDPARAMS"] = []
-        for key,item in params["BONDPARAMS"].items():
-            elmts = key.split()
+        self._write_bondparams(symbols, params)
+        
+    @assert_flags("cm3inter")
+    def _write_bondparam_cm3inter(self, symbols, params=None):
+        """Write bond parameters matching the current element set.
+
+        Args:
+            symbols: Atomic symbols present in the system.
+            params: Bond parameter block.
+        """
+        if params is None:
+            params = self.parameters.get("CM3INTER", None) 
             
-            if np.all([True if np.all(elm in symbols) else False for elm in elmts ]):
-                self.io_lines["BONDPARAMS"].append(f"\n{str(key)} {float(item)}")
-        
+        self._write_bondparams(symbols, params)
     
     @assert_flags("charge")
     def _write_charge(self, params=None):
