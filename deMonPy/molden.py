@@ -56,7 +56,11 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1):
             line = lines.pop(0)
 
             if is_charges:
-                symbol, x, y, z, c = line.split()[:5]
+                try:
+                    symbol, x, y, z, c = line.split()[:5]
+                except:
+                    symbol, x, y, z = line.split()[:4]
+                    c = 0.0
                 symbol = symbol.lower().capitalize()
                 symbols.append(symbol)
                 positions.append([float(x), float(y), float(z)])

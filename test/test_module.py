@@ -5,6 +5,7 @@ import numpy as np
 import copy
 from copy import deepcopy
 
+import pytest
 from ase.atoms import Atoms
 from deMonPy.deMonNano import deMonNano
 from deMonPy.deMonNano import Module_DeMonNano
@@ -42,7 +43,7 @@ image = Atoms(
         ])
     )
 
-WORKDIR = ".run/"
+WORKDIR = ".run/modules"
 
 
 

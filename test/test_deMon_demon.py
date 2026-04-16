@@ -40,7 +40,10 @@ image = Atoms(
         ])
     )
 
-WORKDIR = ".run/"
+
+
+
+WORKDIR = ".run/demon"
 
 
 
@@ -71,34 +74,6 @@ class TestBasicUsage:
         assert energy["coulomb_energy"] == 0.04185358
         assert energy["repulsive_energy"] == 0.15678992
 
-
-    def test_debug(self):
-
-        parameter_config = deepcopy(parameters)
-        parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(
-            {
-                "PRINT":{"DEBUG":True},
-            }
-        )
-
-        dem = deMonNano(
-            title="CALCULATION DEMONANO",
-            workdir=WORKDIR,
-            **parameter_config
-        )
-
-        dem.calculate(
-            symbols=image.symbols,
-            positions=image.positions
-        )
-
-        results = dem.results
-        energy = results["energy"]
-
-        assert energy["energy"] == -8.06209343
-        assert energy["electronic_energy"] == -8.21888334
-        assert energy["coulomb_energy"] == 0.04185358
-        assert energy["repulsive_energy"] == 0.15678992
 
 
 

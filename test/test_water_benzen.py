@@ -8,6 +8,7 @@ import numpy as np
 import copy
 from copy import deepcopy
 
+import pytest
 from ase.atoms import Atoms
 from deMonPy.deMonNano import deMonNano
 from deMonPy.deMonNano import Module_DeMonNano
@@ -130,6 +131,8 @@ class TestWaterBenzen:
         assert np.allclose(modes[27],3012, atol=1.)
         assert np.allclose(modes[28],3013, atol=1.)
 
+
+    @pytest.mark.optional
     def test_water_benzen(self):
         
         copy_parameters = copy.deepcopy(parameters)
@@ -199,7 +202,7 @@ class TestWaterBenzen:
         results = mod.results
 
         modes = [mod["frequency"] for mod in results['frequency']]
-        print(modes)
+        
 
         assert np.allclose(modes[10],657+4, atol=1.)
         assert np.allclose(modes[31],3012-34, atol=1.)

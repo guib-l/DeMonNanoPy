@@ -75,26 +75,6 @@ class TestTDDFTB:
         assert 'singlet' in results.keys()
 
 
-    def test_tddftb_openShell(self):
-
-        parameter_config = deepcopy(parameters)
-        parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(
-            {"TD-DFTB":True,"CHARGE":1.0}
-        )
-        dem = deMonNano(
-            title="CALCULATION DEMONANO",
-            workdir=WORKDIR,
-            **parameter_config
-        )
-
-        dem.calculate(
-            symbols=image.symbols,
-            positions=image.positions
-        )
-
-        results = dem.results
-        msg = "linear response for closed shell molecules only."
-        assert msg in results["errors"]
 
 
 

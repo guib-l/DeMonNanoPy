@@ -313,7 +313,7 @@ class read_output(IOread):
         
         filename = os.path.join(self.workdir,output)
         data,info = read_XYZ(filename,is_charges=is_charges, velocities=velocities, keep=keep)
-        
+
         
         if len(data)==2:
             self.complet_results["input_geometry"]  = data[0]

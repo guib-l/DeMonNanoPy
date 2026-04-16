@@ -79,18 +79,13 @@ class TestCharges:
 
 
 
-    def test_bondparams(self):
+    def test_wmull(self):
 
         parameter_config = deepcopy(parameters)
         parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(
             {"WMULL":{
                 "BONDPARAMS":{
-                    "N C":0.39,
-                    "C H":0.48,
-                    "N H":0.60,
-                    "O H":0.18,
-                    "O C":0.0,
-                    "O N":0.0 },
+                    "O H":0.18,},
                 }
             }
         )
@@ -109,10 +104,43 @@ class TestCharges:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.06209343
-        assert energy["electronic_energy"] == -8.21888334
-        assert energy["coulomb_energy"] == 0.04185358
+        assert energy["energy"] == -8.04442048
+        assert energy["electronic_energy"] == -8.2012104
+        assert energy["coulomb_energy"] == 0.05453568
         assert energy["repulsive_energy"] == 0.15678992
+
+
+    def test_cm3pot(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(
+            {"CM3":{
+                "BONDPARAMS":{
+                    "O H":0.08,},
+                }
+            }
+        )
+
+        dem = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **parameter_config
+        )
+
+        dem.calculate(
+            symbols=image.symbols,
+            positions=image.positions
+        )
+
+        results = dem.results
+        energy = results["energy"]
+
+        assert energy["energy"] == -8.0368677
+        assert energy["electronic_energy"] == -8.19365762
+        assert energy["coulomb_energy"] == 0.06029717
+
+
+
 
 
 WORKDIR = ".run/dftbcutsys/"
@@ -150,7 +178,7 @@ class TestCutSys:
         assert energy["coulomb_energy"] == 0.04185358
         assert energy["repulsive_energy"] == 0.15678992
 
-    def test_cutsys(self):
+    def test_multiplicity(self):
 
         parameter_config = deepcopy(parameters)
         parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(

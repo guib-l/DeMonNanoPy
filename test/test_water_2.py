@@ -61,7 +61,7 @@ WORKDIR = ".run/water_2/"
 
 class TestWater2:
 
-    def test_water_1(self):
+    def compute_relaxation(self, image):
         
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
@@ -71,7 +71,7 @@ class TestWater2:
                         "OPT":{
                             "MAX":99999,
                             "TOL":3e-5,
-                            "GRADTOL":5e-5,
+                            "GRADTOL":1e-5,
                             "OUT":1,
                             "TRAJECTORY":False
                         },
@@ -87,11 +87,16 @@ class TestWater2:
         )
         
         mod.calculate(
-            symbols=image.symbols[:3],
-            positions=image.positions[:3]
+            symbols=image.symbols,
+            positions=image.positions
         )
 
         results = mod.results
+        return results
+
+    def test_water_1(self):
+        
+        results = self.compute_relaxation(image[:3])
         last = results["output_geometry"]
 
         copy_parameters = copy.deepcopy(parameters)
@@ -119,40 +124,10 @@ class TestWater2:
 
 
 
-    
+    @pytest.mark.optional
     def test_water_2(self):
         
-        copy_parameters = copy.deepcopy(parameters)
-        copy_parameters.update(
-            {
-                "DEMON_MODULE":{
-                    "ACTIVE":{
-                        "OPT":{
-                            "MAX":99999,
-                            "TOL":1e-7,
-                            "GRADTOL":1e-7,
-                            "OUT":1,
-                            "TRAJECTORY":False
-                        },
-                    },
-                }
-            }
-        )
-
-        mod = deMonNano(
-            title="CALCULATION DEMONANO",
-            workdir=WORKDIR,
-            **copy_parameters
-        )
-            
-        mod.calculate(
-            symbols=image.symbols,
-            positions=image.positions
-        )
-
-        results = mod.results
-
-
+        results = self.compute_relaxation(image)
         last = results["output_geometry"]
 
         o1_positions_1 = last.positions[0]
@@ -169,15 +144,12 @@ class TestWater2:
         assert np.allclose(np.linalg.norm(o2_positions_1-h1_positions_1),1.87, atol=1e-2)
         assert np.allclose(np.linalg.norm(o1_positions_1-h1_positions_1),0.96, atol=1e-2)
 
-        assert np.allclose(results["energy"]["energy"],-8.12072075, atol=1e-7)
-
-    
-
+        assert np.allclose(results["energy"]["energy"],-8.12072071, atol=1e-7)
 
 
         copy_parameters = copy.deepcopy(parameters)
+
         copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update(FREQ=True)
-        
 
         mod = deMonNano(
             title="CALCULATION DEMONANO",

@@ -570,7 +570,7 @@ class write_input:
             params = self.parameters["PRINT"]
 
         self.io_lines["PRINT"] = self.handler_writen(params)
-        
+
 
 
 

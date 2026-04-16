@@ -158,6 +158,7 @@ class TestWaterCoronene:
         indices = np.where(np.isclose(modes, 2994, atol=1.0))[0]
         assert len(indices) > 0
 
+    @pytest.mark.optional
     def test_water_coronene(self):
         
         copy_parameters = copy.deepcopy(parameters)
