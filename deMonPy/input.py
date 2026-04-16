@@ -8,7 +8,7 @@ import numpy as np
 import deMonPy
 
 
-from deMonPy.profile import assert_flags
+from deMonPy.profile import assert_flags,exclude_flags
 
 
 _atoms_symbols_to_numbers = {
@@ -346,6 +346,7 @@ class write_input:
         
         self.io_lines["PARAM"] = new
         
+    @exclude_flags("molecules")
     def _write_geometry(self, symbols, positions, fmt = '%10.7f'):
         """Write the geometry block.
 
@@ -354,8 +355,13 @@ class write_input:
             positions: Atomic coordinates.
             fmt: Numeric format used for coordinates.
         """
+        units = ""
+        if "geometry" in self.flags:
+            for key,item in self.parameters["GEOMETRY"].items():
+                if item:
+                    units = key
 
-        geometry = "GEOMETRY\n"
+        geometry = f"GEOMETRY {units}\n"
 
         if self.complement is None:
             self.complement = ["",]*len(symbols)
@@ -371,7 +377,38 @@ class write_input:
 
         self.complement = None
 
+    @assert_flags("molecules")
+    def _write_molecules(self, fmt = '%10.7f'):
+        """Write MOLECULES key-word into input file
+        """
+
+        quat = self.parameters["QUATERNION"]
+        molc = self.parameters["MOLECULES"]
+
+        geometry = ""
+        coords = quat.pop("COORDS",None)
+
+        geometry += f"QUATERNION NMOL={len(coords)}"
+        for key,value in quat.items():
+            if not isinstance(value,bool):
+                continue
+            if value:
+                geometry += f' {key}'
+
+        geometry += "\n"
+        for i,_q in enumerate(coords):
+            geometry += "%s %s %s %s %s %s %s %s\n" % \
+                (i+1,_q[0],_q[1],_q[2],_q[3],fmt % _q[4],fmt % _q[5],fmt % _q[6],)
+
+        geometry += f"MOLECULES NMOL={len(molc["NAMES"])}\n"
+        for i,_n in enumerate(molc["NAMES"]):
+            geometry += f"{i+1} {_n}\n"
+
+
+        self.io_lines['GEOMETRY']  = [geometry]
         
+
+
     @assert_flags("wmull")
     def _write_bondparam_wmull(self, symbols, params=None):
         """Write bond parameters matching the current element set.

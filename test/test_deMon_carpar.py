@@ -69,11 +69,11 @@ class TestCarPar:
                         },
                         "TRAJECTORY":True,
                         "CARPAR":{
-                            "FOM":2.,
-                            "LGTOL":1e-10,
+                            "FOM":0.01,
+                            "LGTOL":None,
                             "BO":False,
-                            "DELMO":0.1,
-                            "MOMD":1e-10
+                            "DELMO":None,
+                            "MOMD":False
                         }            
                     },
                 }
@@ -97,7 +97,7 @@ class TestCarPar:
         tote = results["total_energy"]
 
         diff = np.sum((tote - (pote+kine))[1:])
-        #assert diff <= 1e-5, "Energy conserved"
+        assert diff <= 1e-5, "Energy conserved"
 
 
 

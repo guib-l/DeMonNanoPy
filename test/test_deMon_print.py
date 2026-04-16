@@ -214,6 +214,7 @@ class TestDftbBasis:
             symbols=image.symbols,
             positions=image.positions,
             extract_debug=True,
+            keep_matrix="all"
         )
 
         results = mod.results

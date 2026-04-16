@@ -22,10 +22,15 @@
                 "LEV_S":0.0
             },
             "GEOMETRY":{
-                "UNITS":"CARTE"
+                "BOHR":false,
+                "ANGST":false,
+                "CARTE":false
             },
             "QUATERNION":{
-                "UNITS":"BOHR"
+                "BOHR":false,
+                "ANGST":false,
+                "COORDS":null,
+                "RIGID":false
             },
             "TD-DFTB":false,
             "CM3":{

@@ -70,7 +70,7 @@ class TestWater2:
                     "ACTIVE":{
                         "OPT":{
                             "MAX":99999,
-                            "TOL":3e-5,
+                            "TOL":1e-5,
                             "GRADTOL":1e-5,
                             "OUT":1,
                             "TRAJECTORY":False

@@ -321,6 +321,7 @@ class deMonNano(BasicCalculation):
             index=0,
             read_charges=False,
             extract_debug=False,
+            clean_repository=True,
             **kwargs):
         """Run a full single-point (or flagged) calculation.
 
@@ -343,7 +344,9 @@ class deMonNano(BasicCalculation):
         
         self.write_input(
             symbols,
-            positions,)
+            positions,
+            clean=clean_repository
+        )
         
         self.execute(ignore_fails=False)
 
@@ -363,7 +366,7 @@ class deMonNano(BasicCalculation):
             }
         )
 
-    def write_input(self, symbols, geometry):
+    def write_input(self, symbols, geometry, clean=True):
         """Assemble and write the ``deMon.inp`` file.
 
         Every parameter and module section guarded by
@@ -379,7 +382,8 @@ class deMonNano(BasicCalculation):
                 coordinates written to the ``GEOMETRY`` section.
         """
 
-        self.clean_workdir()
+        if clean:
+            self.clean_workdir()
 
         # Parameters
         self._wi._write_dftb()
@@ -404,6 +408,7 @@ class deMonNano(BasicCalculation):
         # Geometry writing
         self._wi._write_geometry(symbols=symbols,
                                  positions=geometry)
+        self._wi._write_molecules()
 
         self._wi.write(workdir=self.workdir)
 
