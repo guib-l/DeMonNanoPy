@@ -83,7 +83,7 @@ class TestMolecule:
             **copy_parameters
         )
 
-        shutil.copy2("./data/MOLECULES", f"{WORKDIR}/MOLECULES")
+        shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
         mod.calculate(
             symbols=image.symbols,
@@ -119,7 +119,7 @@ class TestMolecule:
             **copy_parameters
         )
 
-        shutil.copy2("./data/MOLECULES", f"{WORKDIR}/MOLECULES")
+        shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
         mod.calculate(
             symbols=image.symbols,
@@ -154,7 +154,7 @@ class TestMolecule:
             **copy_parameters
         )
 
-        shutil.copy2("./data/MOLECULES", f"{WORKDIR}/MOLECULES")
+        shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
         mod.calculate(
             symbols=image.symbols,
@@ -191,7 +191,7 @@ class TestMolecule:
             **copy_parameters
         )
 
-        shutil.copy2("./data/MOLECULES", f"{WORKDIR}/MOLECULES")
+        shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
         mod.calculate(
             symbols=image.symbols,

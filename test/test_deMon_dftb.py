@@ -712,7 +712,7 @@ class TestDftb:
             workdir=WORKDIR,
             **copy_parameters )
         
-        shutil.copy2("./data/3ord_param", f"{WORKDIR}/3ord_param")
+        shutil.copy2("./data_test/3ord_param", f"{WORKDIR}/3ord_param")
         mod.calculate(
             symbols=image.symbols,
             positions=image.positions,

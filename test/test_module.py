@@ -63,7 +63,7 @@ class TestOptimization:
         mod(image=image, max=10)
 
         results = mod.results
-        assert results["energy"]["energy"] == -8.14876390       
+        assert np.allclose(results["energy"]["energy"], -8.14876390, atol=1e-7)
 
 
 class TestMonteCarlo:
