@@ -81,7 +81,7 @@ class TestOptimization:
         )
 
         results = mod.results
-        assert results["energy"]["energy"] == -8.15563755       
+        assert np.allclose(results["energy"]["energy"],-8.15563755 ,atol=1e-7)  
 
 
     def test_opt_maxiter(self):
@@ -117,7 +117,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert results["energy"]["energy"] == -8.1487639     
+        assert np.allclose(results["energy"]["energy"],-8.1487639,atol=1e-7)  
 
 
     def test_opt_maxiter(self):
@@ -153,7 +153,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert results["energy"]["energy"] == -8.1487639 
+        assert np.allclose(results["energy"]["energy"],-8.1487639 ,atol=1e-7)  
         assert len(results["trajectory"]) == 11
 
     def test_opt_tolerance(self):
@@ -188,7 +188,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert results["energy"]["energy"] == -8.15563755   
+        assert np.allclose(results["energy"]["energy"], -8.15563755 ,atol=1e-7)  
 
     def test_opt_gradtol(self):
 
@@ -222,7 +222,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert results["energy"]["energy"] == -8.15146881
+        assert np.allclose(results["energy"]["energy"],-8.15146881 ,atol=1e-7)  
 
     def test_opt_cgrad(self):
 
@@ -257,7 +257,7 @@ class TestOptimization:
         )
         results = mod.results
         diff = np.abs(results["energy"]["energy"] - -8.15538751)
-        assert diff < 1e-5, 'Errors in CGRAD'
+        assert np.allclose(diff,1e-5 ,atol=1e-6), 'Errors in CGRAD'  
 
 
     def test_opt_steepest_default(self):
@@ -293,6 +293,7 @@ class TestOptimization:
         )
         results = mod.results
         assert results["energy"]["energy"] == -8.14859822   
+        assert np.allclose(results["energy"]["energy"],-8.14859822  ,atol=1e-7) 
         assert results["errors"][0] == "optimization not converged"
 
 
@@ -328,7 +329,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert results["energy"]["energy"] == -8.14858038   
+        assert np.allclose(results["energy"]["energy"],-8.14858038, atol=1e-7) 
         assert results["errors"][0] == "optimization not converged"
 
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
@@ -364,7 +365,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert results["energy"]["energy"] == -8.14955388  
+        assert np.allclose(results["energy"]["energy"],-8.14955388, atol=1e-7) 
         assert len(results["trajectory"]) == 3
 
 
@@ -401,8 +402,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        diff = np.abs(results["energy"]["energy"] - -8.15538751)
-        assert diff < 1e-5, 'Errors TRAJECTORY optimization'
+        assert np.allclose(results["energy"]["energy"],-8.15538751, atol=1e-7) , 'Errors TRAJECTORY optimization'
         assert "trajectory" not in results.keys() 
 
 

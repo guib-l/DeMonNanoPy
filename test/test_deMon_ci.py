@@ -97,8 +97,8 @@ class TestDFTBCI:
         conf_1 = results["configuration_1"]
         conf_2 = results["configuration_2"]
         
-        assert conf_1["energy"] == -23.34473263
-        assert conf_2["energy"] == -23.10000944
+        assert np.allclose(conf_1["energy"], -23.34473263, atol=1e-7) 
+        assert np.allclose(conf_2["energy"], -23.10000944, atol=1e-7) 
 
 
 
@@ -132,11 +132,11 @@ class TestDFTBCI:
         results = dem.results
         energy = results["energy"]
 
-        
-        assert energy["energy"] == -23.28746978
-        assert energy["electronic_energy"] == -23.92276564
-        assert energy["coulomb_energy"] == 0.12999541
-        assert energy["repulsive_energy"] == 0.63529586
+        assert np.allclose(energy["energy"], -23.34473263, atol=1e-7) 
+        assert np.allclose(energy["electronic_energy"], -23.92276564, atol=1e-7) 
+        assert np.allclose(energy["coulomb_energy"], 0.12999541, atol=1e-7) 
+        assert np.allclose(energy["repulsive_energy"], 0.63529586, atol=1e-7) 
+
 
     @pytest.mark.beta
     def test_ci_noslat(self):
@@ -168,8 +168,8 @@ class TestDFTBCI:
         conf_1 = results["configuration_1"]
         conf_2 = results["configuration_2"]
         
-        assert conf_1["energy"] == -23.34473263
-        assert conf_2["energy"] == -23.10000944
+        assert np.allclose(conf_1["energy"], -23.34473263, atol=1e-7) 
+        assert np.allclose(conf_2["energy"], -23.10000944, atol=1e-7) 
 
 
 

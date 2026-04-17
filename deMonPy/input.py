@@ -344,7 +344,7 @@ class write_input:
     def _write_basis(self):
         """Write basis and parameter file references."""
         params = self.io_lines.pop("PARAM")
-        new = [ "PTYPE="+params["PTYPE"]+f"\n{params["SKFILE"]}" ]
+        new = [ "PTYPE="+params["PTYPE"]+f"\n{params['SKFILE']}" ]
         
         self.io_lines["PARAM"] = new
         
@@ -402,7 +402,7 @@ class write_input:
             geometry += "%s %s %s %s %s %s %s %s\n" % \
                 (i+1,_q[0],_q[1],_q[2],_q[3],fmt % _q[4],fmt % _q[5],fmt % _q[6],)
 
-        geometry += f"MOLECULES NMOL={len(molc["NAMES"])}\n"
+        geometry += f"MOLECULES NMOL={len(molc['NAMES'])}\n"
         for i,_n in enumerate(molc["NAMES"]):
             geometry += f"{i+1} {_n}\n"
 
@@ -565,9 +565,9 @@ class write_input:
             params = self.parameters["FREQ"]
         
         if isinstance(params, bool):
-            self.io_lines['FREQUENCY'] = []
+            self.io_lines["FREQUENCY"] = []
         if isinstance(params, dict):
-            self.io_lines[f'FREQUENCY VIB={params['VIB']}'] = []
+            self.io_lines[f"FREQUENCY VIB={params['VIB']}"] = []
     
 
     @assert_flags("qmmm")

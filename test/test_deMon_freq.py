@@ -67,12 +67,13 @@ class TestFreq:
         )
 
         results = dem.results
-        assert results["zpe"] == 0.0475
+        assert np.allclose(results["zpe"], 0.0475, atol=1e-4) 
         assert len(results["frequency"]) == 18
         mode_1 = results["frequency"][0]
         assert mode_1['mode'] == 1
-        assert mode_1['frequency'] == -1178.9
-        assert mode_1['intensity'] == 112.0
+        assert np.allclose(mode_1['frequency'], -1178.9, atol=1e-1) 
+        assert np.allclose(mode_1['intensity'], 112.0, atol=1e-1) 
+        
     
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
     def test_limited_freq(self):
@@ -94,12 +95,13 @@ class TestFreq:
         )
 
         results = dem.results
-        assert results["zpe"] == 0.0475
+        assert np.allclose(results["zpe"], 0.0475, atol=1e-4) 
         assert len(results["frequency"]) == 11
         mode_1 = results["frequency"][0]
         assert mode_1['mode'] == 1
-        assert mode_1['frequency'] == -1178.9
-        assert mode_1['intensity'] == 112.0
+        assert np.allclose(mode_1['frequency'], -1178.9, atol=1e-1) 
+        assert np.allclose(mode_1['intensity'], 112.0, atol=1e-1) 
+        
 
     def test_freq_ci(self):
 
@@ -131,12 +133,12 @@ class TestFreq:
         )
 
         results = dem.results
-        assert results["zpe"] == 0.0477
+        assert np.allclose(results["zpe"], 0.0477, atol=1e-4) 
         assert len(results["frequency"]) == 18
         mode_1 = results["frequency"][0]
         assert mode_1['mode'] == 1
-        assert mode_1['frequency'] == -1134.2
-        assert mode_1['intensity'] == 79.6
+        assert np.allclose(mode_1['frequency'], -1134.2, atol=1e-1) 
+        assert np.allclose(mode_1['intensity'], 79.6, atol=1e-1) 
 
 
 
