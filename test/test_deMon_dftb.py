@@ -347,7 +347,8 @@ class TestDftb:
             positions=image.positions )
 
         results = mod.results
-        assert "loop over charges not converged" in results["errors"] 
+        err = results['errors']
+        assert "not converge for geometry in dftb_canonical" in err[0]['message']
         
 
     def test_scc_mixing(self):

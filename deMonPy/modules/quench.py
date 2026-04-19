@@ -64,10 +64,10 @@ class _relax_geometry(modules):
             **args):
         
         self._module_parameters = dict(
-            max=999,
-            algo='CGRAD',
-            out=1,
-            restart=False,
+            max=max,
+            algo=algo,
+            out=out,
+            restart=restart,
             **args
         )
 

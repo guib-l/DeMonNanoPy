@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import os
 import subprocess
+from pathlib import Path
 
 import deMonPy
+from deMonPy.exceptions import ExecuteFailed
 
 
 
@@ -20,61 +22,58 @@ def read_json(filename=""):
     return data
 
 
-class ExecuteFailed(Exception):
-    """When execution fails"""
-
-
 class Process:
 
     def __init__(
-            self, 
+            self,
             executable,
             workdir="",
             omp_threads=1,
-            prefix='DEMON',
-            system=True):
+            prefix='DEMON'):
 
-        self.command = "cd %s && "%workdir + executable 
-        self.system  = system
-        self.prefix  = prefix
+        self.executable  = Path(executable).expanduser() if executable else None
+        self.workdir     = Path(workdir).expanduser() if workdir else Path(".")
+        self.prefix      = prefix
         self.omp_threads = omp_threads
 
 
-    def execute(self):
+    def execute(self, check=True, timeout=None):
 
-        os.environ["OMP_NUM_THREADS"] = str(self.omp_threads)
+        if self.executable is None:
+            raise EnvironmentError("No executable configured")
 
-        if self.command is None:
-            raise EnvironmentError("Unknow command")
-        
-        
-        command = self.command
+        exe = self.executable.resolve()
+        if not exe.is_file():
+            raise FileNotFoundError(f"Executable not found: {exe}")
+        if not os.access(exe, os.X_OK):
+            raise PermissionError(f"Executable not runnable: {exe}")
 
-        if 'PREFIX' in command:
-            command = command.replace('PREFIX', self.prefix)
+        wd = self.workdir.resolve()
+        if not wd.is_dir():
+            raise NotADirectoryError(f"Working directory missing: {wd}")
 
-        if self.system:
-            os.system( command )
+        env = {**os.environ, "OMP_NUM_THREADS": str(self.omp_threads)}
 
-        else:
-            try:
-                proc = subprocess.Popen(command, shell=True, cwd="./")
-            except OSError as err:
+        try:
+            result = subprocess.run(
+                [str(exe)],
+                cwd=str(wd),
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=timeout,
+                check=False,
+            )
+        except OSError as err:
+            raise EnvironmentError(f'Failed to execute "{exe}"') from err
 
-                msg = f'Failed to execute "{command}"'
-                raise EnvironmentError(msg) from err
+        if check and result.returncode != 0:
+            raise ExecuteFailed(
+                f'Calculator "{self.prefix}" failed with return code '
+                f'{result.returncode} in {wd}\nstderr:\n{result.stderr}'
+            )
 
-            errorcode = proc.wait()
-
-            if errorcode:
-                path = os.path.abspath("./")
-                msg = (
-                    'Calculator "{}" failed with command "{}" failed in '
-                    '{} with error code {}'.format(
-                        self.prefix, command, path, errorcode
-                    )
-                )
-                raise ExecuteFailed(msg)
+        return result
 
 
 from functools import wraps

@@ -13,10 +13,10 @@ from deMonPy.input import write_input
 from deMonPy.output import read_output
 
 
-from deMonPy.module import Modules
+from deMonPy.module import modules
 
 
-class _ionization_potential(Modules):
+class _ionization_potential(modules):
 
     def __init__(
             self,

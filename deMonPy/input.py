@@ -9,6 +9,7 @@ import deMonPy
 
 
 from deMonPy.profile import assert_flags,exclude_flags
+from deMonPy.exceptions import ConfigError
 
 
 _atoms_symbols_to_numbers = {
@@ -78,10 +79,13 @@ class write_input:
         }
 
         # Update Parameters Flags
-        params = parameters.get("DEMON_PARAMETERS",None)
-        self.parameters = params.get("ACTIVE",{})
+        params = parameters.get("DEMON_PARAMETERS", None)
+        if params is None:
+            raise ConfigError("DEMON_PARAMETERS block is missing")
+        self.parameters = params.get("ACTIVE", {})
 
-        assert self.parameters!={}, ValueError("No parameters")
+        if not self.parameters:
+            raise ConfigError("DEMON_PARAMETERS.ACTIVE is empty or missing")
         self.flags = set(key.lower() for key in self.parameters.keys())
         
         # Update Modules Flags

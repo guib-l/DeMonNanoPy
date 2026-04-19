@@ -32,6 +32,7 @@ import numpy as np
 
 import deMonPy
 from deMonPy.profile import Process
+from deMonPy.exceptions import ConfigError, ExecuteFailed
 from deMonPy.input import write_input
 from deMonPy.output import read_output
 from deMonPy.encoder import AseEncoder
@@ -57,7 +58,7 @@ class BasicCalculation:
     execut = ""
     workdir = None
 
-    def __init__(self, exec, workdir, prefix, omp_threads=1, system=False):
+    def __init__(self, exec, workdir, prefix, omp_threads=1):
         """Initialise the calculation process wrapper.
 
         Args:
@@ -66,16 +67,12 @@ class BasicCalculation:
             prefix: Prefix used by the process manager.
             omp_threads: Number of OpenMP threads to request.
                 Defaults to ``1``.
-            system: If ``True`` the executable is launched through
-                :func:`os.system`; otherwise :mod:`subprocess` is used.
-                Defaults to ``False``.
         """
         self.process = Process(
             executable=exec,
             workdir=workdir,
             prefix=prefix,
             omp_threads=omp_threads,
-            system=system,
         )
 
     def execute(self, ignore_fails=False):
@@ -86,14 +83,14 @@ class BasicCalculation:
                 execution is silently caught.  Defaults to ``False``.
 
         Raises:
-            Exception: Propagated from :meth:`Process.execute` when
+            ExecuteFailed: Propagated from :meth:`Process.execute` when
                 the run fails and *ignore_fails* is ``False``.
         """
         try:
             self.process.execute()
-        except Exception as e:
+        except Exception:
             if not ignore_fails:
-                raise Exception(e)
+                raise
 
     def set_workdir(self):
         """Create the working directory if it does not already exist."""
@@ -172,7 +169,6 @@ class deMonNano(BasicCalculation):
             execut=None,
             workdir=".",
             omp_threads=1,
-            system=True,
             prefix="DEMON",
             title="CALCULATION DEMONANO",
             properies=['energy'],
@@ -186,9 +182,6 @@ class deMonNano(BasicCalculation):
             workdir: Directory where calculation files are written.
                 Defaults to the current directory.
             omp_threads: Number of OpenMP threads.  Defaults to ``1``.
-            system: If ``True`` (default) the executable is launched
-                through :func:`os.system`; otherwise :mod:`subprocess`
-                is used.
             prefix: Prefix used by the process manager.
                 Defaults to ``"DEMON"``.
             title: Title written to the generated input.
@@ -218,8 +211,7 @@ class deMonNano(BasicCalculation):
                                   _execut,
                                   _workdir,
                                   _prefix,
-                                  omp_threads=omp_threads,
-                                  system=system )
+                                  omp_threads=omp_threads)
         
         # Start running directory
         self.title   = title
@@ -249,18 +241,29 @@ class deMonNano(BasicCalculation):
                                flags=self.flags,
                                output="deMon.out")
         
+    _ARTIFACT_PATTERNS = (
+        "deMon.inp", "deMon.out", "deMon.mol", "deMon.coef",
+        "deMon.rst", "deMon.*.mol", "*.log",
+    )
+
     def clean_workdir(self):
-        """Remove every file inside the working directory.
+        """Remove known deMonNano artefacts from the working directory.
 
-        .. warning::
-
-            This deletes **all** files matched by ``<workdir>/*``
-            without confirmation.  It does not recurse into
-            sub-directories.
+        Only files matching :attr:`_ARTIFACT_PATTERNS` are deleted.
+        Sub-directories and unrelated files are preserved.  Refuses to
+        operate on filesystem roots or the user's home directory.
         """
-        files = glob.glob(os.path.join(self.workdir, "*"))
-        for f in files:
-            os.remove(f)
+        from pathlib import Path
+
+        wd = Path(self.workdir).expanduser().resolve()
+        forbidden = {Path.home().resolve(), Path(wd.anchor).resolve()}
+        if wd in forbidden:
+            raise RuntimeError(f"Refusing to clean workdir {wd}")
+
+        for pattern in self._ARTIFACT_PATTERNS:
+            for f in wd.glob(pattern):
+                if f.is_file():
+                    f.unlink()
                 
     def reset(self):
         """Clear stored states, results and active flags.
@@ -485,6 +488,37 @@ class deMonNano(BasicCalculation):
             file=files,
         )
 
+    def has_errors(self):
+        """Return ``True`` if the last calculation recorded any error.
+
+        Returns:
+            bool: True when ``results["errors"]`` is non-empty.
+        """
+        return bool(self.results.get("errors"))
+
+    def raise_on_errors(self):
+        """Raise :class:`ExecuteFailed` when errors were recorded.
+
+        Useful right after :meth:`calculate` to convert silently-parsed
+        deMonNano errors into a Python exception.
+
+        Raises:
+            ExecuteFailed: If at least one entry is present in
+                ``results["errors"]``.
+        """
+        errs = self.results.get("errors") or []
+        if not errs:
+            return
+        formatted = []
+        for e in errs:
+            if isinstance(e, dict):
+                formatted.append(f"[{e.get('kind', '?')}] {e.get('message', '')}")
+            else:
+                formatted.append(str(e))
+        raise ExecuteFailed(
+            "Calculation reported errors:\n  " + "\n  ".join(formatted)
+        )
+
 
 
 from deMonPy import available_modules
@@ -523,7 +557,6 @@ class Module_DeMonNano(deMonNano):
             execut=None,
             workdir=".",
             omp_threads=1,
-            system=True,
             prefix="DEMON",
             title="CALCULATION MODULE-DEMONANO",
             properies=['energy'],
@@ -541,8 +574,6 @@ class Module_DeMonNano(deMonNano):
             workdir: Directory where calculation files are written.
                 Defaults to the current directory.
             omp_threads: Number of OpenMP threads.  Defaults to ``1``.
-            system: If ``True`` (default) the executable is launched
-                through :func:`os.system`.
             prefix: Prefix used by the process manager.
                 Defaults to ``"DEMON"``.
             title: Title written to the generated input.
@@ -561,7 +592,6 @@ class Module_DeMonNano(deMonNano):
             execut=execut,
             workdir=workdir,
             omp_threads=omp_threads,
-            system=system,
             prefix=prefix,
             title=title,
             properies=properies,
@@ -620,7 +650,8 @@ class Module_DeMonNano(deMonNano):
         module = self._module.pop("module", None)
         args   = self._module.pop("args", {})
 
-        assert module is not None, ValueError("Unknow module")
+        if module is None:
+            raise ConfigError("Unknown module: module definition has no 'module' entry")
         
         args.update(**kwds)
         params.update(**args)

@@ -9,6 +9,7 @@ import numpy as np
 import deMonPy
 from deMonPy.molden import read_XYZ
 from deMonPy.profile import assert_flags,exclude_flags
+from deMonPy.exceptions import OutputParseError
 
 def convert_float(val, safe=False):
     try:
@@ -59,7 +60,8 @@ class IOread(object):
         Returns:
             float: Parsed floating-point value.
         """
-        assert index!=None, ValueError("index need to ba an integer")
+        if index is None:
+            raise TypeError("index must be an integer")
         return float(line.split()[index])
 
     def get_int(self, line, index=-1):
@@ -72,7 +74,8 @@ class IOread(object):
         Returns:
             int: Parsed integer value.
         """
-        assert index!=None, ValueError("index need to ba an integer")
+        if index is None:
+            raise TypeError("index must be an integer")
         return int(line.split()[index])
 
     def get_list(self, line, index_in=None, index_out=None, ctype=np.float64):
@@ -187,13 +190,42 @@ class read_output(IOread):
 
 
     def read_file(self,):
-        """Load the main output file into memory."""
+        """Load the main output file into memory.
 
-        filename = os.path.join(self.workdir,self.output)
-        with open(filename,'r') as fd:
+        Raises:
+            OutputParseError: If the output file is missing or
+                unreadable (typical when the binary crashed before
+                writing anything).
+        """
 
-            for line in fd.readlines():
-                self.lines.append(line)
+        filename = os.path.join(self.workdir, self.output)
+        try:
+            with open(filename, 'r') as fd:
+                self.lines.extend(fd.readlines())
+        except FileNotFoundError as err:
+            raise OutputParseError(
+                f"deMon output not found at {filename}. "
+                f"Did the calculation fail before writing output?"
+            ) from err
+        except OSError as err:
+            raise OutputParseError(
+                f"Cannot read deMon output at {filename}: {err}"
+            ) from err
+
+    def _add_error(self, kind, message, line=None):
+        """Append a structured error entry to the results.
+
+        Args:
+            kind: Short error category (e.g. ``"mpi"``, ``"tddftb"``,
+                ``"scf"``, ``"optimization"``).
+            message: Human-readable description.
+            line: Optional source line the error was extracted from.
+        """
+        self.complet_results.setdefault("errors", []).append({
+            "kind": kind,
+            "message": message,
+            "line": line,
+        })
     
 
     # =================================
@@ -302,17 +334,31 @@ class read_output(IOread):
     # READ GEOMETRY (basics)
 
     @exclude_flags(["ptmc","freq","ptmd"])
-    def read_geometry(self, output='deMon.mol',is_charges=False, velocities=False, keep=1):       
+    def read_geometry(self, output='deMon.mol',is_charges=False, velocities=False, keep=1):
         """Read input, output, or trajectory geometries.
 
         Args:
             output: Geometry file name.
             is_charges: Whether the XYZ reader should parse charges.
             keep: Geometry sampling interval.
+
+        Raises:
+            OutputParseError: If the geometry file is missing (typically
+                when the calculation crashed before emitting it).
         """
-        
-        filename = os.path.join(self.workdir,output)
-        data,info = read_XYZ(filename,is_charges=is_charges, velocities=velocities, keep=keep)
+
+        filename = os.path.join(self.workdir, output)
+        if not os.path.isfile(filename):
+            raise OutputParseError(
+                f"Geometry file not found at {filename}. "
+                f"The calculation likely did not complete."
+            )
+        try:
+            data, info = read_XYZ(filename, is_charges=is_charges, velocities=velocities, keep=keep)
+        except (OSError, ValueError) as err:
+            raise OutputParseError(
+                f"Failed to parse geometry file {filename}: {err}"
+            ) from err
 
         
         if len(data)==2:
@@ -404,8 +450,8 @@ class read_output(IOread):
         """Parse PTMD response"""
         for line in self.lines:
             if "ERROR IN MPI_INIT" in line:
-                self.complet_results["errors"].append("ERROR IN MPI_INIT".lower())
-                return 
+                self._add_error("mpi", "ERROR IN MPI_INIT", line=line.strip())
+                return
 
     @assert_flags("td-dftb")
     def read_tddftb(self):
@@ -414,8 +460,8 @@ class read_output(IOread):
         msg = "LINEAR RESPONSE FOR CLOSED SHELL MOLECULES ONLY."
         for line in self.lines:
             if msg in line:
-                self.complet_results["errors"] = [msg.lower()]
-                return 
+                self._add_error("tddftb", msg, line=line.strip())
+                return
         
         args = {}
         for line in self.lines:
@@ -814,19 +860,20 @@ class read_output(IOread):
         
             
     def read_errors(self,):
-        err = self.complet_results["errors"] if "errors" in self.complet_results.keys()  else  []
+        """Scan for textual errors emitted by deMonNano and record them.
+
+        Appends structured entries produced by :meth:`_add_error`.
+        """
         for line in self.lines:
             if 'ERROR :' in line:
-                _str = line.split(':')[-1]
-                err.append(_str.strip())
+                _str = line.split(':')[-1].strip()
+                self._add_error("demon", _str, line=line.strip())
 
-        msg = ["optimization not converged",]
+        msg = ["optimization not converged"]
         for line in self.lines:
             for m in msg:
                 if m in line:
-                    err.append(m)
-
-        self.complet_results["errors"] = err
+                    self._add_error("optimization", m, line=line.strip())
 
     @exclude_flags(["ptmc","freq"])
     def parse_tensors(self):

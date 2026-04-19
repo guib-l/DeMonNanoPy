@@ -94,8 +94,8 @@ class TestPTMD:
 
         results = mod.results
 
-        msg = 'error in mpi_init'
-        if msg in results["errors"]:
+        msg = 'ERROR IN MPI_INIT'
+        if msg in results["errors"][0]['message']:
             return
 
         pote = results["potential_energy"]
@@ -149,8 +149,8 @@ class TestPTMD:
         )
 
         results = mod.results
-        msg = 'error in mpi_init'
-        if msg in results["errors"]:
+        msg = 'ERROR IN MPI_INIT'
+        if msg in results["errors"][0]['message']:
             return
         
         pote = results["potential_energy"]
@@ -206,8 +206,8 @@ class TestPTMD:
         )
 
         results = mod.results
-        msg = 'error in mpi_init'
-        if msg in results["errors"]:
+        msg = 'ERROR IN MPI_INIT'
+        if msg in results["errors"][0]['message']:
             return
         pote = results["potential_energy"]
         kine = results["kinetic_energy"]
@@ -262,8 +262,8 @@ class TestPTMD:
         )
 
         results = mod.results
-        msg = 'error in mpi_init'
-        if msg in results["errors"]:
+        msg = 'ERROR IN MPI_INIT'
+        if msg in results["errors"][0]['message']:
             return
         
         pote = results["potential_energy"]

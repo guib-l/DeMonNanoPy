@@ -59,7 +59,6 @@ class DeMonNano(Calculator):
         "basis": {},
         "parameters": {},
         "omp_threads": 1,
-        "system": True,
         "prefix": "DEMON",
         "title": "CALCULATION DEMONANO",
     }
@@ -91,8 +90,6 @@ class DeMonNano(Calculator):
                   ``DEMON_PARAMETERS > ACTIVE`` (e.g.
                   ``{"DFTB": {"SCC": True}}``).
                 * **omp_threads** -- OpenMP thread count (default ``1``).
-                * **system** -- use :func:`os.system` if ``True``
-                  (default), else :mod:`subprocess`.
                 * **prefix** -- process manager prefix (default
                   ``"DEMON"``).
                 * **title** -- input-file title string.
@@ -131,7 +128,6 @@ class DeMonNano(Calculator):
         execut = self.parameters.get("execut") or deMonPy.DEMON_EXECUTABLE
         basis = self.parameters.get("basis") or deMonPy.DEMON_BASIS
         omp_threads = self.parameters.get("omp_threads", 1)
-        system = self.parameters.get("system", True)
         prefix = self.parameters.get("prefix", "DEMON")
         title = self.parameters.get("title", "CALCULATION DEMONANO")
 
@@ -154,7 +150,6 @@ class DeMonNano(Calculator):
             execut=execut,
             workdir=workdir,
             omp_threads=omp_threads,
-            system=system,
             prefix=prefix,
             title=title,
             properies=properies,
