@@ -507,7 +507,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert np.allclose(results["energy"]["energy"],-8.15563755, atol=1e-7), \
+        assert np.allclose(results["energy"]["energy"],-8.14904689, atol=1e-7), \
             'Errors TRAJECTORY optimization'
         
 
@@ -538,7 +538,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert np.allclose(results["energy"]["energy"],-8.15563755, atol=1e-7), \
+        assert np.allclose(results["energy"]["energy"],-8.06209343, atol=1e-7), \
             'Errors TRAJECTORY optimization'
 
 

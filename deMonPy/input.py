@@ -356,6 +356,7 @@ class write_input:
         )
 
         coupling = params["COUPLING"]
+
         _read = ""
         if coupling=="READ":
             _read = f"\n{params.pop('FILENAME','')}"
@@ -391,8 +392,17 @@ class write_input:
         if self.complement is None:
             self.complement = ["",]*len(symbols)
 
-        if "QMMM" in self.flags:
+        if "qmmm" in self.flags:
             raise NotImplementedError("Flags QMMM set True")
+        
+        if "rg" in self.flags:
+            self.complement = []
+            for symb in symbols:
+                if symb not in ["He","Ne","Ar","Kr"]:
+                    self.complement.append("Q=0.0 QMMM=QM")
+                else:
+                    self.complement.append("Q=0.0 QMMM=MM")
+
         
         for s,p,u in zip(symbols,positions,self.complement):
             geometry += "%s %s %s %s %s\n" % \
