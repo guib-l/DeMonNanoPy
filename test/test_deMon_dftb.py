@@ -292,7 +292,9 @@ class TestDftb:
                             "FERMI":None,
                             "THRID":False,
                             "DISP":False,
-                            "LEV_S":None
+                            "LEV_S":None,
+                            "ALPHAH":0.0,
+                            "ALPHAO":0.0
                         },
                     },
                 }
@@ -309,7 +311,7 @@ class TestDftb:
             positions=image.positions )
 
         results = mod.results
-        assert results["energy"]["energy"] == -7.92780227 
+        assert results["energy"]["energy"] == -8.06209343 
 
     def test_scc_maxiter(self):
         

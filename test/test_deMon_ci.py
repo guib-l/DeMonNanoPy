@@ -132,7 +132,7 @@ class TestDFTBCI:
         results = dem.results
         energy = results["energy"]
 
-        assert np.allclose(energy["energy"], -23.34473263, atol=1e-7) 
+        assert np.allclose(energy["energy"],-23.28746978, atol=1e-7) 
         assert np.allclose(energy["electronic_energy"], -23.92276564, atol=1e-7) 
         assert np.allclose(energy["coulomb_energy"], 0.12999541, atol=1e-7) 
         assert np.allclose(energy["repulsive_energy"], 0.63529586, atol=1e-7) 

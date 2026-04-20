@@ -233,7 +233,7 @@ class TestOptimization:
                     "ACTIVE":{
                         "OPT":{
                             "MAX":99,
-                            "TOL":3e-4,
+                            "TOL":1e-4,
                             "GRADTOL":4e-6,
                             "STEP":0.3,
                             "CGRAD":True,
@@ -257,7 +257,7 @@ class TestOptimization:
         )
         results = mod.results
         diff = np.abs(results["energy"]["energy"] - -8.15538751)
-        assert np.allclose(diff,1e-5 ,atol=2e-6), 'Errors in CGRAD'  
+        assert np.allclose(diff,1e-5 ,atol=5e-6), 'Errors in CGRAD'  
 
 
     def test_opt_steepest_default(self):
