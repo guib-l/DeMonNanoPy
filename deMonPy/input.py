@@ -358,7 +358,7 @@ class write_input:
         coupling = params["COUPLING"]
         _read = ""
         if coupling=="READ":
-            _read = f"\n{params.pop("FILENAME","")}"
+            _read = f"\n{params.pop('FILENAME','')}"
         self.io_lines["QMMM"] = ["QM/MM",f"COUPLING={coupling}{_read}"]
         
         
