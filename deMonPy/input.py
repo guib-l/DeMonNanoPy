@@ -166,7 +166,7 @@ class write_input:
         if params is None:
             params = self.module["OPT"]
 
-        self.flags.remove("opt")
+        #self.flags.remove("opt")
         
         if params.pop("TRAJECTORY",False):
             self.flags.add("traj")

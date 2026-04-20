@@ -445,13 +445,6 @@ class read_output(IOread):
                 energies = [ state["energy"] for k,state in self.complet_results["states"].items()]       
                 self.complet_results["energy"] = {"energy":min(energies)}
         
-    @assert_flags("ptmd")
-    def read_ptmd(self):
-        """Parse PTMD response"""
-        for line in self.lines:
-            if "ERROR IN MPI_INIT" in line:
-                self._add_error("mpi", "ERROR IN MPI_INIT", line=line.strip())
-                return
 
     @assert_flags("td-dftb")
     def read_tddftb(self):
@@ -946,9 +939,25 @@ class read_output(IOread):
     # =================================
     # READ MODULES (basics)
 
+    @assert_flags("ptmd")
+    def _read_ptmd(self):
+        """Parse PTMD response"""
+        for line in self.lines:
+            if "ERROR IN MPI_INIT" in line:
+                self._add_error("mpi", "ERROR IN MPI_INIT", line=line.strip())
+                return
+
     @assert_flags("opt")
     def _read_opt(self):
         """Parse optimization-specific output sections."""
+        
+        self.complet_results['optimization'] = {}
+        for line in self.lines:
+            if 'Maximum gradient =' in line:
+                value = float(line.split()[-1])
+                self.complet_results['optimization']['grad_max'] = value
+                break
+        
 
     @assert_flags("ptmc")
     def _read_ptmc(self):

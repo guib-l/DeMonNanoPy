@@ -762,6 +762,37 @@ class TestDftb:
             atol=1e-7
         )
 
+    @pytest.mark.beta
+    def test_scc_pola_beta(self):
+        
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS":{
+                    "ACTIVE":{
+                        "DFTB":{
+                            "SCC":True,
+                            "POLA":True,
+                            "ALPHAH":1.0,
+                            "ALPHAO":2.0
+                        },
+                    },
+                }
+            }
+        )
+
+        mod = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **copy_parameters )
+            
+        mod.calculate(
+            symbols=image.symbols,
+            positions=image.positions )
+
+        results = mod.results
+        assert np.allclose(results["energy"]["energy"], -8.0654775, atol=1e-7)
+
 
 
 
