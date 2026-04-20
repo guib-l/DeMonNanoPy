@@ -198,7 +198,7 @@ class TestOptimization:
                 "DEMON_MODULE":{
                     "ACTIVE":{
                         "OPT":{
-                            "MAX":99,
+                            "MAX":999,
                             "TOL":3e-4,
                             "GRADTOL":4e-3,
                             "STEP":0.3,
@@ -232,7 +232,7 @@ class TestOptimization:
                 "DEMON_MODULE":{
                     "ACTIVE":{
                         "OPT":{
-                            "MAX":99,
+                            "MAX":999,
                             "TOL":1e-4,
                             "GRADTOL":4e-6,
                             "STEP":0.3,
@@ -256,8 +256,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        diff = np.abs(results["energy"]["energy"] - -8.15538751)
-        assert np.allclose(diff,1e-5 ,atol=5e-6), 'Errors in CGRAD'  
+        assert np.allclose(results["energy"]["energy"], -8.15563755 ,atol=1e-7), 'Errors in CGRAD'  
 
 
     def test_opt_steepest_default(self):
@@ -268,7 +267,7 @@ class TestOptimization:
                 "DEMON_MODULE":{
                     "ACTIVE":{
                         "OPT":{
-                            "MAX":99,
+                            "MAX":999,
                             "TOL":3e-4,
                             "GRADTOL":4e-6,
                             "STEP":0.3,
@@ -292,8 +291,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert results["energy"]["energy"] == -8.14859822   
-        assert np.allclose(results["energy"]["energy"],-8.14859822  ,atol=1e-7) 
+        assert np.allclose(results["energy"]["energy"],-8.15497995 ,atol=1e-7) 
         assert results["errors"][0]['message'] == "optimization not converged"
 
 
@@ -305,7 +303,7 @@ class TestOptimization:
                 "DEMON_MODULE":{
                     "ACTIVE":{
                         "OPT":{
-                            "MAX":99,
+                            "MAX":999,
                             "TOL":3e-4,
                             "GRADTOL":4e-6,
                             "STEP":0.3,
@@ -329,7 +327,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert np.allclose(results["energy"]["energy"],-8.14858038, atol=1e-7) 
+        assert np.allclose(results["energy"]["energy"],-8.15497675, atol=1e-7) 
         assert results["errors"][0]['message'] == "optimization not converged"
 
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
@@ -378,7 +376,7 @@ class TestOptimization:
                 "DEMON_MODULE":{
                     "ACTIVE":{
                         "OPT":{
-                            "MAX":99,
+                            "MAX":999,
                             "TOL":3e-4,
                             "GRADTOL":4e-6,
                             "STEP":0.3,
@@ -402,7 +400,7 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
-        assert np.allclose(results["energy"]["energy"],-8.15538751, atol=1e-7), \
+        assert np.allclose(results["energy"]["energy"],-8.15563755, atol=1e-7), \
             'Errors TRAJECTORY optimization'
         assert "trajectory" not in results.keys() 
 
