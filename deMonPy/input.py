@@ -344,6 +344,25 @@ class write_input:
         
         self.io_lines["DFTB"] = self.handler_writen(params, bind_str="=")
         
+    @assert_flags("rg")
+    def _write_rg(self, params=None):
+
+        if params is None:
+            params = self.parameters["RG"]
+
+        _alpharg = params.pop("ALPHARG","")
+        self.io_lines["DFTB"].append(
+            f"ALPHARG={_alpharg}"
+        )
+
+        coupling = params["COUPLING"]
+        _read = ""
+        if coupling=="READ":
+            _read = f"\n{params.pop("FILENAME","")}"
+        self.io_lines["QMMM"] = ["QM/MM",f"COUPLING={coupling}{_read}"]
+        
+        
+
     
     def _write_basis(self):
         """Write basis and parameter file references."""

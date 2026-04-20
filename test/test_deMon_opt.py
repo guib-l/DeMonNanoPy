@@ -408,6 +408,138 @@ class TestOptimization:
 
 
 
+    @pytest.mark.bird
+    def test_opt_bfgs(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_MODULE":{
+                    "ACTIVE":{
+                        "OPT":{
+                            "MAX":999,
+                            "TOL":3e-4,
+                            "GRADTOL":4e-6,
+                            "BFGS":True,
+                            "TRAJECTORY":True
+                        },
+                    },
+                }
+            }
+        )
+        mod = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **copy_parameters
+        )
+
+        mod.calculate(
+            symbols=image.symbols,
+            positions=image.positions
+        )
+        results = mod.results
+        assert np.allclose(results["energy"]["energy"],-8.15563755, atol=1e-7), \
+            'Errors TRAJECTORY optimization'
+
+
+    @pytest.mark.bird
+    def test_opt_lbfgs(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_MODULE":{
+                    "ACTIVE":{
+                        "OPT":{
+                            "MAX":999,
+                            "TOL":3e-4,
+                            "GRADTOL":4e-6,
+                            "LBFGS":True,
+                            "TRAJECTORY":True
+                        },
+                    },
+                }
+            }
+        )
+        mod = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **copy_parameters
+        )
+
+        mod.calculate(
+            symbols=image.symbols,
+            positions=image.positions
+        )
+        results = mod.results
+        assert np.allclose(results["energy"]["energy"],-8.15563755, atol=1e-7), \
+            'Errors TRAJECTORY optimization'
+
+
+    @pytest.mark.bird
+    def test_opt_lbfgs_mem(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_MODULE":{
+                    "ACTIVE":{
+                        "OPT":{
+                            "MAX":999,
+                            "TOL":3e-4,
+                            "GRADTOL":4e-6,
+                            "LBFGS":True,
+                            "MEMORY":999,
+                            "TRAJECTORY":True
+                        },
+                    },
+                }
+            }
+        )
+        mod = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **copy_parameters
+        )
+
+        mod.calculate(
+            symbols=image.symbols,
+            positions=image.positions
+        )
+        results = mod.results
+        assert np.allclose(results["energy"]["energy"],-8.15563755, atol=1e-7), \
+            'Errors TRAJECTORY optimization'
+        
+
+    @pytest.mark.bird
+    def test_opt_sp(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_MODULE":{
+                    "ACTIVE":{
+                        "OPT":{
+                            "SP":True,
+                            "TRAJECTORY":True
+                        },
+                    },
+                }
+            }
+        )
+        mod = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **copy_parameters
+        )
+
+        mod.calculate(
+            symbols=image.symbols,
+            positions=image.positions
+        )
+        results = mod.results
+        assert np.allclose(results["energy"]["energy"],-8.15563755, atol=1e-7), \
+            'Errors TRAJECTORY optimization'
 
 
 

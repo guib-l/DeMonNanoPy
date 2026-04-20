@@ -403,6 +403,8 @@ class deMonNano(BasicCalculation):
         self._wi._write_qmmm()
         self._wi._write_cutsys()
 
+        self._wi._write_rg()
+
         # Modules
         self._wi._write_opt()
         self._wi._write_ptmc()
