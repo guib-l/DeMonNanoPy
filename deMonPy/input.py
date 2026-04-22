@@ -412,6 +412,18 @@ class write_input:
 
         self.complement = None
 
+    @assert_flags("dipole")
+    def _write_dipole(self, params=None):
+        """Write DIPOLE key-word into input file
+        """
+        if params is None:
+            params = self.parameters["DIPOLE"]
+
+        if params.get("OUTFILE", False):
+            params["OUTFILE"] == True
+
+        self.io_lines["DIPOLE"] = self.handler_writen(params)
+
     @assert_flags("molecules")
     def _write_molecules(self, fmt = '%10.7f'):
         """Write MOLECULES key-word into input file
