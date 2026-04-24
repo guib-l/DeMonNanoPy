@@ -456,7 +456,6 @@ class read_output(IOread):
                 self._add_error("tddftb", msg, line=line.strip())
                 return
         
-        args = {}
         for line in self.lines:
             
             if self.is_inside("requested transitions to calculate",line):
@@ -464,12 +463,13 @@ class read_output(IOread):
                 break
 
         count = 0
-
+        from decimal import Decimal
         for key,signature in zip(["triplet","singlet"],["SUMMARY TRIPLET:","SUMMARY SINGLET"]):
+            
+            args = {}
+            for i,line in enumerate(self.lines):
 
-            for line in self.lines:
-
-                self.compute_block(line,signature,"",nb_line=N+4)
+                self.compute_block(line, signature,"",nb_line=N+4)
                 if self._tocken_block:
                     
                     values = line.split()
@@ -477,7 +477,7 @@ class read_output(IOread):
                         args.update(
                             {f"state_{count}":{
                                 "w":float(values[0]),
-                                "ocillator":float(values[1]),
+                                "oscillator":float(values[1]),
                                 "from":int(values[2]),
                                 "to":int(values[4]),
                                 "weight":float(values[5]),

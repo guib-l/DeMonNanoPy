@@ -1,11 +1,8 @@
-# IA tools
-CLAUDE.md
-.claude/
-
-# Enivironment local
+# Environment local
 .env/
 test_perso/
 basis/
+basis.04.26/
 data/
 archive/
 global.json

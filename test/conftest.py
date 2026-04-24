@@ -22,7 +22,12 @@ def pytest_addoption(parser):
         default=False,
         help="run bird-features tests"
     )
-
+    parser.addoption(
+        "--dftbplus",
+        action="store_true",
+        default=False,
+        help="run dftbplus-features tests"
+    )
 
 def pytest_collection_modifyitems(config, items):
 
@@ -45,6 +50,11 @@ def pytest_collection_modifyitems(config, items):
             if "bird" in item.keywords:
                 item.add_marker(skip_optional)
 
+    if not config.getoption("--dftbplus"):
+        skip_optional = pytest.mark.skip(reason="need --dftbplus option")
+        for item in items:
+            if "dftbplus" in item.keywords:
+                item.add_marker(skip_optional)
 
 
 

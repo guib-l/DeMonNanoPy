@@ -78,9 +78,7 @@ pyrene = Atoms(
             [-2.315834, 0.291268, 2.890140], 
         ])
     ) 
-
-
-
+ 
 WORKDIR = ".run/water_pyren/"
 
 
