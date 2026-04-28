@@ -1,6 +1,4 @@
 {
-    "_DEMON_EXECUTABLE":"~/Téléchargements/deMonNano/deMon.static-website.x",
-    "DEMON_EXECUTABLE":"~/Documents/dev_deMon/deMon.x",
-    "_DEMON_BASIS":"~/Téléchargements/deMonNano/test/basis",
-    "DEMON_BASIS":"~/Téléchargements/deMonNano/test/basis"
+    "DEMON_EXECUTABLE":"~/Téléchargements/deMonNano/deMon.static-website.x",
+    "DEMON_BASIS":"../../basis"
 }

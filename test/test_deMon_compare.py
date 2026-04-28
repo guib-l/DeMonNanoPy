@@ -201,7 +201,7 @@ class TestComparison:
             {
                 "BASIS":{
                     "PTYPE":"BIO",
-                    "SKFILE":deMonPy.DEMON_BASIS
+                    "SKFILE":"../../basis-test"
                 },
                 "DEMON_PARAMETERS":{
                     "ACTIVE":{
@@ -234,7 +234,7 @@ class TestComparison:
             {
                 "BASIS":{
                     "PTYPE":"BIO",
-                    "SKFILE":deMonPy.DEMON_BASIS
+                    "SKFILE":"../../basis-test"
                 },
                 "DEMON_PARAMETERS":{
                     "ACTIVE":{
@@ -268,7 +268,7 @@ class TestComparison:
             {
                 "BASIS":{
                     "PTYPE":"BIO",
-                    "SKFILE":deMonPy.DEMON_BASIS
+                    "SKFILE":"../../basis-test"
                 },
                 "DEMON_PARAMETERS":{
                     "ACTIVE":{
@@ -303,7 +303,7 @@ class TestComparison:
             {
                 "BASIS":{
                     "PTYPE":"BIO",
-                    "SKFILE":deMonPy.DEMON_BASIS
+                    "SKFILE":"../../basis-test"
                 },
                 "DEMON_PARAMETERS":{
                     "ACTIVE":{
@@ -341,7 +341,7 @@ class TestComparison:
             {
                 "BASIS":{
                     "PTYPE":"BIO",
-                    "SKFILE":deMonPy.DEMON_BASIS
+                    "SKFILE":"../../basis-test"
                 },
                 "DEMON_PARAMETERS":{
                     "ACTIVE":{
@@ -370,25 +370,35 @@ class TestComparison:
         
         dftbp_results = {
             "state_0": { 
-                "w": 8.912 , "oscillator" : 0.00145313 , "from": 8, "to":  9, "weight": 1.000, "energy":  8.904 },
+                "w": 8.912 , "oscillator" : 0.00145313 , "from": 8, 
+                "to":  9, "weight": 1.000, "energy":  8.904 },
             "state_1": { 
-                "w":11.495 , "oscillator" : 0.00020729 , "from": 7, "to":  9, "weight": 1.000, "energy": 11.493 },
+                "w":11.495 , "oscillator" : 0.00020729 , "from": 7, 
+                "to":  9, "weight": 1.000, "energy": 11.493 },
             "state_2": { 
-                "w":11.995 , "oscillator" : 0.01382197 , "from": 6, "to":  9, "weight": 0.995, "energy": 11.824 },
+                "w":11.995 , "oscillator" : 0.01382197 , "from": 6, 
+                "to":  9, "weight": 0.995, "energy": 11.824 },
             "state_3": { 
-                "w":12.804 , "oscillator" : 0.03615028 , "from": 5, "to":  9, "weight": 0.994, "energy": 12.550 },
+                "w":12.804 , "oscillator" : 0.03615028 , "from": 5, 
+                "to":  9, "weight": 0.994, "energy": 12.550 },
             "state_4": { 
-                "w":14.923 , "oscillator" : 0.00402463 , "from": 3, "to":  9, "weight": 0.966, "energy": 15.014 },
+                "w":14.923 , "oscillator" : 0.00402463 , "from": 3, 
+                "to":  9, "weight": 0.966, "energy": 15.014 },
             "state_5": { 
-                "w":15.704 , "oscillator" : 0.00101974 , "from": 8, "to": 10, "weight": 1.000, "energy": 15.694 },
+                "w":15.704 , "oscillator" : 0.00101974 , "from": 8, 
+                "to": 10, "weight": 1.000, "energy": 15.694 },
             "state_6": { 
-                "w":16.495 , "oscillator" : 0.51500594 , "from": 4, "to":  9, "weight": 0.952, "energy": 14.473 },
+                "w":16.495 , "oscillator" : 0.51500594 , "from": 4, 
+                "to":  9, "weight": 0.952, "energy": 14.473 },
             "state_7": { 
-                "w":18.316 , "oscillator" : 0.00360137 , "from": 7, "to": 10, "weight": 1.000, "energy": 18.283 },
+                "w":18.316 , "oscillator" : 0.00360137 , "from": 7, 
+                "to": 10, "weight": 1.000, "energy": 18.283 },
             "state_8": { 
-                "w":18.743 , "oscillator" : 0.06703579 , "from": 6, "to": 10, "weight": 0.999, "energy": 18.614 },
+                "w":18.743 , "oscillator" : 0.06703579 , "from": 6, 
+                "to": 10, "weight": 0.999, "energy": 18.614 },
             "state_9": { 
-                "w":19.505 , "oscillator" : 0.06665403 , "from": 5, "to": 10, "weight": 0.999, "energy": 19.340 },
+                "w":19.505 , "oscillator" : 0.06665403 , "from": 5, 
+                "to": 10, "weight": 0.999, "energy": 19.340 },
         }
         singlet = results["singlet"]
 
@@ -404,6 +414,40 @@ class TestComparison:
 
 
 
+
+    @pytest.mark.dftbplus
+    def test_scc_water_ldep(self):
+        
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "BASIS":{
+                    "PTYPE":"BIO",
+                    "SKFILE":"../../basis-test"
+                },
+                "DEMON_PARAMETERS":{
+                    "ACTIVE":{
+                        "DFTB":{
+                            "SCC":True,
+                            "TOL":1e-10,
+                            "L-DEP":True
+                        },
+                    },}} )
+
+        mod = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **copy_parameters
+        )
+
+            
+        mod.calculate(
+            symbols=water.symbols,
+            positions=water.positions
+        )
+
+        results = mod.results
+        assert np.allclose(results["energy"]["energy"],-8.0597927515, atol=1e-7)
 
 
 

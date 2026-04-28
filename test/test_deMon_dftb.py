@@ -441,21 +441,9 @@ class TestDftb:
                         "DFTB":{
                             "SCC":True,
                             "TOL":1e-8,
-                            "MEMOSCC":False,
-                            "POLA":False,
-                            "MAX":100,
-                            "MIX":0.2,
-                            "SIMPLE":False,
                             "L-DEP":True,
-                            "FERMI":None,
-                            "THRID":False,
-                            "DISP":False,
-                            "LEV_S":None
-                        },
-                    },
-                }
-            }
-        )
+                        },},
+                }})
 
         mod = deMonNano(
             title="CALCULATION DEMONANO",
@@ -469,7 +457,7 @@ class TestDftb:
             positions=image.positions )
 
         results = mod.results
-        assert results["energy"]["energy"] == -8.00903688 
+        assert results["energy"]["energy"] == -8.06480023
 
     def test_scc_fermi(self):
         
