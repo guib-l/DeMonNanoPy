@@ -590,11 +590,18 @@ class write_input:
             params = self.parameters["TD-DFTB"]
 
         value = params
+
         if isinstance(value, bool):
             if value:
                 self.io_lines['DFTB'].append("LRESP")
             else:
                 self.flags.remove("td-dftb")
+
+        elif isinstance(value, dict):
+            self.io_lines['DFTB'].append("LRESP")
+            self.io_lines['DFTB'] += self.handler_writen(value)
+            self.flags.remove("td-dftb")
+
         elif isinstance(value, int):
             self.io_lines['DFTB'].append(f"LRESP={value}")
 

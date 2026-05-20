@@ -74,9 +74,68 @@ class TestTDDFTB:
         assert 'triplet' in results.keys()
         assert 'singlet' in results.keys()
 
+    def test_tddftb_mdlresp(self):
 
+        parameter_config = deepcopy(parameters)
+        parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(
+            {
+                "DFTB":{
+                    "SCC":True
+                },
+                "TD-DFTB":{
+                    "FRESP":10
+                }
+            }
+        )
+        parameter_config['DEMON_MODULE'] = {'ACTIVE':{}}
+        parameter_config['DEMON_MODULE']['ACTIVE'].update(
+            {
+                "MD":{
+                    "MDYNAMICS":{
+                        "RANDOM":300,
+                    },
+                    "TIMESTEP":0.5,
+                    "MDSTEP":{
+                        "MAX":50,
+                        "OUT":1
+                    },
+                    "TRAJECTORY":True
+                }
+            }
+        )
 
+        dem = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **parameter_config
+        )
 
+        dem.calculate(
+            symbols=image.symbols,
+            positions=image.positions
+        )
+
+        results = dem.results
+
+        pote = results["potential_energy"]
+        kine = results["kinetic_energy"]
+        tote = results["total_energy"]
+
+        assert np.sum((tote - (pote+kine))[1:]) <= 1e-5
+        traj = results["trajectory"]
+        temperature = [atm.get_temperature() for atm in traj]
+
+        assert (temperature[0]-300.)<0.02 
+
+        filename = os.path.join(dem.workdir,"spectra_detailed.out")
+        assert os.path.exists(filename)
+
+        filename = os.path.join(dem.workdir,"spectra.out")
+        assert os.path.exists(filename)
+
+        filename = os.path.join(dem.workdir,"spectrum_final.out")
+        assert os.path.exists(filename)
+       
 
 
 
