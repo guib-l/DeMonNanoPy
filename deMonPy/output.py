@@ -953,12 +953,13 @@ class read_output(IOread):
 
         if "doforces" in self.flags:
             forces = []
-            filename = os.path.join(self.workdir,"forces.dat")
+            filename = os.path.join(self.workdir,"forces.out")
             with open(filename) as fd:
                 for i,line in enumerate(fd.readlines()):
                     if i==0:continue
                     forces.append( list(map(float,line.split())) )
             print(forces)
+            self.complet_results['forces'] = np.array(forces)
 
         
         self.complet_results['optimization'] = {}
