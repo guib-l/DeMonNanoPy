@@ -102,6 +102,48 @@ class TestDFTB_Rg:
         assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7) 
 
 
+    @pytest.mark.bird
+    def test_argon_derivative(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(
+            {
+                "DFTB":{
+                    "SCC":True,
+                    "DISP":2,
+                    "POLA":True,
+                    "NOPOLQM":True,
+                },
+                "RG":{
+                    "COUPLING":"ARGON",
+                    "ALPHARG":11.07,
+                    "FILENAME":None
+                }
+            }
+        )
+        parameter_config.update(
+            {   "DEMON_MODULE":{
+                    "ACTIVE":{
+                        "OPT":{
+                            "SP":True,
+                        },
+                    }, } } )
+
+        dem = deMonNano(
+            title="CALCULATION DEMONANO",
+            workdir=WORKDIR,
+            **parameter_config
+        )
+
+        dem.calculate(
+            symbols=image.symbols,
+            positions=image.positions
+        )
+
+        results = dem.results
+
+        assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7)
+
 
     @pytest.mark.bird
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
