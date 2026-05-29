@@ -165,7 +165,7 @@ class TestDFTB_Rg:
         results = dem.results
 
         assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7)
-        #assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7)
+        assert np.allclose(results["forces"], test_force, atol=1e-7)
 
 
     @pytest.mark.bird
