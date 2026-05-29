@@ -226,7 +226,7 @@ class TestDFTB_Rg:
             **parameter_config
         )
 
-        shutil.copy2("./data_test/rg_parameter", f"{WORKDIR}/rg_parameter")
+        shutil.copy2("./data_test/rg_parameters", f"{WORKDIR}/rg_parameters")
 
         dem.calculate(
             symbols=image.symbols,
