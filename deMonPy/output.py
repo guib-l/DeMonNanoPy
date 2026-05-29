@@ -950,6 +950,16 @@ class read_output(IOread):
     @assert_flags("opt")
     def _read_opt(self):
         """Parse optimization-specific output sections."""
+
+        if "doforces" in self.flags:
+            forces = []
+            filename = os.path.join(self.workdir,"forces.dat")
+            with open(filename) as fd:
+                for i,line in enumerate(fd.readlines()):
+                    if i==0:continue
+                    forces.append( list(map(float,line.split())) )
+            print(forces)
+
         
         self.complet_results['optimization'] = {}
         for line in self.lines:
