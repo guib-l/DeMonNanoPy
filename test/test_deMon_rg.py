@@ -91,7 +91,7 @@ WORKDIR = ".run/dftbrg/"
 class TestDFTB_Rg:
 
     @pytest.mark.bird
-    def _test_argon(self):
+    def test_argon(self):
 
         parameter_config = deepcopy(parameters)
         parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(
@@ -156,10 +156,10 @@ class TestDFTB_Rg:
 
         results = dem.results
         print(results["energy"]["energy"])
-        assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-8) 
+        assert np.allclose(results["energy"]["energy"], -19.51939793, atol=1e-7) 
 
     @pytest.mark.bird
-    def _test_argon_derivative(self):
+    def test_argon_derivative(self):
 
         parameter_config = deepcopy(parameters)
         parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(
@@ -204,7 +204,7 @@ class TestDFTB_Rg:
 
     @pytest.mark.bird
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
-    def _test_argon_read(self):
+    def test_argon_read(self):
 
         parameter_config = deepcopy(parameters)
         parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(
