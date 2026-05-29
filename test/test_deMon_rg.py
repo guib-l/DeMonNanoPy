@@ -136,7 +136,6 @@ class TestDFTB_Rg:
                     "POLA":True,
                     "NOPOLQM":True,
                 },
-                "CHARGE":1.0,
                 "RG":{
                     "COUPLING":"ARGON",
                     "ALPHARG":1.107,
