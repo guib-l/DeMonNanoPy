@@ -514,6 +514,15 @@ class TestOptimization:
     @pytest.mark.bird
     def test_opt_sp(self):
 
+        test_force = np.array([
+            [ 0.135530575750, 0.009199940329, 0.011440286997],
+            [ 0.010103858618,-0.000273288920,-0.002630485701],
+            [-0.001911798747, 0.001791329037,-0.012982417004],
+            [-0.212418203769, 0.109601608000,-0.113561867353],
+            [ 0.026059609077,-0.098807595197,-0.005777818373],
+            [ 0.042635959070,-0.021511993248, 0.123512301433],
+        ])
+
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
@@ -538,8 +547,10 @@ class TestOptimization:
             positions=image.positions
         )
         results = mod.results
+
         assert np.allclose(results["energy"]["energy"],-8.06209343, atol=1e-7), \
             'Errors TRAJECTORY optimization'
+        assert np.allclose(results["forces"], test_force, atol=1e-7)
 
 
 
