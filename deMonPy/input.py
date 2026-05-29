@@ -173,7 +173,7 @@ class write_input:
                 
         self.io_lines["OPTIMIZATION"] = []
 
-        if params.get("SP",True):
+        if params.get("SP",False):
             self.flags.add("doforces")
 
         for key,item in params.items():
