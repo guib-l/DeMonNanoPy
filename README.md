@@ -19,52 +19,9 @@ The codebase is organized around three main layers:
 - `deMonPy.deMonNano.deMonNano`: runs a standard calculation,
 - `deMonPy.deMonNano.Module_DeMonNano`: runs higher-level workflows through modules.
 
-## Requirements
-
-- Python 3
-- deMonNano executable available on the machine
-- basis/slater-koster files accessible from the chosen working directory
-
-Python dependencies listed in `requirements.txt`:
-
-- `numpy`
-- `ase`
-
 ## Installation
 
-Create and activate a virtual environment, then install the project in editable mode:
-
-```bash
-python -m venv .env
-source .env/bin/activate
-pip install -e .
-```
-
-This installs the Python dependencies declared in `pyproject.toml` and makes the
-`deMonPy` package importable from the environment.
-
-If you only want the raw dependencies without installing the package itself, you
-can still use:
-
-```bash
-pip install -r requirements.txt
-```
-
-Build metadata is defined in [pyproject.toml](/home/pguibourg/Documents/DeMonNanoPy/pyproject.toml) using `setuptools`.
-
-## Repository Layout
-
-```text
-deMonPy/
-  deMonNano.py      Main execution classes
-  input.py          Input writer
-  output.py         Output parser
-  profile.py        Process execution helpers and decorators
-  modules/          Workflow modules (optimization, PTMC, dynamics, ...)
-exemple/            Usage examples
-test/               Pytest-based regression tests and test data
-pyproject.toml      Packaging and dependency metadata
-```
+See `INSTALL.md`.
 
 ## Core Concepts
 
