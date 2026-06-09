@@ -18,7 +18,7 @@ def convert_float(val, safe=False):
         return val if not safe else None
     
 
-def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1):
+def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=True):
     info = []
     lines = fileobj.readlines()
     if lines[0] == "\n":
@@ -79,7 +79,7 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1):
             nread -= 1
 
         if nread==0:
-            if ase:
+            if ase and ase_obj:
                 img = ase.Atoms(
                     symbols, 
                     positions=positions,

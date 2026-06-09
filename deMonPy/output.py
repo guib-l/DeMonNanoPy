@@ -161,6 +161,7 @@ class read_output(IOread):
             workdir="./",
             output="deMon.out", 
             flags=set(),
+            ase_obj=True,
             type_calculation={}, ): 
         """Initialize the output reader.
 
@@ -184,7 +185,7 @@ class read_output(IOread):
         self.complet_results = {
             "errors":[],
         }
-        
+        self._ase_obj = ase_obj
         self.lines = []
 
 
@@ -354,7 +355,10 @@ class read_output(IOread):
                 f"The calculation likely did not complete."
             )
         try:
-            data, info = read_XYZ(filename, is_charges=is_charges, velocities=velocities, keep=keep)
+            data, info = read_XYZ(filename, 
+                                  is_charges=is_charges, 
+                                  velocities=velocities, 
+                                  keep=keep, ase_obj=self._ase_obj)
         except (OSError, ValueError) as err:
             raise OutputParseError(
                 f"Failed to parse geometry file {filename}: {err}"
