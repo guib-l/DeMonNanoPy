@@ -11,8 +11,12 @@ Available module in the deMonNanoAPI
  - opt  : Optimization
  - ptmc : Paralel Tempering Monte Carlo
  - md   : Simple molecular dynamics
-
 """
+available_modules = {
+    "OPT":None,
+    "PTMC":None,
+    "MD":None,
+}
 
 # Global configuration defaults
 DEMON_EXECUTABLE = None
