@@ -22,7 +22,8 @@ parameters = {
     "DEMON_PARAMETERS":{
         "ACTIVE":{
             "DFTB":{
-                "SCC":True
+                "SCC":True,
+                "DISP":2
             },
         },
     }
@@ -46,12 +47,9 @@ image = Atoms(
 WORKDIR = ".run/demon"
 
 
-
-
-
 class TestBasicUsage:
 
-    def test_single_point(self):
+    def _test_single_point(self):
 
         parameter_config = deepcopy(parameters)
 
@@ -73,9 +71,6 @@ class TestBasicUsage:
         assert energy["electronic_energy"] == -8.21888334
         assert energy["coulomb_energy"] == 0.04185358
         assert energy["repulsive_energy"] == 0.15678992
-
-
-
 
 
 

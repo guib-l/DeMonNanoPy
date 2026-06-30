@@ -157,8 +157,10 @@ class TestDFTB_Rg:
         print(results["energy"]["energy"])
         assert np.allclose(results["energy"]["energy"], -19.51939793, atol=1e-7) 
 
+
+    @pytest.mark.forces
     @pytest.mark.bird
-    def test_argon_derivative(self):
+    def test_argon_grad(self):
 
         parameter_config = deepcopy(parameters)
         parameter_config['DEMON_PARAMETERS']['ACTIVE'].update(

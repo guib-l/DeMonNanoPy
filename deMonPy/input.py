@@ -371,9 +371,12 @@ class write_input:
     def _write_basis(self):
         """Write basis and parameter file references."""
         params = self.io_lines.pop("PARAM")
-        new = [ "PTYPE="+params["PTYPE"]+f"\n{params['SKFILE']}" ]
-        
-        self.io_lines["PARAM"] = new
+
+        if isinstance(params, list):
+            self.io_lines["PARAM"] = params
+        else:
+            new = [ "PTYPE="+str(params["PTYPE"])+f"\n{params['SKFILE']}" ]
+            self.io_lines["PARAM"] = new
         
     @exclude_flags("molecules")
     def _write_geometry(self, symbols, positions, fmt = '%10.7f'):

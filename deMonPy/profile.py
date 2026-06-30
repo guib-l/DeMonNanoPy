@@ -63,6 +63,7 @@ class Process:
                 text=True,
                 timeout=timeout,
                 check=False,
+                shell=False
             )
         except OSError as err:
             raise EnvironmentError(f'Failed to execute "{exe}"') from err

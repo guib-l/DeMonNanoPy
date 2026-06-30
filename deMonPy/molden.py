@@ -104,7 +104,7 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=T
         if nbmol % keep == 0:
             images.append(img)
 
-    print(" \u2705 Loaded {} elements from XYZ file.".format(nbmol,))
+    #print(" \u2705 Loaded {} elements from XYZ file.".format(nbmol,))
     return images,np.array(info)
 
 def read_XYZ(filename, **kwargs):

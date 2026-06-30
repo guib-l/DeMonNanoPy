@@ -173,6 +173,7 @@ class deMonNano(BasicCalculation):
             title="CALCULATION DEMONANO",
             properies=['energy'],
             basis={},
+            ase_obj=True,
             **parameters):
         """Initialise a deMonNano calculator.
 
@@ -239,7 +240,8 @@ class deMonNano(BasicCalculation):
         self._wo = read_output(properties=properies,
                                workdir=self.workdir,
                                flags=self.flags,
-                               output="deMon.out")
+                               output="deMon.out",
+                               ase_obj=ase_obj)
         
     _ARTIFACT_PATTERNS = (
         "deMon.inp", "deMon.out", "deMon.mol", "deMon.coef",
@@ -354,7 +356,7 @@ class deMonNano(BasicCalculation):
         self.execute(ignore_fails=False)
 
 
-        self.read_output(read_charges=read_charges, 
+        self.parse_output(read_charges=read_charges, 
                          extract_debug=extract_debug,
                          **kwargs)
 
@@ -419,7 +421,7 @@ class deMonNano(BasicCalculation):
         self._wi.write(workdir=self.workdir)
 
 
-    def read_output(self, read_charges=False, extract_debug=False, **kwargs):
+    def parse_output(self, read_charges=False, extract_debug=False, **kwargs):
         """Parse deMonNano output files and populate :attr:`results`.
 
         The method loads ``deMon.out`` into memory, then calls every

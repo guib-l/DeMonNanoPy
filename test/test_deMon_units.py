@@ -58,7 +58,7 @@ class TestUnits:
 
     def test_units_bohr(self):
 
-        BOHR = 0.529177
+        from conftest import BOHR
         
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters['DEMON_PARAMETERS']['ACTIVE'].update(
