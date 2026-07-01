@@ -1078,8 +1078,17 @@ class read_output(IOread):
 
     @assert_flags("neb")
     def _read_neb(self):
-        """Parse nudged elastic band output sections."""
-        pass
+        """Parse nudged elastic band output sections.
+
+        NEB output parsing is not implemented yet.  Rather than returning
+        silently (which would leave the caller thinking the run was fully
+        parsed), an explicit error entry is recorded so that
+        :meth:`has_errors` / :meth:`raise_on_errors` surface it.
+        """
+        self._add_error(
+            "neb",
+            "NEB output parsing is not implemented yet.",
+        )
 
 
 

@@ -30,6 +30,12 @@ dependencies = [
     "pytest",
 ]
 
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "pre-commit",
+]
+
 [tool.setuptools]
 include-package-data = true
 
@@ -38,3 +44,16 @@ include = ["deMonPy", "deMonPy.*"]
 
 [tool.setuptools.package-data]
 deMonPy = ["parameters.json"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+# Start conservative: pyflakes (F) + a subset of pycodestyle (E) + isort (I).
+# Broaden this list once the codebase has been formatted once.
+select = ["E", "F", "I"]
+ignore = [
+    "E501",  # line-too-long: handled by the formatter, not enforced yet
+    "E741",  # ambiguous variable names (e.g. `l`) still present in the code
+]

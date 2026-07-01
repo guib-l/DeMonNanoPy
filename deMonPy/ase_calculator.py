@@ -136,7 +136,7 @@ class DeMonNano(Calculator):
         demon_parameters = {"ACTIVE": user_params}
 
         # Determine which output properties to request
-        properies = ["energy"]
+        requested_properties = ["energy"]
 
         # Determine if forces are requested.  When the user asks for
         # forces deMonNano must write gradients -- this requires the
@@ -152,7 +152,7 @@ class DeMonNano(Calculator):
             omp_threads=omp_threads,
             prefix=prefix,
             title=title,
-            properies=properies,
+            properties=requested_properties,
             basis=basis if isinstance(basis, dict) else {"PTYPE": "BIO", "SKFILE": basis},
             DEMON_PARAMETERS=demon_parameters,
         )
