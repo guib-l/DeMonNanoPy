@@ -1,10 +1,8 @@
-import os
 import json
 
-from deMonPy.modules.quench import _relax_geometry
-from deMonPy.modules.ptmc import _ptmc
 from deMonPy.modules.dyn import _dyn
-
+from deMonPy.modules.ptmc import _ptmc
+from deMonPy.modules.quench import _relax_geometry
 
 """
 Available module in the deMonNanoAPI
@@ -13,9 +11,9 @@ Available module in the deMonNanoAPI
  - md   : Simple molecular dynamics
 """
 available_modules = {
-    "opt":  {"module": _relax_geometry, "args": {}},
-    "ptmc": {"module": _ptmc,           "args": {}},
-    "md":   {"module": _dyn,            "args": {}},
+    "opt": {"module": _relax_geometry, "args": {}},
+    "ptmc": {"module": _ptmc, "args": {}},
+    "md": {"module": _dyn, "args": {}},
 }
 
 # Global configuration defaults
@@ -46,7 +44,5 @@ def configure_from_file(path="global.json"):
     with open(path) as f:
         config = json.load(f)
     configure(
-        executable=config.get("DEMON_EXECUTABLE"),
-        basis=config.get("DEMON_BASIS")
+        executable=config.get("DEMON_EXECUTABLE"), basis=config.get("DEMON_BASIS")
     )
-

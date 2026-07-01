@@ -1,46 +1,27 @@
 #!/usr/bin/env python3
-import __future__
 
 # Import standard de python3
-import os,sys
 import numpy as np
-
-
-
-import deMonPy
-from deMonPy.profile import Process
-from deMonPy.input import write_input
-from deMonPy.output import read_output
-
 
 from deMonPy.module import modules
 
 
-
 class _relax_geometry(modules):
+    def __init__(self, context, **kwargs):
 
-    def __init__(
-            self,
-            context,
-            **kwargs):
-        
         super().__init__(context=context, **kwargs)
 
         self._module_parameters = None
-
 
     def restart(self, **kwds):
 
         image = kwds.pop("image", None)
         if not image:
             image = self.context.results["output_geometry"]
-        
+
         self._module_parameters.update(**kwds)
-        
-        self.forward(
-            image=image,
-            **self._module_parameters
-        )
+
+        self.forward(image=image, **self._module_parameters)
 
     def check_distances(self, threshold=0.7):
         """Return the minimum interatomic distance of the relaxed geometry.
@@ -71,7 +52,7 @@ class _relax_geometry(modules):
             return None
 
         diff = positions[:, None, :] - positions[None, :, :]
-        dmat = np.sqrt((diff ** 2).sum(axis=-1))
+        dmat = np.sqrt((diff**2).sum(axis=-1))
         iu = np.triu_indices(positions.shape[0], k=1)
         min_dist = float(dmat[iu].min())
 
@@ -83,59 +64,33 @@ class _relax_geometry(modules):
             )
         return min_dist
 
-    def is_converged(self,):
+    def is_converged(
+        self,
+    ):
 
         for line in self.context._wo.lines:
-            if self.context._wo.is_inside(
-                    "optimization not converged",line ):
+            if self.context._wo.is_inside("optimization not converged", line):
                 return False
-            
+
         return True
 
-    def forward(
-            self, 
-            image,
-            max=999,
-            algo='CGRAD',
-            out=1,
-            restart=False,
-            **args):
-        
+    def forward(self, image, max=999, algo="CGRAD", out=1, restart=False, **args):
+
         self._module_parameters = dict(
-            max=max,
-            algo=algo,
-            out=out,
-            restart=restart,
-            **args
+            max=max, algo=algo, out=out, restart=restart, **args
         )
 
-        self.update_parameters({
-                "DEMON_MODULE":{
-                    "ACTIVE":{
-                        'OPT':{
-                            "MAX":max,
-                            algo:True,
-                            "OUT":out,
-                            **args
-                        } } } }
+        self.update_parameters(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {"OPT": {"MAX": max, algo: True, "OUT": out, **args}}
+                }
+            }
         )
 
-        self.context.calculate(
-            symbols=image.symbols,
-            positions=image.positions
-        )
-        
+        self.context.calculate(symbols=image.symbols, positions=image.positions)
+
         if not self.is_converged():
-            self.context.results["converged"]=False
+            self.context.results["converged"] = False
         else:
-            self.context.results["converged"]=True
-
-
-
-
-
-
-
-
-
-
+            self.context.results["converged"] = True

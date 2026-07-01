@@ -1,19 +1,12 @@
 #!/usr/bin/env python3
-import __future__
 
 # Import standard de python3
-import os,sys
 import copy
-from copy import deepcopy
 
 
 class modules:
+    def __init__(self, context=None, **parameters):
 
-    def __init__(
-            self,
-            context=None,
-            **parameters):
-        
         self.context = context or None
 
         self.context.reset()
@@ -31,16 +24,10 @@ class modules:
 
         params = copy.deepcopy(self.context.parameters)
         params = recursive_update(params, kwds)
-        
+
         self.context.update(**params)
 
     def __call__(self, **kwds):
-        
+
         if hasattr(self, "forward"):
             self.forward(**kwds)
-
-
-
-
-
-

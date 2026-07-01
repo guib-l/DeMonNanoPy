@@ -1,27 +1,49 @@
 #!/usr/bin/env python3
-import sys
 # Import standard de python3
 import os
+
 import numpy as np
 
-
-import deMonPy
-
-
-from deMonPy.profile import assert_flags,exclude_flags
 from deMonPy.exceptions import ConfigError
-
+from deMonPy.profile import assert_flags, exclude_flags
 
 _atoms_symbols_to_numbers = {
-    "H": 1,    "He": 2,    "Li": 3,    "Be": 4,
-    "B": 5,    "C": 6,    "N": 7,    "O": 8,
-    "F": 9,   "Ne": 10,    "Na": 11,    "Mg": 12,
-    "Al": 13,    "Si": 14,    "P": 15,    "S": 16,
-    "Cl": 17,    "Ar": 18,    "K": 19,    "Ca": 20,
-    "Sc": 21,    "Ti": 22,   "V": 23,    "Cr": 24,
-    "Mn": 25,    "Fe": 26,    "Co": 27,    "Ni": 28,
-    "Cu": 29,    "Zn": 30,    "Ga": 31,    "Ge": 32,   
-    "As": 33,    "Se": 34,    "Br": 35,    "I": 53,
+    "H": 1,
+    "He": 2,
+    "Li": 3,
+    "Be": 4,
+    "B": 5,
+    "C": 6,
+    "N": 7,
+    "O": 8,
+    "F": 9,
+    "Ne": 10,
+    "Na": 11,
+    "Mg": 12,
+    "Al": 13,
+    "Si": 14,
+    "P": 15,
+    "S": 16,
+    "Cl": 17,
+    "Ar": 18,
+    "K": 19,
+    "Ca": 20,
+    "Sc": 21,
+    "Ti": 22,
+    "V": 23,
+    "Cr": 24,
+    "Mn": 25,
+    "Fe": 26,
+    "Co": 27,
+    "Ni": 28,
+    "Cu": 29,
+    "Zn": 30,
+    "Ga": 31,
+    "Ge": 32,
+    "As": 33,
+    "Se": 34,
+    "Br": 35,
+    "I": 53,
 }
 
 
@@ -58,11 +80,7 @@ def parse_range_string(range_string: str) -> list[int]:
 class write_input:
     """Build deMonNano input sections from user parameters."""
 
-    def __init__(
-            self,
-            TITLE="",
-            BASIS=None,
-            **parameters):
+    def __init__(self, TITLE="", BASIS=None, **parameters):
         """Initialize the input writer.
 
         Args:
@@ -72,10 +90,10 @@ class write_input:
         """
 
         self.io_lines = {
-            "TITLE":TITLE,
-            "DFTB":[],
-            "PARAM":BASIS,
-            "GEOMETRY":[],
+            "TITLE": TITLE,
+            "DFTB": [],
+            "PARAM": BASIS,
+            "GEOMETRY": [],
         }
 
         # Update Parameters Flags
@@ -87,19 +105,17 @@ class write_input:
         if not self.parameters:
             raise ConfigError("DEMON_PARAMETERS.ACTIVE is empty or missing")
         self.flags = set(key.lower() for key in self.parameters.keys())
-        
+
         # Update Modules Flags
-        params = parameters.get("DEMON_MODULE",{})
-        self.module = params.get("ACTIVE",{})
+        params = parameters.get("DEMON_MODULE", {})
+        self.module = params.get("ACTIVE", {})
 
         try:
             self.flags.add(*[key.lower() for key in self.module.keys()])
-        except:
+        except Exception:
             pass
 
         self.complement = None
-
-
 
     def handler_writen(self, params, bind_str=" "):
         """Convert a parameter dictionary into inline deMonNano tokens.
@@ -110,27 +126,26 @@ class write_input:
         Returns:
             list[str]: Tokens ready to be written in the input file.
         """
-        
+
         _inline = []
 
-        for key,item in params.items():
-
-            if isinstance(item,dict):
-                _inline.append( self.handler_writen(item) )
+        for key, item in params.items():
+            if isinstance(item, dict):
+                _inline.append(self.handler_writen(item))
             elif item is None:
                 continue
-            elif isinstance(item,bool):
+            elif isinstance(item, bool):
                 if item:
-                    _inline.append( str(key) )
-            elif isinstance(item,(float,int)):
-                _inline.append( f"{key}={item}" )
-            elif isinstance(item,str):
-                _inline.append( f"{key}{bind_str}{item}" )
+                    _inline.append(str(key))
+            elif isinstance(item, (float, int)):
+                _inline.append(f"{key}={item}")
+            elif isinstance(item, str):
+                _inline.append(f"{key}{bind_str}{item}")
             else:
                 pass
         return _inline
 
-    def _write_table(self, table, symbols=None, fmt = '10.8f'):
+    def _write_table(self, table, symbols=None, fmt="10.8f"):
         """Serialize a generic table of parameters.
 
         Args:
@@ -142,19 +157,15 @@ class write_input:
         out = ""
         if symbols is None:
             symbols = [""] * len(table)
-        for symb,values in zip(symbols, table):
+        for symb, values in zip(symbols, table):
             out += f"\n{symb}"
             for v in values:
                 out += f" {v:{fmt}}"
         return out
 
-
-
     # =========================================================================
     # =========== MODULES -----------------------------------------------------
     # =========================================================================
-
-
 
     @assert_flags("opt")
     def _write_opt(self, params=None):
@@ -166,24 +177,21 @@ class write_input:
         if params is None:
             params = self.module["OPT"]
 
-        #self.flags.remove("opt")
-        
-        if params.pop("TRAJECTORY",False):
+        # self.flags.remove("opt")
+
+        if params.pop("TRAJECTORY", False):
             self.flags.add("traj")
-                
+
         self.io_lines["OPTIMIZATION"] = []
 
-        if params.get("SP",False):
+        if params.get("SP", False):
             self.flags.add("doforces")
 
-        for key,item in params.items():
-            
+        for key, item in params.items():
             if item is True:
-                self.io_lines['OPTIMIZATION'].append(f"{key}")
+                self.io_lines["OPTIMIZATION"].append(f"{key}")
             elif item > 0.0:
-                self.io_lines['OPTIMIZATION'].append(f"{key}={item}")
-        
-
+                self.io_lines["OPTIMIZATION"].append(f"{key}={item}")
 
     @assert_flags("ptmc")
     def _write_ptmc(self, params=None):
@@ -195,18 +203,18 @@ class write_input:
         if params is None:
             params = self.module["PTMC"]
 
-        if params.pop("TRAJECTORY",False):
+        if params.pop("TRAJECTORY", False):
             self.flags.add("traj")
-            
+
         if "SEED" in params["MC"].keys():
             if params["MC"]["SEED"] is True:
-                params["MC"]["SEED"] = np.random.randint(1,99999)
+                params["MC"]["SEED"] = np.random.randint(1, 99999)
 
-        self.io_lines["MONTECARLO"] = self.handler_writen(params.pop('MC'))
+        self.io_lines["MONTECARLO"] = self.handler_writen(params.pop("MC"))
 
-        self.io_lines["MCTEMP"] = self.handler_writen(params.pop('MCTEMP'),bind_str="=")
-
-
+        self.io_lines["MCTEMP"] = self.handler_writen(
+            params.pop("MCTEMP"), bind_str="="
+        )
 
     def _write_constraint(self, constraint):
         """Serialize molecular dynamics constraints.
@@ -218,57 +226,55 @@ class write_input:
             list[str]: Serialized constraint lines.
         """
         out = ""
-        for dir,value in constraint.items():
+        for dir, value in constraint.items():
             value = parse_range_string(value)
-            
+
             out = f"\n{dir} {value[0]}"
             for v in value[1:]:
                 out += f" {v}"
         return [out]
-    
-    
+
     def _io_write_mddynamics(self, params=None):
-        """ Write the MDYNAMICS block, which may contain a read section for velocities.
+        """Write the MDYNAMICS block, which may contain a read section for velocities.
         Args:
             params: MDYNAMICS parameter block.
-        """        
-        read = params.pop("READ",None)
+        """
+        read = params.pop("READ", None)
         if "RANDOM" and "ZERO" in params.keys():
             params.pop("ZERO")
-        
-        if read is not None:
 
+        if read is not None:
             veloc = False
-            if hasattr(read,"keys") and "VELOCITIES" in read.keys():
-                
-                if read["VELOCITIES"] is not None and len(read["VELOCITIES"])>0:
-                    
-                    value = range(1,len(read["VELOCITIES"])+1)
-                    txt = self._write_table(read["VELOCITIES"],value)
+            if hasattr(read, "keys") and "VELOCITIES" in read.keys():
+                if read["VELOCITIES"] is not None and len(read["VELOCITIES"]) > 0:
+                    value = range(1, len(read["VELOCITIES"]) + 1)
+                    txt = self._write_table(read["VELOCITIES"], value)
                     veloc = txt
 
             params["READ"] = veloc
 
         self.io_lines["MDYNAMICS"] = self.handler_writen(params)
-        
-        
-    def _io_write_bath(self, params=None,):
 
-        temp = ["SCAL","BERE","NOSE","LANGE","STOCH_R","ANDERSEN","LOCA"]
+    def _io_write_bath(
+        self,
+        params=None,
+    ):
+
+        temp = ["SCAL", "BERE", "NOSE", "LANGE", "STOCH_R", "ANDERSEN", "LOCA"]
 
         _is_thermo = 0
         for elm in temp:
-            if params[elm]: _is_thermo += 1
+            if params[elm]:
+                _is_thermo += 1
 
         if not params["NOSE"]:
             params["NTHER"] = None
             params["FREQTH"] = None
 
-        if _is_thermo==0:
+        if _is_thermo == 0:
             return
-        elif _is_thermo==1:
+        elif _is_thermo == 1:
             self.io_lines["MDBATH"] = self.handler_writen(params)
-
 
     @assert_flags("md")
     def _write_md(self, params=None):
@@ -276,40 +282,41 @@ class write_input:
 
         Args:
             params: Molecular dynamics parameter block.
-        """        
+        """
         if params is None:
             params = self.module["MD"]
-                    
-        self._io_write_mddynamics(params.pop('MDYNAMICS'))
 
-        self.io_lines["TIMESTEP"] = [str(params.pop('TIMESTEP'))]
+        self._io_write_mddynamics(params.pop("MDYNAMICS"))
 
-        mdtemp = params.pop('MDTEMP',None)
+        self.io_lines["TIMESTEP"] = [str(params.pop("TIMESTEP"))]
+
+        mdtemp = params.pop("MDTEMP", None)
         if mdtemp is not None:
             self.io_lines["MDTEMP"] = [str(mdtemp)]
 
-        self.io_lines["MDSTEP"] = self.handler_writen(params.pop('MDSTEP'))
+        self.io_lines["MDSTEP"] = self.handler_writen(params.pop("MDSTEP"))
 
-        if 'MDCONSTRAINTS' in params.keys():
-            self.io_lines["MDCONSTRAINTS"] =self._write_constraint(params.pop('MDCONSTRAINTS'))
+        if "MDCONSTRAINTS" in params.keys():
+            self.io_lines["MDCONSTRAINTS"] = self._write_constraint(
+                params.pop("MDCONSTRAINTS")
+            )
 
-        if 'CONSERVE' in params.keys():
-            self.io_lines["CONSERVE"] = self.handler_writen(params.pop('CONSERVE'))
+        if "CONSERVE" in params.keys():
+            self.io_lines["CONSERVE"] = self.handler_writen(params.pop("CONSERVE"))
 
-        if 'MDBATH' in params.keys():
-            self._io_write_bath(params.pop('MDBATH'))
+        if "MDBATH" in params.keys():
+            self._io_write_bath(params.pop("MDBATH"))
 
-        if 'PARATEMP' in params.keys():
+        if "PARATEMP" in params.keys():
             self.flags.add("ptmd")
-            self.io_lines["PARATEMP"] = self.handler_writen(params.pop('PARATEMP'))
+            self.io_lines["PARATEMP"] = self.handler_writen(params.pop("PARATEMP"))
 
-        if 'CARPAR' in params.keys():
-            self.io_lines["CARPAR"] = self.handler_writen(params.pop('CARPAR'))
+        if "CARPAR" in params.keys():
+            self.io_lines["CARPAR"] = self.handler_writen(params.pop("CARPAR"))
 
         if "TRAJECTORY" in params:
-            if params.pop("TRAJECTORY",None):
+            if params.pop("TRAJECTORY", None):
                 self.flags.add("traj")
-
 
     @assert_flags("neb")
     def _write_neb(self, params=None):
@@ -320,9 +327,6 @@ class write_input:
         """
         if params is None:
             params = self.module["NEB"]
-
-
-
 
     # =========================================================================
     # =========== PARAMETERS --------------------------------------------------
@@ -339,35 +343,30 @@ class write_input:
             params = self.parameters["DFTB"]
 
         if "wmull" in self.flags:
-            params.update({"WMULL":True})
+            params.update({"WMULL": True})
         if "cm3" in self.flags:
-            params.update({"CM3POT":True})
+            params.update({"CM3POT": True})
         if "cm3inter" in self.flags:
-            params.update({"CM3INTER":True})
-        
+            params.update({"CM3INTER": True})
+
         self.io_lines["DFTB"] = self.handler_writen(params, bind_str="=")
-        
+
     @assert_flags("rg")
     def _write_rg(self, params=None):
 
         if params is None:
             params = self.parameters["RG"]
 
-        _alpharg = params.pop("ALPHARG","")
-        self.io_lines["DFTB"].append(
-            f"ALPHARG={_alpharg}"
-        )
+        _alpharg = params.pop("ALPHARG", "")
+        self.io_lines["DFTB"].append(f"ALPHARG={_alpharg}")
 
         coupling = params["COUPLING"]
 
         _read = ""
-        if coupling=="READ":
-            _read = f"\n{params.pop('FILENAME','')}"
-        self.io_lines["QMMM"] = ["QM/MM",f"COUPLING={coupling}{_read}"]
-        
-        
+        if coupling == "READ":
+            _read = f"\n{params.pop('FILENAME', '')}"
+        self.io_lines["QMMM"] = ["QM/MM", f"COUPLING={coupling}{_read}"]
 
-    
     def _write_basis(self):
         """Write basis and parameter file references."""
         params = self.io_lines.pop("PARAM")
@@ -375,11 +374,11 @@ class write_input:
         if isinstance(params, list):
             self.io_lines["PARAM"] = params
         else:
-            new = [ "PTYPE="+str(params["PTYPE"])+f"\n{params['SKFILE']}" ]
+            new = ["PTYPE=" + str(params["PTYPE"]) + f"\n{params['SKFILE']}"]
             self.io_lines["PARAM"] = new
-        
+
     @exclude_flags("molecules")
-    def _write_geometry(self, symbols, positions, fmt = '%10.7f'):
+    def _write_geometry(self, symbols, positions, fmt="%10.7f"):
         """Write the geometry block.
 
         Args:
@@ -389,86 +388,89 @@ class write_input:
         """
         units = ""
         if "geometry" in self.flags:
-            for key,item in self.parameters["GEOMETRY"].items():
+            for key, item in self.parameters["GEOMETRY"].items():
                 if item:
                     units = key
 
         geometry = f"GEOMETRY {units}\n"
 
         if self.complement is None:
-            self.complement = ["",]*len(symbols)
+            self.complement = [
+                "",
+            ] * len(symbols)
 
         if "qmmm" in self.flags:
             raise NotImplementedError("Flags QMMM set True")
-        
+
         if "rg" in self.flags:
             self.complement = []
             for symb in symbols:
-                if symb not in ["He","Ne","Ar","Kr"]:
+                if symb not in ["He", "Ne", "Ar", "Kr"]:
                     self.complement.append("Q=0.0 QMMM=QM")
                 else:
                     self.complement.append("Q=0.0 QMMM=MM")
 
-        
-        for s,p,u in zip(symbols,positions,self.complement):
-            geometry += "%s %s %s %s %s\n" % \
-                        (s,fmt % p[0],fmt % p[1],fmt % p[2], u)
-            
+        for s, p, u in zip(symbols, positions, self.complement):
+            geometry += "%s %s %s %s %s\n" % (s, fmt % p[0], fmt % p[1], fmt % p[2], u)
+
         self.io_lines["GEOMETRY"] = [geometry]
 
         self.complement = None
 
     @assert_flags("dipole")
     def _write_dipole(self, params=None):
-        """Write DIPOLE key-word into input file
-        """
+        """Write DIPOLE key-word into input file"""
         if params is None:
             params = self.parameters["DIPOLE"]
 
         if params.get("OUTFILE", False):
-            params["OUTFILE"] == True
+            params["OUTFILE"] = True
 
         self.io_lines["DIPOLE"] = self.handler_writen(params)
 
     @assert_flags("molecules")
-    def _write_molecules(self, fmt = '%10.7f'):
-        """Write MOLECULES key-word into input file
-        """
+    def _write_molecules(self, fmt="%10.7f"):
+        """Write MOLECULES key-word into input file"""
 
         quat = self.parameters["QUATERNION"]
         molc = self.parameters["MOLECULES"]
 
         geometry = ""
-        coords = quat.pop("COORDS",None)
+        coords = quat.pop("COORDS", None)
 
         geometry += f"QUATERNION NMOL={len(coords)}"
-        for key,value in quat.items():
-            if not isinstance(value,bool):
+        for key, value in quat.items():
+            if not isinstance(value, bool):
                 continue
             if value:
-                geometry += f' {key}'
+                geometry += f" {key}"
 
         geometry += "\n"
-        for i,_q in enumerate(coords):
-            geometry += "%s %s %s %s %s %s %s %s\n" % \
-                (i+1,_q[0],_q[1],_q[2],_q[3],fmt % _q[4],fmt % _q[5],fmt % _q[6],)
+        for i, _q in enumerate(coords):
+            geometry += "%s %s %s %s %s %s %s %s\n" % (
+                i + 1,
+                _q[0],
+                _q[1],
+                _q[2],
+                _q[3],
+                fmt % _q[4],
+                fmt % _q[5],
+                fmt % _q[6],
+            )
 
         geometry += f"MOLECULES NMOL={len(molc['NAMES'])}\n"
-        for i,_n in enumerate(molc["NAMES"]):
-            geometry += f"{i+1} {_n}\n"
+        for i, _n in enumerate(molc["NAMES"]):
+            geometry += f"{i + 1} {_n}\n"
 
-
-        self.io_lines['GEOMETRY']  = [geometry]
-        
-
+        self.io_lines["GEOMETRY"] = [geometry]
 
     def _write_bondparams(self, symbols, params):
 
         self.io_lines["BONDPARAMS"] = []
-        for key,item in params["BONDPARAMS"].items():
+        for key, item in params["BONDPARAMS"].items():
             elmts = key.split()
-            
-            if np.all([True if np.all(elm in symbols) else False for elm in elmts ]):
+
+            if np.all([True if np.all(elm in symbols) else False for elm in elmts]):
                 self.io_lines["BONDPARAMS"].append(f"\n{str(key)} {float(item)}")
 
     @assert_flags("wmull")
@@ -481,10 +483,9 @@ class write_input:
         """
         if params is None:
             params = self.parameters["WMULL"]
-        
+
         self._write_bondparams(symbols, params)
-        
-        
+
     @assert_flags("cm3")
     def _write_bondparam_cm3(self, symbols, params=None):
         """Write bond parameters matching the current element set.
@@ -494,10 +495,10 @@ class write_input:
             params: Bond parameter block.
         """
         if params is None:
-            params = self.parameters.get("CM3", None )
-        
+            params = self.parameters.get("CM3", None)
+
         self._write_bondparams(symbols, params)
-        
+
     @assert_flags("cm3inter")
     def _write_bondparam_cm3inter(self, symbols, params=None):
         """Write bond parameters matching the current element set.
@@ -507,10 +508,10 @@ class write_input:
             params: Bond parameter block.
         """
         if params is None:
-            params = self.parameters.get("CM3INTER", None) 
-            
+            params = self.parameters.get("CM3INTER", None)
+
         self._write_bondparams(symbols, params)
-    
+
     @assert_flags("charge")
     def _write_charge(self, params=None):
         """Write the total charge section.
@@ -520,10 +521,9 @@ class write_input:
         """
         if params is None:
             params = self.parameters["CHARGE"]
-        
-        self.io_lines['CHARGE'] = {params:""}        
-    
-    
+
+        self.io_lines["CHARGE"] = {params: ""}
+
     @assert_flags("multi")
     def _write_multi(self, params=None):
         """Write the multiplicity section.
@@ -533,8 +533,8 @@ class write_input:
         """
         if params is None:
             params = self.parameters["MULTI"]
-        
-        self.io_lines['MULTI'] = {params:""}        
+
+        self.io_lines["MULTI"] = {params: ""}
 
     @assert_flags("ci")
     def _write_ci(self, params=None):
@@ -546,19 +546,18 @@ class write_input:
         if params is None:
             params = self.parameters["CI"]
 
-        if "CONST" in params.keys(): 
+        if "CONST" in params.keys():
             if params["CONST"] is None:
                 params.pop("CONST")
         if "CONST" not in params.keys():
-            self.io_lines['DFTB'].append('CI')
+            self.io_lines["DFTB"].append("CI")
 
-        for key,item in params.items():
-            
+        for key, item in params.items():
             if item is True:
-                self.io_lines['DFTB'].append(f"{key}")
+                self.io_lines["DFTB"].append(f"{key}")
             elif item > 0.0:
-                self.io_lines['DFTB'].append(f"{key}={item}")
-        
+                self.io_lines["DFTB"].append(f"{key}={item}")
+
     @assert_flags("cutsys")
     def _write_cutsys(self, params=None):
         """Write subsystem fragmentation directives.
@@ -570,21 +569,19 @@ class write_input:
             params = self.parameters["CUTSYS"]
 
         frags = params.pop("FRAGMENT")
-        self.io_lines['CUTSYS'] = []
-        self.io_lines['CUTSYS'].append(f"NMOL={len(frags)}")
+        self.io_lines["CUTSYS"] = []
+        self.io_lines["CUTSYS"].append(f"NMOL={len(frags)}")
 
         txt = ""
         for frgs in frags:
             txt += f"\n{frgs}"
 
-        for key,item in params.items():
-
+        for key, item in params.items():
             if item is True:
-                self.io_lines['CUTSYS'].append(f"{key}")
+                self.io_lines["CUTSYS"].append(f"{key}")
 
-        self.io_lines['CUTSYS'].append(txt)
-        
-    
+        self.io_lines["CUTSYS"].append(txt)
+
     @assert_flags("td-dftb")
     def _write_tddftb(self, params=None):
         """Write TD-DFTB response options.
@@ -599,19 +596,18 @@ class write_input:
 
         if isinstance(value, bool):
             if value:
-                self.io_lines['DFTB'].append("LRESP")
+                self.io_lines["DFTB"].append("LRESP")
             else:
                 self.flags.remove("td-dftb")
 
         elif isinstance(value, dict):
-            self.io_lines['DFTB'].append("LRESP")
-            self.io_lines['DFTB'] += self.handler_writen(value)
+            self.io_lines["DFTB"].append("LRESP")
+            self.io_lines["DFTB"] += self.handler_writen(value)
             self.flags.remove("td-dftb")
 
         elif isinstance(value, int):
-            self.io_lines['DFTB'].append(f"LRESP={value}")
+            self.io_lines["DFTB"].append(f"LRESP={value}")
 
-    
     @assert_flags("freq")
     def _write_freq(self, params=None):
         """Write frequency analysis directives.
@@ -621,12 +617,11 @@ class write_input:
         """
         if params is None:
             params = self.parameters["FREQ"]
-        
+
         if isinstance(params, bool):
             self.io_lines["FREQUENCY"] = []
         if isinstance(params, dict):
             self.io_lines[f"FREQUENCY VIB={params['VIB']}"] = []
-    
 
     @assert_flags("qmmm")
     def _write_qmmm(self, params=None):
@@ -638,35 +633,33 @@ class write_input:
         if params is None:
             params = self.parameters["QMMM"]
 
-        self.io_lines['QMMM'] = ["QM/MM"]
+        self.io_lines["QMMM"] = ["QM/MM"]
 
         if "RG" in params.keys():
-            rg    = params["RG"].upper()
-            self.io_lines['QMMM'].append(f"COUPLING={rg}")
+            rg = params["RG"].upper()
+            self.io_lines["QMMM"].append(f"COUPLING={rg}")
 
-            polaqm = params.get("polaqm".upper(),True)
-            polamm = params.get("polamm".upper(),True)
+            polaqm = params.get("polaqm".upper(), True)
+            polamm = params.get("polamm".upper(), True)
 
             if not polaqm:
-                self.io_lines['DFTB'].append("NOPOLQM")
+                self.io_lines["DFTB"].append("NOPOLQM")
             if not polamm:
-                self.io_lines['DFTB'].append("NOPOLMM")
-            
-            alpha = params.get("alpha".upper(),0.0)
-            self.io_lines['DFTB'].append(f"ALPHARG={alpha}")
+                self.io_lines["DFTB"].append("NOPOLMM")
 
+            alpha = params.get("alpha".upper(), 0.0)
+            self.io_lines["DFTB"].append(f"ALPHARG={alpha}")
 
         qm = parse_range_string(params["QM"])
         mm = parse_range_string(params["MM"])
-        
-        self.complement = ["",] * sum(qm+mm)
+
+        self.complement = [
+            "",
+        ] * sum(qm + mm)
         for idx in qm:
             self.complement[idx] = "Q=0.0 QMMM=QM"
         for idx in mm:
             self.complement[idx] = "Q=0.0 QMMM=MM"
-
-
-
 
     @assert_flags("print")
     def _write_debug(self, params=None):
@@ -680,46 +673,27 @@ class write_input:
 
         self.io_lines["PRINT"] = self.handler_writen(params)
 
-
-
-
     # =========================================================================
     # =========== WRITABLE ----------------------------------------------------
     # =========================================================================
 
-    def write(self, 
-              input="deMon.inp",
-              workdir=""):
+    def write(self, input="deMon.inp", workdir=""):
         """Write the assembled input file to disk.
 
         Args:
             input: Output input file name.
             workdir: Directory where the file is written.
         """
-        
-        path = os.path.join(workdir,input)
+
+        path = os.path.join(workdir, input)
 
         with open(path, "w") as fd:
-            
             geom = self.io_lines.pop("GEOMETRY")
-            for key,item in self.io_lines.items():
-                
+            for key, item in self.io_lines.items():
                 fd.write(key)
-                
+
                 for elm in item:
                     fd.write(f" {elm}")
                 fd.write("\n")
 
             fd.write(geom[-1])
-
-
-
-
-
-
-
-
-
-
-
-

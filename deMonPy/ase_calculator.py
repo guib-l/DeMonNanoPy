@@ -30,11 +30,10 @@ from copy import deepcopy
 
 import numpy as np
 from ase.calculators.calculator import Calculator, all_changes
-from ase.units import Hartree, Bohr
+from ase.units import Bohr, Hartree
 
 import deMonPy
 from deMonPy.deMonNano import deMonNano
-
 
 # Conversion factor: deMonNano reports gradients in Hartree/Bohr.
 # ASE expects forces in eV/Angstrom.  F = -gradient.
@@ -153,7 +152,9 @@ class DeMonNano(Calculator):
             prefix=prefix,
             title=title,
             properties=requested_properties,
-            basis=basis if isinstance(basis, dict) else {"PTYPE": "BIO", "SKFILE": basis},
+            basis=basis
+            if isinstance(basis, dict)
+            else {"PTYPE": "BIO", "SKFILE": basis},
             DEMON_PARAMETERS=demon_parameters,
         )
 

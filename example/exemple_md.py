@@ -1,71 +1,65 @@
-
-import pytest
 import configs
 import numpy as np
-
-import copy
-from copy import deepcopy
-
 from ase.atoms import Atoms
-from deMonPy.deMonNano import deMonNano
+
 from deMonPy.deMonNano import Module_DeMonNano
 
 parameters = {
-    "DEMON_EXECUTABLE":configs.EXECUTABLE,
-    "BASIS":{
-        "PTYPE":"BIO",
-        "SKFILE":"../../basis"
-    },
-    "DEMON_PARAMETERS":{
-        "ACTIVE":{
-            "DFTB":{
-                "SCC":True,
+    "DEMON_EXECUTABLE": configs.EXECUTABLE,
+    "BASIS": {"PTYPE": "BIO", "SKFILE": "../../basis"},
+    "DEMON_PARAMETERS": {
+        "ACTIVE": {
+            "DFTB": {
+                "SCC": True,
             },
         },
-    }
+    },
 }
 
 image = Atoms(
-    ["O","H","H","O","H","H"],
+    ["O", "H", "H", "O", "H", "H"],
     positions=np.array(
-        [[1.2478,-0.5185,3.4049],
-        [1.5946,-1.4204,3.3886],
-        [0.9008,-0.3341,2.5062],
-        [3.2478,-0.4185,3.4049],
-        [3.5946,-1.5204,3.3886],
-        [2.9008,-0.3341,2.6062],
-        ])
-    )
+        [
+            [1.2478, -0.5185, 3.4049],
+            [1.5946, -1.4204, 3.3886],
+            [0.9008, -0.3341, 2.5062],
+            [3.2478, -0.4185, 3.4049],
+            [3.5946, -1.5204, 3.3886],
+            [2.9008, -0.3341, 2.6062],
+        ]
+    ),
+)
 
 WORKDIR = ".run/md/"
-
 
 
 def exemple_run_md():
 
     mod = Module_DeMonNano(
-        module="md", 
+        module="md",
         title="CALCULATION DEMONANO",
         execut="~/Documents/dev_deMon/deMon.x",
         workdir=WORKDIR,
-        **parameters
+        **parameters,
     )
 
     mod(image=image, temp=10)
 
     mod.print_results()
 
+
 def exemple_run_md_velocities():
 
     mod = Module_DeMonNano(
-        module="md", 
+        module="md",
         title="CALCULATION DEMONANO",
         execut="~/Documents/dev_deMon/deMon.x",
         workdir=WORKDIR,
-        **parameters
+        **parameters,
     )
 
-    mod(image=image,
+    mod(
+        image=image,
         velocities=[
             [0.0, 0.0, 0.0],
             [0.0, 0.0, 0.0],
@@ -73,40 +67,34 @@ def exemple_run_md_velocities():
             [0.0, 0.0, 0.0],
             [0.0, 0.0, 0.0],
             [0.0, 0.0, 0.0],
-        ])
+        ],
+    )
 
     mod.print_results()
 
+
 def exemple_run_restart_md():
-    
+
     mod = Module_DeMonNano(
-        module="md", 
+        module="md",
         title="CALCULATION DEMONANO",
         execut="~/Documents/dev_deMon/deMon.x",
         workdir=WORKDIR,
-        **parameters
+        **parameters,
     )
 
     mod(image=image, temp=10)
 
     mod.print_results()
     print("Restarting MD with previous results...")
-    mod(restart=True,max_steps=15, out=5)
+    mod(restart=True, max_steps=15, out=5)
 
     mod.print_results()
 
 
-if __name__=='__main__':
-
+if __name__ == "__main__":
     exemple_run_md()
 
     exemple_run_md_velocities()
 
     exemple_run_restart_md()
-
-
-
-
-
-
-
