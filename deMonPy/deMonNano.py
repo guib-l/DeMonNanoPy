@@ -27,6 +27,7 @@ Typical usage::
 import os
 import sys
 import glob
+from copy import deepcopy
 
 import numpy as np
 
@@ -58,18 +59,18 @@ class BasicCalculation:
     execut = ""
     workdir = None
 
-    def __init__(self, exec, workdir, prefix, omp_threads=1):
+    def __init__(self, executable, workdir, prefix, omp_threads=1):
         """Initialise the calculation process wrapper.
 
         Args:
-            exec: Path to the deMonNano executable.
+            executable: Path to the deMonNano executable.
             workdir: Working directory used for input and output files.
             prefix: Prefix used by the process manager.
             omp_threads: Number of OpenMP threads to request.
                 Defaults to ``1``.
         """
         self.process = Process(
-            executable=exec,
+            executable=executable,
             workdir=workdir,
             prefix=prefix,
             omp_threads=omp_threads,
@@ -150,8 +151,6 @@ class deMonNano(BasicCalculation):
     (see :func:`~deMonPy.profile.assert_flags`).
 
     Attributes:
-        available_properties: Property names that can be populated by the
-            output parser (currently ``["energies", "forces"]``).
         parameters: Snapshot of the keyword arguments passed at init time.
         title: Title string written to the generated input file.
         workdir: Directory where calculation files are read and written.
@@ -162,8 +161,6 @@ class deMonNano(BasicCalculation):
         results: Dictionary of parsed results from the last calculation.
     """
 
-    available_properties = ["energies", "forces"]
-
     def __init__(
             self,
             execut=None,
@@ -171,7 +168,7 @@ class deMonNano(BasicCalculation):
             omp_threads=1,
             prefix="DEMON",
             title="CALCULATION DEMONANO",
-            properies=['energy'],
+            properties=['energy'],
             basis={},
             ase_obj=True,
             **parameters):
@@ -187,12 +184,8 @@ class deMonNano(BasicCalculation):
                 Defaults to ``"DEMON"``.
             title: Title written to the generated input.
                 Defaults to ``"CALCULATION DEMONANO"``.
-            properies: List of output properties requested from the
+            properties: List of output properties requested from the
                 parser (e.g. ``['energy']``).
-
-                .. note:: The parameter name is intentionally kept as
-                   ``properies`` for backward compatibility.
-
             basis: Basis configuration dictionary.  Expected keys are
                 ``"PTYPE"`` and ``"SKFILE"``.  Falls back to
                 :data:`deMonPy.DEMON_BASIS` when empty.
@@ -201,7 +194,6 @@ class deMonNano(BasicCalculation):
                 ``DEMON_WORKDIR``, ``DEMON_PARAMETERS`` and
                 ``DEMON_MODULE``.
         """
-        
         self.parameters = parameters.copy()
         
         _execut  = parameters.pop("DEMON_EXECUTABLE",execut or deMonPy.DEMON_EXECUTABLE)
@@ -221,14 +213,11 @@ class deMonNano(BasicCalculation):
 
         self.set_workdir()
 
-        # Initialize 
+        # Initialize
         self.state   = {}
         self.results = {}
 
         self.flags = set()
-
-        for props in self.available_properties:
-            self.results.update({ props:None })
 
         # Build parameters
         self.basis = parameters.pop("BASIS",basis or deMonPy.DEMON_BASIS)
@@ -237,7 +226,7 @@ class deMonNano(BasicCalculation):
                                **parameters)
         self.flags = self._wi.flags
         
-        self._wo = read_output(properties=properies,
+        self._wo = read_output(properties=properties,
                                workdir=self.workdir,
                                flags=self.flags,
                                output="deMon.out",
@@ -270,8 +259,8 @@ class deMonNano(BasicCalculation):
     def reset(self):
         """Clear stored states, results and active flags.
 
-        After calling this method every entry in :attr:`results` is
-        reset to ``None`` and :attr:`flags` is emptied.  A subsequent
+        After calling this method :attr:`results` and :attr:`state` are
+        emptied and :attr:`flags` is cleared.  A subsequent
         :meth:`update` or :meth:`calculate` call is required before
         the calculator can produce new results.
         """
@@ -280,12 +269,9 @@ class deMonNano(BasicCalculation):
 
         self.flags = set()
 
-        for props in self.available_properties:
-            self.results.update({props: None})
-
     def update(
             self,
-            properies=['energy'],
+            properties=['energy'],
             basis={},
             **parameters):
         """Rebuild the input writer and output reader with new parameters.
@@ -295,14 +281,13 @@ class deMonNano(BasicCalculation):
         :attr:`flags` set is re-derived from the new parameter keys.
 
         Args:
-            properies: List of output properties requested from the
+            properties: List of output properties requested from the
                 parser (e.g. ``['energy']``).
             basis: Basis configuration dictionary.  Falls back to
                 :data:`deMonPy.DEMON_BASIS` when empty.
             **parameters: Full deMonNano configuration dictionaries
                 (same structure as the constructor).
         """
-        
         self.parameters = parameters.copy()
 
         # Build parameters
@@ -312,11 +297,11 @@ class deMonNano(BasicCalculation):
                                **parameters)
         self.flags = self._wi.flags
         
-        self._wo = read_output(properties=properies,
+        self._wo = read_output(properties=properties,
                                workdir=self.workdir,
                                flags=self.flags,
                                output="deMon.out")
-        
+
 
     def calculate(
             self,
@@ -563,7 +548,7 @@ class Module_DeMonNano(deMonNano):
             omp_threads=1,
             prefix="DEMON",
             title="CALCULATION MODULE-DEMONANO",
-            properies=['energy'],
+            properties=['energy'],
             basis={},
             available_modules=available_modules,
             **parameters):
@@ -582,7 +567,7 @@ class Module_DeMonNano(deMonNano):
                 Defaults to ``"DEMON"``.
             title: Title written to the generated input.
                 Defaults to ``"CALCULATION MODULE-DEMONANO"``.
-            properies: List of output properties requested from the
+            properties: List of output properties requested from the
                 parser.
             basis: Basis configuration dictionary.
             available_modules: Registry mapping module names to their
@@ -591,14 +576,13 @@ class Module_DeMonNano(deMonNano):
             **parameters: Additional deMonNano configuration passed
                 through to :class:`deMonNano`.
         """
-        
         super().__init__(
             execut=execut,
             workdir=workdir,
             omp_threads=omp_threads,
             prefix=prefix,
             title=title,
-            properies=properies,
+            properties=properties,
             basis=basis,
             **parameters
         )
@@ -631,7 +615,7 @@ class Module_DeMonNano(deMonNano):
         """
         if module not in available_modules.keys():
             raise NotImplementedError(f"{module} is not available")
-        self._module = available_modules[module].copy()
+        self._module = deepcopy(available_modules[module])
 
 
     def initialize(self, **kwds):

@@ -13,9 +13,9 @@ Available module in the deMonNanoAPI
  - md   : Simple molecular dynamics
 """
 available_modules = {
-    "OPT":None,
-    "PTMC":None,
-    "MD":None,
+    "opt":  {"module": _relax_geometry, "args": {}},
+    "ptmc": {"module": _ptmc,           "args": {}},
+    "md":   {"module": _dyn,            "args": {}},
 }
 
 # Global configuration defaults

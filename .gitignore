@@ -1,5 +1,6 @@
 # Environment local
 .env/
+.prompt/
 test_perso/
 basis/
 basis.04.26/

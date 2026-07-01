@@ -6,7 +6,7 @@ Contributions of all kinds are welcome, including bug fixes, new features, docum
 
 ## Prerequisites
 
-- Python 3.12 or later
+- Python 3.10 or later
 - Git
 
 ## Setting up the development environment
@@ -28,13 +28,23 @@ source .venv/bin/activate
 
 ### Windows
 
-You killing ?
+```
+.venv\Scripts\activate
+```
+
+Then install the project in editable mode:
+
+```
+pip install -e .
+```
 
 ## Running the tests
 
 This project uses pytest for testing.
 
+```
 pytest
+```
 
 
 

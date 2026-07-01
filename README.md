@@ -79,7 +79,6 @@ Main keys used in the project:
 - `DEMON_PARAMETERS.ACTIVE`: active deMonNano sections such as `DFTB`, `CHARGE`, `MULTI`, `CI`, `CUTSYS`, `TD-DFTB`, `FREQ`, `QMMM`, and `PRINT`,
 - `DEMON_MODULE.ACTIVE`: active module settings such as `OPT`, `PTMC`, `MD`, or `NEB`.
 
-The repository contains realistic examples in [exemple/exemple_opt.py](/home/pguibourg/Documents/DeMonNanoPy/exemple/exemple_opt.py), [exemple/exemple_md.py](/home/pguibourg/Documents/DeMonNanoPy/exemple/exemple_md.py), [exemple/exemple_ptmc.py](/home/pguibourg/Documents/DeMonNanoPy/exemple/exemple_ptmc.py), and [test/config.json](/home/pguibourg/Documents/DeMonNanoPy/test/config.json).
 
 ## Basic Usage
 
@@ -193,18 +192,14 @@ forwards keyword arguments to that workflow.
 
 ## Running the Examples
 
-Example scripts are available in the `exemple/` directory:
-
-- [exemple/exemple_opt.py](/home/pguibourg/Documents/DeMonNanoPy/exemple/exemple_opt.py)
-- [exemple/exemple_md.py](/home/pguibourg/Documents/DeMonNanoPy/exemple/exemple_md.py)
-- [exemple/exemple_ptmc.py](/home/pguibourg/Documents/DeMonNanoPy/exemple/exemple_ptmc.py)
+Example scripts are available in the `example/` directory:
 
 Run them from the repository root after adapting the executable path and basis path:
 
 ```bash
-python exemple/exemple_opt.py
-python exemple/exemple_md.py
-python exemple/exemple_ptmc.py
+python example/exemple_opt.py
+python example/exemple_md.py
+python example/exemple_ptmc.py
 ```
 
 ## Tests
@@ -212,8 +207,8 @@ python exemple/exemple_ptmc.py
 The project contains pytest-based tests in the `test/` directory. They assume:
 
 - deMonNano is installed and runnable,
-- the executable path is configured in the test configuration,
-- basis files are present under `test/basis/`.
+- the executable path is configured in `test/conftest.py`,
+- basis files are present under `test/basis-test/`.
 
 Run the test suite with:
 
@@ -227,8 +222,6 @@ If you are working from a fresh environment, install the package first:
 pip install -e .
 pytest
 ```
-
-Useful entry points include [test/test_demon.py](/home/pguibourg/Documents/DeMonNanoPy/test/test_demon.py) and [test/test_module.py](/home/pguibourg/Documents/DeMonNanoPy/test/test_module.py).
 
 ## Current Capabilities
 
@@ -252,7 +245,5 @@ notably parts of frequency, PTMC, NEB, and debug parsing.
   the execution environment.
 - The package metadata currently targets a lightweight editable-install workflow.
 
-## License
 
-This project is distributed under the terms of the license provided in [LICENSE](/home/pguibourg/Documents/DeMonNanoPy/LICENSE).
 
