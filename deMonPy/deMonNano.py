@@ -391,6 +391,7 @@ class deMonNano(BasicCalculation):
         self._wi._write_cutsys()
         self._wi._write_dipole()
         self._wi._write_rg()
+        self._wi._write_pbc()
 
         # Modules
         self._wi._write_opt()
@@ -430,6 +431,8 @@ class deMonNano(BasicCalculation):
         self._wo.read_energy()
         self._wo.read_ci()
         self._wo.read_tddftb()
+
+        self._wo.read_pbc()
 
         self._wo.read_print()
 

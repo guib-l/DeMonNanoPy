@@ -365,7 +365,31 @@ class write_input:
             _read = f"\n{params.pop('FILENAME','')}"
         self.io_lines["QMMM"] = ["QM/MM",f"COUPLING={coupling}{_read}"]
         
+    @assert_flags("pbc")
+    def _write_pbc(self, params=None):
+
+        if params is None:
+            params = self.parameters["PBC"]
+
+        self.io_lines["PERIODIC"] = [f"{params["TYPE"]}"]
+
+        assert np.shape(params["LATTICE"]) == (3,3)
+        assert np.shape(params["KPTS"]) == (3,)
         
+        lattice = params["LATTICE"]
+        txt = "\n"
+        for i,l1 in enumerate(lattice):
+            txt += "\t"
+            for l in l1: txt += f"{l:.8f}  "
+            if i<2:txt += "\n"
+        self.io_lines["PERIODIC"].append(
+            txt
+        )
+        kpts = params["KPTS"]
+        self.io_lines["PERIODIC"].append(
+            f"\nBAND NK1={kpts[0]} NK2={kpts[1]} NK3={kpts[2]}"
+        )
+        #sys.exit()
 
     
     def _write_basis(self):

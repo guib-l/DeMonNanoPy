@@ -704,7 +704,40 @@ class read_output(IOread):
             self.complet_results["Coefficients"] = tab.copy()
             
 
+    @assert_flags("pbc")
+    def read_pbc(self,):
 
+        text = '\n'.join(self.lines)
+        
+        kpoints_total = {}
+        energyK = []
+        lines = text.splitlines()
+        n_dims = self.complet_results["properties"]["matrix_dim"]
+
+        count,limit = False,0
+        for i,line in enumerate(lines):
+            
+            if "kpoint number" in line:
+                label = int(line.split()[-1])
+                kpoints_total[f"kpt_{label}"] = list(map(float,lines[i-2].split()))[1:]
+                count = True
+                if energyK!=[]:
+                    kpoints_total[f"kpts_{label}"] = energyK
+                energyK = []
+                limit = i + n_dims*2
+            
+            if count and i <= limit:
+                l = line.split()
+                try:
+                    energyK.append(
+                        [float(l[0]),float(l[1])]
+                    )
+                except:
+                    pass
+            print(energyK)
+
+        print(kpoints_total)
+            
 
     @assert_flags("print")
     def read_print(self):

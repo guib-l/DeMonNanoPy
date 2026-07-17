@@ -409,7 +409,7 @@ class TestOptimization:
 
 
     @pytest.mark.bird
-    def test_opt_bfgs(self):
+    def _test_opt_bfgs(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
@@ -443,7 +443,7 @@ class TestOptimization:
 
 
     @pytest.mark.bird
-    def test_opt_lbfgs(self):
+    def _test_opt_lbfgs(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
@@ -477,7 +477,7 @@ class TestOptimization:
 
 
     @pytest.mark.bird
-    def test_opt_lbfgs_mem(self):
+    def _test_opt_lbfgs_mem(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(

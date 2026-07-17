@@ -143,7 +143,7 @@ class TestDFTBCI:
         assert np.allclose(conf_2["energy"], -23.10000944, atol=1e-7)
         assert np.allclose(results["energy"]["energy"], -23.3449257719042, atol=1e-7) 
 
-        test_force = np.ndarray([
+        test_force = np.array([
             [-0.008596062053, 0.009517421684,-0.002829737253],
             [-0.006135784494, 0.005076993325,-0.010437115548],
             [-0.000926298602, 0.001546048915, 0.002621871939],
