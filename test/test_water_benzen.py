@@ -92,9 +92,7 @@ class TestWaterBenzen:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols[3:], positions=image.positions[3:])
 
@@ -105,9 +103,7 @@ class TestWaterBenzen:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update(FREQ=True)
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=last.symbols, positions=last.positions)
 
@@ -139,9 +135,7 @@ class TestWaterBenzen:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -157,15 +151,9 @@ class TestWaterBenzen:
 
         assert np.allclose(last.get_angles([[1, 0, 2]]), 108.1, atol=2e-1)
 
-        assert np.allclose(
-            np.linalg.norm(h1_positions_1 - c_positions_1), 2.38, atol=2e-2
-        )
-        assert np.allclose(
-            np.linalg.norm(h1_positions_2 - c_positions_2), 3.39, atol=2e-2
-        )
-        assert np.allclose(
-            np.linalg.norm(o1_positions_1 - h1_positions_1), 0.96, atol=1e-2
-        )
+        assert np.allclose(np.linalg.norm(h1_positions_1 - c_positions_1), 2.38, atol=2e-2)
+        assert np.allclose(np.linalg.norm(h1_positions_2 - c_positions_2), 3.39, atol=2e-2)
+        assert np.allclose(np.linalg.norm(o1_positions_1 - h1_positions_1), 0.96, atol=1e-2)
 
         assert np.allclose(results["energy"]["energy"], -16.61297421, atol=1e-7)
         assert np.allclose(results["energy"]["london_energy"], -0.00158364, atol=1e-7)
@@ -173,9 +161,7 @@ class TestWaterBenzen:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update(FREQ=True)
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=last.symbols, positions=last.positions)
 

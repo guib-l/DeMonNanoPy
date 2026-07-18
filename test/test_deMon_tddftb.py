@@ -46,9 +46,7 @@ class TestTDDFTB:
                 "TD-DFTB": True,
             }
         )
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -83,9 +81,7 @@ class TestTDDFTB:
             }
         )
 
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
 

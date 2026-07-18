@@ -6,17 +6,10 @@ def pytest_addoption(parser):
     parser.addoption(
         "--run-optional", action="store_true", default=False, help="run optional tests"
     )
+    parser.addoption("--beta", action="store_true", default=False, help="run beta-features tests")
+    parser.addoption("--bird", action="store_true", default=False, help="run bird-features tests")
     parser.addoption(
-        "--beta", action="store_true", default=False, help="run beta-features tests"
-    )
-    parser.addoption(
-        "--bird", action="store_true", default=False, help="run bird-features tests"
-    )
-    parser.addoption(
-        "--dftbplus",
-        action="store_true",
-        default=False,
-        help="run dftbplus-features tests",
+        "--dftbplus", action="store_true", default=False, help="run dftbplus-features tests"
     )
     parser.addoption(
         "--forces", action="store_true", default=False, help="run forces-features tests"

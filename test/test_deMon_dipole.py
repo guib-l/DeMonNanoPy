@@ -48,9 +48,7 @@ class TestFreq:
                 },
             }
         )
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
         dem.clean_workdir()
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
@@ -79,9 +77,7 @@ class TestFreq:
                 },
             }
         )
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
         dem.clean_workdir()
 
         dem.calculate(symbols=image.symbols, positions=image.positions)

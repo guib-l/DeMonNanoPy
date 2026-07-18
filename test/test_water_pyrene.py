@@ -94,15 +94,9 @@ class TestWaterPyrene:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        mod.calculate(
-            symbols=pyrene.symbols[3:],
-            positions=pyrene.positions[3:],
-            read_charges=True,
-        )
+        mod.calculate(symbols=pyrene.symbols[3:], positions=pyrene.positions[3:], read_charges=True)
 
         results = mod.results
         results["output_geometry"]
@@ -128,15 +122,13 @@ class TestWaterPyrene:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        mod.calculate(
-            symbols=pyrene.symbols, positions=pyrene.positions, read_charges=True
-        )
+        mod.calculate(symbols=pyrene.symbols, positions=pyrene.positions, read_charges=True)
 
         results = mod.results
+        results["output_geometry"]
+
         assert np.allclose(results["energy"]["energy"], -35.40543335, atol=1e-7)
 
     def test_water_pyrene_wmull_charged(self):
@@ -169,15 +161,13 @@ class TestWaterPyrene:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        mod.calculate(
-            symbols=pyrene.symbols, positions=pyrene.positions, read_charges=True
-        )
+        mod.calculate(symbols=pyrene.symbols, positions=pyrene.positions, read_charges=True)
 
         results = mod.results
+        results["output_geometry"]
+
         assert np.allclose(results["energy"]["energy"], -35.12370722, atol=1e-7)
 
     def _test_water_pyrene_IP(self):
@@ -217,9 +207,7 @@ class TestWaterPyrene:
             ]
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(
             symbols=pyrene.symbols,
@@ -275,9 +263,7 @@ class TestWaterPyrene:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(
             symbols=pyrene.symbols,

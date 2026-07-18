@@ -15,6 +15,11 @@ parameters = {
     "DEMON_PARAMETERS": {
         "ACTIVE": {
             "DFTB": {"SCC": True, "DISP": 2},
+            "PBC": {
+                "TYPE": "GENERAL",
+                "LATTICE": np.array([[10, 0.0, 0.0], [0.0, 11, 0], [0.0, 0.0, 12]]),
+                "KPTS": [4, 4, 3],
+            },
         },
     },
 }
@@ -34,11 +39,11 @@ image = Atoms(
 )
 
 
-WORKDIR = ".run/demon"
+WORKDIR = ".run/pbc"
 
 
-class TestBasicUsage:
-    def _test_single_point(self):
+class TestPeriodic:
+    def test_periodic_basic(self):
 
         parameter_config = deepcopy(parameters)
 
@@ -49,7 +54,9 @@ class TestBasicUsage:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.06209343
-        assert energy["electronic_energy"] == -8.21888334
-        assert energy["coulomb_energy"] == 0.04185358
-        assert energy["repulsive_energy"] == 0.15678992
+        assert energy["energy"] == -8.062359
+
+        dem.print_results()
+
+        # from ase.visualize import view
+        # view(dem.results['output_geometry'])

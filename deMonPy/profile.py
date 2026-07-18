@@ -7,20 +7,6 @@ from pathlib import Path
 from deMonPy.exceptions import ExecuteFailed
 
 
-def read_json(filename=""):
-    import json
-
-    data = {}
-    try:
-        with open(filename, "r") as file:
-            data = json.load(file)
-    except FileNotFoundError:
-        print(f"File {filename} not found.")
-    except json.JSONDecodeError:
-        print("Invalid JSON format.")
-    return data
-
-
 class Process:
     def __init__(self, executable, workdir="", omp_threads=1, prefix="DEMON"):
 

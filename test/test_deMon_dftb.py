@@ -56,9 +56,7 @@ class TestDftbBasis:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=".run/basics_2/", **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=".run/basics_2/", **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -80,14 +78,9 @@ class TestDftbBasis:
                 },
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
         grad = compute_numgrad(
-            symbols=image.symbols,
-            positions=image.positions,
-            calculator=mod,
-            delta=0.001,
+            symbols=image.symbols, positions=image.positions, calculator=mod, delta=0.001
         )
 
         analytic_grad = np.array(
@@ -118,9 +111,7 @@ class TestDftbBasis:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -142,14 +133,9 @@ class TestDftbBasis:
                 },
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
         grad = compute_numgrad(
-            symbols=image.symbols,
-            positions=image.positions,
-            calculator=mod,
-            delta=0.001,
+            symbols=image.symbols, positions=image.positions, calculator=mod, delta=0.001
         )
 
         analytic_grad = np.array(
@@ -180,9 +166,7 @@ class TestDftbBasis:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -220,9 +204,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -255,9 +237,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -290,9 +270,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -327,9 +305,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -344,29 +320,19 @@ class TestDftb:
             {
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
-                        "DFTB": {
-                            "SCC": True,
-                            "POLA": True,
-                            "ALPHAH": 1.0,
-                            "ALPHAO": 4.0,
-                        },
+                        "DFTB": {"SCC": True, "POLA": True, "ALPHAH": 1.0, "ALPHAO": 4.0},
                     },
                 }
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
         results = mod.results
         assert results["energy"]["energy"] == -8.06614509
 
         grad = compute_numgrad(
-            symbols=image.symbols,
-            positions=image.positions,
-            calculator=mod,
-            delta=0.001,
+            symbols=image.symbols, positions=image.positions, calculator=mod, delta=0.001
         )
 
         analytic_grad = np.array(
@@ -407,9 +373,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -443,9 +407,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -479,9 +441,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -506,9 +466,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.clean_workdir()
 
@@ -543,9 +501,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -578,9 +534,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -613,9 +567,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -638,19 +590,14 @@ class TestDftb:
                 }
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
         results = mod.results
         assert results["energy"]["energy"] == -8.06209886
 
         grad = compute_numgrad(
-            symbols=image.symbols,
-            positions=image.positions,
-            calculator=mod,
-            delta=0.001,
+            symbols=image.symbols, positions=image.positions, calculator=mod, delta=0.001
         )
         analytic_grad = np.array(
             [
@@ -690,9 +637,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -717,9 +662,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -745,14 +688,10 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         shutil.copy2("./data_test/3ord_param", f"{WORKDIR}/3ord_param")
-        mod.calculate(
-            symbols=image.symbols, positions=image.positions, clean_repository=False
-        )
+        mod.calculate(symbols=image.symbols, positions=image.positions, clean_repository=False)
 
         results = mod.results
 
@@ -777,9 +716,7 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         shutil.copy2("./data_test/3ord_param", f"{WORKDIR}/3ord_param")
 
@@ -790,10 +727,7 @@ class TestDftb:
         assert np.allclose(results["energy"]["energy"], -8.0483818, atol=1e-7)
 
         grad = compute_numgrad(
-            symbols=image.symbols,
-            positions=image.positions,
-            calculator=mod,
-            delta=0.001,
+            symbols=image.symbols, positions=image.positions, calculator=mod, delta=0.001
         )
         analytic_grad = np.array(
             [
@@ -824,13 +758,9 @@ class TestDftb:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        mod.calculate(
-            symbols=image.symbols, positions=image.positions, clean_repository=False
-        )
+        mod.calculate(symbols=image.symbols, positions=image.positions, clean_repository=False)
 
         results = mod.results
 
@@ -844,20 +774,13 @@ class TestDftb:
             {
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
-                        "DFTB": {
-                            "SCC": True,
-                            "POLA": True,
-                            "ALPHAH": 1.0,
-                            "ALPHAO": 2.0,
-                        },
+                        "DFTB": {"SCC": True, "POLA": True, "ALPHAH": 1.0, "ALPHAO": 2.0},
                     },
                 }
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 

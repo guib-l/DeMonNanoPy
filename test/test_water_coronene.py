@@ -105,9 +105,7 @@ class TestWaterCoronene:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols[3:], positions=image.positions[3:])
 
@@ -117,9 +115,7 @@ class TestWaterCoronene:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update(FREQ=True)
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=last.symbols, positions=last.positions)
 
@@ -154,9 +150,7 @@ class TestWaterCoronene:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -168,9 +162,7 @@ class TestWaterCoronene:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update(FREQ=True)
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=last.symbols, positions=last.positions)
 

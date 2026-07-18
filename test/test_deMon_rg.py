@@ -119,9 +119,7 @@ class TestDFTB_Rg:
                 "RG": {"COUPLING": "ARGON", "ALPHARG": 11.07, "FILENAME": None},
             }
         )
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -147,9 +145,7 @@ class TestDFTB_Rg:
                 },
             }
         )
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -185,9 +181,7 @@ class TestDFTB_Rg:
             }
         )
 
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -212,9 +206,7 @@ class TestDFTB_Rg:
                 "RG": {"COUPLING": "READ", "ALPHARG": 11.07},
             }
         )
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         shutil.copy2("./data_test/rg_parameters", f"{WORKDIR}/rg_parameters")
 

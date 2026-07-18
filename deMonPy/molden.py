@@ -1,4 +1,5 @@
 import importlib
+import sys
 
 
 def optional_import(module_name):
@@ -28,6 +29,7 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=T
     images = []
 
     nbmol = 0
+    periodic = False
 
     while len(lines) > 0:
         symbols = []
@@ -55,7 +57,7 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=T
             if is_charges:
                 try:
                     symbol, x, y, z, c = line.split()[:5]
-                except (ValueError, IndexError):
+                except ValueError:
                     symbol, x, y, z = line.split()[:4]
                     c = 0.0
                 symbol = symbol.lower().capitalize()
@@ -74,6 +76,27 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=T
 
             nread -= 1
 
+        true_atoms = np.array(symbols) != "Xx"
+        _positions = np.array(positions)[true_atoms]
+        _symbols = np.array(symbols)[true_atoms]
+        charges = np.array(charges)[true_atoms]
+
+        if velocities:
+            veloc = np.array(veloc)[true_atoms]
+
+        lattice = (np.array(positions)[np.array(symbols) == "Xx"])[:-1]
+
+        if len(lattice) > 0:
+            periodic = True
+            cell = np.zeros((3, 3))
+            positions = _positions
+            symbols = _symbols
+            print("[WARNING] : Not implemented reading cell in molden files.", file=sys.stdout)
+        else:
+            cell = None
+            periodic = False
+            lattice = None
+
         if nread == 0:
             if ase and ase_obj:
                 img = ase.Atoms(
@@ -81,22 +104,28 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=T
                     positions=positions,
                     charges=charges,
                     velocities=np.array(veloc) / ase.units.fs if velocities else None,
+                    cell=cell,
+                    pbc=periodic,
                 )
             elif np:
+                # No ASE available: keep raw velocities (cannot convert to
+                # ASE internal units without ``ase.units.fs``).
                 img = {
                     "symbols": np.array(symbols),
                     "positions": np.array(positions),
                     "charges": np.array(charges),
-                    "velocities": np.array(veloc) / ase.units.fs
-                    if velocities
-                    else None,
+                    "velocities": np.array(veloc) if velocities else None,
+                    "cell": cell,
+                    "pbc": periodic,
                 }
             else:
                 img = {
                     "symbols": symbols,
                     "positions": positions,
                     "charges": charges,
-                    "velocities": veloc / ase.units.fs if velocities else None,
+                    "velocities": veloc if velocities else None,
+                    "cell": cell,
+                    "pbc": periodic,
                 }
 
         nbmol += 1

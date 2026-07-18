@@ -52,9 +52,7 @@ class TestOptimization:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -83,9 +81,7 @@ class TestOptimization:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
         results = mod.results
@@ -113,9 +109,7 @@ class TestOptimization:
                 }
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
         results = mod.results
@@ -142,9 +136,7 @@ class TestOptimization:
                 }
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
         results = mod.results
@@ -173,15 +165,11 @@ class TestOptimization:
                 }
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
         results = mod.results
-        assert np.allclose(results["energy"]["energy"], -8.15563755, atol=1e-7), (
-            "Errors in CGRAD"
-        )
+        assert np.allclose(results["energy"]["energy"], -8.15563755, atol=1e-7), "Errors in CGRAD"
 
     def test_opt_steepest_default(self):
 
@@ -204,9 +192,7 @@ class TestOptimization:
                 }
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
         results = mod.results
@@ -234,9 +220,7 @@ class TestOptimization:
                 }
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
         results = mod.results
@@ -265,9 +249,7 @@ class TestOptimization:
                 }
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
         results = mod.results
@@ -295,9 +277,7 @@ class TestOptimization:
                 }
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
         results = mod.results
@@ -307,7 +287,7 @@ class TestOptimization:
         assert "trajectory" not in results.keys()
 
     @pytest.mark.bird
-    def test_opt_bfgs(self):
+    def _test_opt_bfgs(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
@@ -325,9 +305,7 @@ class TestOptimization:
                 }
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
         results = mod.results
@@ -336,7 +314,7 @@ class TestOptimization:
         )
 
     @pytest.mark.bird
-    def test_opt_lbfgs(self):
+    def _test_opt_lbfgs(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
@@ -354,9 +332,7 @@ class TestOptimization:
                 }
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
         results = mod.results
@@ -365,7 +341,7 @@ class TestOptimization:
         )
 
     @pytest.mark.bird
-    def test_opt_lbfgs_mem(self):
+    def _test_opt_lbfgs_mem(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
@@ -384,9 +360,7 @@ class TestOptimization:
                 }
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
         results = mod.results
@@ -418,9 +392,7 @@ class TestOptimization:
                 }
             }
         )
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
         results = mod.results

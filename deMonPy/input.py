@@ -112,7 +112,7 @@ class write_input:
 
         try:
             self.flags.add(*[key.lower() for key in self.module.keys()])
-        except Exception:
+        except (AttributeError, TypeError):
             pass
 
         self.complement = None
@@ -212,9 +212,7 @@ class write_input:
 
         self.io_lines["MONTECARLO"] = self.handler_writen(params.pop("MC"))
 
-        self.io_lines["MCTEMP"] = self.handler_writen(
-            params.pop("MCTEMP"), bind_str="="
-        )
+        self.io_lines["MCTEMP"] = self.handler_writen(params.pop("MCTEMP"), bind_str="=")
 
     def _write_constraint(self, constraint):
         """Serialize molecular dynamics constraints.
@@ -297,9 +295,7 @@ class write_input:
         self.io_lines["MDSTEP"] = self.handler_writen(params.pop("MDSTEP"))
 
         if "MDCONSTRAINTS" in params.keys():
-            self.io_lines["MDCONSTRAINTS"] = self._write_constraint(
-                params.pop("MDCONSTRAINTS")
-            )
+            self.io_lines["MDCONSTRAINTS"] = self._write_constraint(params.pop("MDCONSTRAINTS"))
 
         if "CONSERVE" in params.keys():
             self.io_lines["CONSERVE"] = self.handler_writen(params.pop("CONSERVE"))
@@ -366,6 +362,29 @@ class write_input:
         if coupling == "READ":
             _read = f"\n{params.pop('FILENAME', '')}"
         self.io_lines["QMMM"] = ["QM/MM", f"COUPLING={coupling}{_read}"]
+
+    @assert_flags("pbc")
+    def _write_pbc(self, params=None):
+
+        if params is None:
+            params = self.parameters["PBC"]
+
+        self.io_lines["PERIODIC"] = [f"{params['TYPE']}"]
+
+        assert np.shape(params["LATTICE"]) == (3, 3)
+        assert np.shape(params["KPTS"]) == (3,)
+
+        lattice = params["LATTICE"]
+        txt = "\n"
+        for i, l1 in enumerate(lattice):
+            txt += "\t"
+            for l in l1:
+                txt += f"{l:.8f}  "
+            if i < 2:
+                txt += "\n"
+        self.io_lines["PERIODIC"].append(txt)
+        kpts = params["KPTS"]
+        self.io_lines["PERIODIC"].append(f"\nBAND NK1={kpts[0]} NK2={kpts[1]} NK3={kpts[2]}")
 
     def _write_basis(self):
         """Write basis and parameter file references."""
@@ -677,15 +696,15 @@ class write_input:
     # =========== WRITABLE ----------------------------------------------------
     # =========================================================================
 
-    def write(self, input="deMon.inp", workdir=""):
+    def write(self, filename="deMon.inp", workdir=""):
         """Write the assembled input file to disk.
 
         Args:
-            input: Output input file name.
+            filename: Output input file name.
             workdir: Directory where the file is written.
         """
 
-        path = os.path.join(workdir, input)
+        path = os.path.join(workdir, filename)
 
         with open(path, "w") as fd:
             geom = self.io_lines.pop("GEOMETRY")

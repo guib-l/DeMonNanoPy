@@ -46,9 +46,7 @@ class TestFreq:
                 "FREQ": True,
             }
         )
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
         dem.clean_workdir()
         os.path.join(dem.workdir, "deMon.freq")
 
@@ -71,9 +69,7 @@ class TestFreq:
                 "FREQ": {"VIB": 5},
             }
         )
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
         dem.clean_workdir()
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
@@ -98,9 +94,7 @@ class TestFreq:
                 },
             }
         )
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
         dem.clean_workdir()
         os.path.join(dem.workdir, "deMon.freq")
 

@@ -1,4 +1,7 @@
 import json
+import os
+
+__version__ = "0.1.1"
 
 from deMonPy.modules.dyn import _dyn
 from deMonPy.modules.ptmc import _ptmc
@@ -43,6 +46,8 @@ def configure_from_file(path="global.json"):
     """
     with open(path) as f:
         config = json.load(f)
+
     configure(
-        executable=config.get("DEMON_EXECUTABLE"), basis=config.get("DEMON_BASIS")
+        executable=os.path.abspath(config.get("DEMON_EXECUTABLE")),
+        basis=os.path.abspath(config.get("DEMON_BASIS")),
     )

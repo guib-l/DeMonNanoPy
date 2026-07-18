@@ -17,12 +17,7 @@ parameters = {
     "DEMON_PARAMETERS": {
         "ACTIVE": {
             "DFTB": {"SCC": True},
-            "QUATERNION": {
-                "BOHR": False,
-                "ANGST": False,
-                "COORDS": None,
-                "RIGID": False,
-            },
+            "QUATERNION": {"BOHR": False, "ANGST": False, "COORDS": None, "RIGID": False},
             "MOLECULES": {
                 "NAMES": [],
             },
@@ -67,15 +62,11 @@ class TestMolecule:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
-        mod.calculate(
-            symbols=image.symbols, positions=image.positions, clean_repository=False
-        )
+        mod.calculate(symbols=image.symbols, positions=image.positions, clean_repository=False)
 
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -20.7065151, atol=1e-7)
@@ -100,15 +91,11 @@ class TestMolecule:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
-        mod.calculate(
-            symbols=image.symbols, positions=image.positions, clean_repository=False
-        )
+        mod.calculate(symbols=image.symbols, positions=image.positions, clean_repository=False)
 
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -20.7065151, atol=1e-7)
@@ -133,15 +120,11 @@ class TestMolecule:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
-        mod.calculate(
-            symbols=image.symbols, positions=image.positions, clean_repository=False
-        )
+        mod.calculate(symbols=image.symbols, positions=image.positions, clean_repository=False)
 
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -1.06599675, atol=1e-7)
@@ -167,15 +150,11 @@ class TestMolecule:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
-        mod.calculate(
-            symbols=image.symbols, positions=image.positions, clean_repository=False
-        )
+        mod.calculate(symbols=image.symbols, positions=image.positions, clean_repository=False)
 
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -20.7065151, atol=1e-7)

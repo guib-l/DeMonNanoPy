@@ -212,9 +212,7 @@ class TestComparison:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=water.symbols, positions=water.positions)
 
@@ -239,9 +237,7 @@ class TestComparison:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=pyrene.symbols, positions=pyrene.positions)
 
@@ -266,9 +262,7 @@ class TestComparison:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=pyrene_water.symbols, positions=pyrene_water.positions)
 
@@ -291,9 +285,7 @@ class TestComparison:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=water.symbols, positions=water.positions)
 
@@ -320,9 +312,7 @@ class TestComparison:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=water.symbols, positions=water.positions)
 
@@ -415,9 +405,7 @@ class TestComparison:
         for (ka, ia), (kb, ib) in zip(singlet.items(), dftbp_results.items()):
             if ka == kb:
                 assert np.allclose(ia["w"], ib["w"], atol=2e-3)
-                assert np.allclose(ia["oscillator"], ib["oscillator"], atol=1e-5), (
-                    f"Error in {ka}"
-                )
+                assert np.allclose(ia["oscillator"], ib["oscillator"], atol=1e-5), f"Error in {ka}"
                 assert np.allclose(ia["from"], ib["from"], atol=1e-1)
                 assert np.allclose(ia["to"], ib["to"], atol=1e-1)
                 assert np.allclose(ia["weight"], ib["weight"], atol=1e-3)
@@ -438,9 +426,7 @@ class TestComparison:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=water.symbols, positions=water.positions)
 

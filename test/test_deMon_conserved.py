@@ -48,12 +48,7 @@ class TestMDconserved:
                             "MDYNAMICS": {
                                 "RANDOM": 200,
                             },
-                            "CONSERVE": {
-                                "ALL": False,
-                                "COM": True,
-                                "ANG": False,
-                                "MOM": False,
-                            },
+                            "CONSERVE": {"ALL": False, "COM": True, "ANG": False, "MOM": False},
                             "TIMESTEP": 0.4,
                             "MDSTEP": {
                                 "MAX": 548,
@@ -67,9 +62,7 @@ class TestMDconserved:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -101,12 +94,7 @@ class TestMDconserved:
                             "MDYNAMICS": {
                                 "RANDOM": 200,
                             },
-                            "CONSERVE": {
-                                "ALL": False,
-                                "COM": False,
-                                "ANG": True,
-                                "MOM": False,
-                            },
+                            "CONSERVE": {"ALL": False, "COM": False, "ANG": True, "MOM": False},
                             "TIMESTEP": 0.4,
                             "MDSTEP": {
                                 "MAX": 548,
@@ -120,9 +108,7 @@ class TestMDconserved:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -149,12 +135,7 @@ class TestMDconserved:
                             "MDYNAMICS": {
                                 "RANDOM": 200,
                             },
-                            "CONSERVE": {
-                                "ALL": False,
-                                "COM": False,
-                                "ANG": False,
-                                "MOM": True,
-                            },
+                            "CONSERVE": {"ALL": False, "COM": False, "ANG": False, "MOM": True},
                             "TIMESTEP": 0.4,
                             "MDSTEP": {
                                 "MAX": 548,
@@ -168,9 +149,7 @@ class TestMDconserved:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -197,12 +176,7 @@ class TestMDconserved:
                             "MDYNAMICS": {
                                 "RANDOM": 200,
                             },
-                            "CONSERVE": {
-                                "ALL": True,
-                                "COM": False,
-                                "ANG": False,
-                                "MOM": False,
-                            },
+                            "CONSERVE": {"ALL": True, "COM": False, "ANG": False, "MOM": False},
                             "TIMESTEP": 0.4,
                             "MDSTEP": {
                                 "MAX": 548,
@@ -216,9 +190,7 @@ class TestMDconserved:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 

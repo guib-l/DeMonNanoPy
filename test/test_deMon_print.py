@@ -52,9 +52,7 @@ class TestDftbBasis:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update({"PRINT": {"MOE": True}})
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -67,9 +65,7 @@ class TestDftbBasis:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update({"PRINT": {"MOS": True}})
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -88,9 +84,7 @@ class TestDftbBasis:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -102,9 +96,7 @@ class TestDftbBasis:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update({"PRINT": {"MC": True}})
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -122,9 +114,7 @@ class TestDftbBasis:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -136,15 +126,10 @@ class TestDftbBasis:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update({"PRINT": {"DEBUG": True}})
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(
-            symbols=image.symbols,
-            positions=image.positions,
-            extract_debug=True,
-            keep_matrix="all",
+            symbols=image.symbols, positions=image.positions, extract_debug=True, keep_matrix="all"
         )
 
         results = mod.results

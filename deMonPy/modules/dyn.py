@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
-# Import standard de python3
-
+import warnings
 
 from deMonPy.module import modules
 
@@ -17,9 +16,7 @@ class _dyn(modules):
     def update_mddynamics(self, velocities=None, temp=300, wall=None):
 
         params = self.context.parameters["DEMON_MODULE"]["ACTIVE"]["MD"]["MDYNAMICS"]
-        params["READ"] = (
-            {"VELOCITIES": list(velocities)} if velocities is not None else False
-        )
+        params["READ"] = {"VELOCITIES": list(velocities)} if velocities is not None else False
         params["RANDOM"] = temp
         params["WALL"] = wall
 
@@ -55,8 +52,9 @@ class _dyn(modules):
             try:
                 velocities = image.get_velocities()
             except Exception as e:
-                print(
-                    f"Warning: Could not retrieve velocities from the image. Error: {e}"
+                warnings.warn(
+                    f"Could not retrieve velocities from the image: {e}",
+                    stacklevel=2,
                 )
                 velocities = None
 

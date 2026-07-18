@@ -66,9 +66,7 @@ class TestMDbasic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -107,9 +105,7 @@ class TestMDbasic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -152,9 +148,7 @@ class TestMDbasic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -202,9 +196,7 @@ class TestMDbasic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -219,9 +211,7 @@ class TestMDbasic:
         temperature = [atm.get_temperature() for atm in traj]
 
         diff = np.abs(temperature[0] - 224)
-        assert diff < 0.1, (
-            "Starting temperature of RAN parameters is not tacken into account"
-        )
+        assert diff < 0.1, "Starting temperature of RAN parameters is not tacken into account"
 
         traj[0].get_velocities()
         # print( traj[0].get_angular_momentum( ) )
@@ -234,10 +224,7 @@ class TestMDbasic:
         )
 
         MaxwellBoltzmannDistribution(
-            atoms=image,
-            temperature_K=482,
-            force_temp=True,
-            rng=np.random.RandomState(314159262),
+            atoms=image, temperature_K=482, force_temp=True, rng=np.random.RandomState(314159262)
         )
         velocities = image.get_velocities() * ase.units.fs
 
@@ -267,9 +254,7 @@ class TestMDbasic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -296,10 +281,7 @@ class TestMDbasic:
         )
 
         MaxwellBoltzmannDistribution(
-            atoms=image,
-            temperature_K=482,
-            force_temp=True,
-            rng=np.random.RandomState(314159262),
+            atoms=image, temperature_K=482, force_temp=True, rng=np.random.RandomState(314159262)
         )
         image.get_velocities() * ase.units.fs
 
@@ -329,9 +311,7 @@ class TestMDbasic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -375,9 +355,7 @@ class TestMDbasic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 

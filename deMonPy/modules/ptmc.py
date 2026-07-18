@@ -55,11 +55,14 @@ class _ptmc(modules):
             **args,
         )
 
-        assert temp_list is None, NotImplementedError("LIST is not implemented")
+        if temp_list is not None:
+            raise NotImplementedError("temp_list (LIST) is not implemented")
 
-        assert distribution_temp.lower() in ["geom", "linear"], ValueError(
-            "Unknow temperature distribution : (any of 'geom' or 'linear')"
-        )
+        if distribution_temp.lower() not in ["geom", "linear"]:
+            raise ValueError(
+                "Unknown temperature distribution "
+                f"{distribution_temp!r}: expected 'geom' or 'linear'"
+            )
 
         self.update_parameters(
             {

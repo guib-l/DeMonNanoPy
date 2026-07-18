@@ -213,9 +213,7 @@ class read_output(IOread):
                 f"Did the calculation fail before writing output?"
             ) from err
         except OSError as err:
-            raise OutputParseError(
-                f"Cannot read deMon output at {filename}: {err}"
-            ) from err
+            raise OutputParseError(f"Cannot read deMon output at {filename}: {err}") from err
 
     def _add_error(self, kind, message, line=None):
         """Append a structured error entry to the results.
@@ -334,9 +332,7 @@ class read_output(IOread):
     # READ GEOMETRY (basics)
 
     @exclude_flags(["ptmc", "freq", "ptmd"])
-    def read_geometry(
-        self, output="deMon.mol", is_charges=False, velocities=False, keep=1
-    ):
+    def read_geometry(self, output="deMon.mol", is_charges=False, velocities=False, keep=1):
         """Read input, output, or trajectory geometries.
 
         Args:
@@ -352,8 +348,7 @@ class read_output(IOread):
         filename = os.path.join(self.workdir, output)
         if not os.path.isfile(filename):
             raise OutputParseError(
-                f"Geometry file not found at {filename}. \
-The calculation likely did not complete."
+                f"Geometry file not found at {filename}. The calculation likely did not complete."
             )
         try:
             data, info = read_XYZ(
@@ -364,9 +359,7 @@ The calculation likely did not complete."
                 ase_obj=self._ase_obj,
             )
         except (OSError, ValueError) as err:
-            raise OutputParseError(
-                f"Failed to parse geometry file {filename}: {err}"
-            ) from err
+            raise OutputParseError(f"Failed to parse geometry file {filename}: {err}") from err
 
         if len(data) == 2:
             self.complet_results["input_geometry"] = data[0]
@@ -435,10 +428,7 @@ The calculation likely did not complete."
             if len(self.complet_results["states"].keys()) > 0:
                 self.complet_results.pop("energy")
 
-                energies = [
-                    state["energy"]
-                    for k, state in self.complet_results["states"].items()
-                ]
+                energies = [state["energy"] for k, state in self.complet_results["states"].items()]
                 self.complet_results["energy"] = {"energy": min(energies)}
 
     @assert_flags("td-dftb")
@@ -457,9 +447,7 @@ The calculation likely did not complete."
                 break
 
         count = 0
-        for key, signature in zip(
-            ["triplet", "singlet"], ["SUMMARY TRIPLET:", "SUMMARY SINGLET"]
-        ):
+        for key, signature in zip(["triplet", "singlet"], ["SUMMARY TRIPLET:", "SUMMARY SINGLET"]):
             args = {}
             for i, line in enumerate(self.lines):
                 self.compute_block(line, signature, "", nb_line=N + 4)
@@ -502,7 +490,7 @@ The calculation likely did not complete."
                 self._block = ""
 
         for frq in temp:
-            mode, frequency, intensity, _ = 0, 0.0, 0.0, np.zeros((Nbatm, 3))
+            mode, frequency, intensity = 0, 0.0, 0.0
 
             for line in frq.split("\n"):
                 if self.is_inside(control="MODE:", line=line):
@@ -521,12 +509,7 @@ The calculation likely did not complete."
             table = np.array(table)[:, 2:]
 
             freq.append(
-                {
-                    "mode": mode,
-                    "frequency": frequency,
-                    "intensity": intensity,
-                    "vect": table,
-                }
+                {"mode": mode, "frequency": frequency, "intensity": intensity, "vect": table}
             )
 
         self.complet_results["frequency"] = freq
@@ -692,6 +675,36 @@ The calculation likely did not complete."
             )
             self.complet_results["Coefficients"] = tab.copy()
 
+    @assert_flags("pbc")
+    def read_pbc(
+        self,
+    ):
+
+        text = "\n".join(self.lines)
+
+        kpoints_total = {}
+        energyK = []
+        lines = text.splitlines()
+        n_dims = self.complet_results["properties"]["matrix_dim"]
+
+        count, limit = False, 0
+        for i, line in enumerate(lines):
+            if "kpoint number" in line:
+                label = int(line.split()[-1])
+                kpoints_total[f"kpt_{label}"] = list(map(float, lines[i - 2].split()))[1:]
+                count = True
+                if energyK != []:
+                    kpoints_total[f"kpts_{label}"] = energyK
+                energyK = []
+                limit = i + n_dims * 2
+
+            if count and i <= limit:
+                l = line.split()
+                try:
+                    energyK.append([float(l[0]), float(l[1])])
+                except (ValueError, IndexError):
+                    pass
+
     @assert_flags("print")
     def read_print(self):
         """Parse print output sections."""
@@ -805,10 +818,9 @@ The calculation likely did not complete."
                         data["occupations"].append(float(parts[1]))
                         data["mo_energies"].append(float(parts[2]))
                         i += 1
-                    continue
-
                     data["occupations"] = np.array(data["occupations"])
                     data["mo_energies"] = np.array(data["mo_energies"])
+                    continue
 
                 # --------- MO COEFFICIENTS ----------
                 elif line.startswith("MO Coefficients"):
@@ -975,9 +987,7 @@ The calculation likely did not complete."
         temp_matches = re.findall(r"\n\s*(\d+)\s+([\d\.]+)\s+([\d\.E\-\+]+)", text)
 
         for idx, t, val in temp_matches:
-            temps.append(
-                {"index": int(idx), "temperature": float(t), "value": float(val)}
-            )
+            temps.append({"index": int(idx), "temperature": float(t), "value": float(val)})
 
         data["temperatures"] = temps
 
@@ -1009,9 +1019,7 @@ The calculation likely did not complete."
             for out in range(len(data["temperatures"])):
                 output = f"deMon.{(out + 1):02}.mol"
                 filename = os.path.join(self.workdir, output)
-                data, info = read_XYZ(
-                    filename, is_charges=False, velocities=False, keep=1
-                )
+                data, info = read_XYZ(filename, is_charges=False, velocities=False, keep=1)
 
                 energies = np.array(list(map(lambda x: float(x.split()[2]), info)))
 

@@ -47,9 +47,7 @@ class TestCharges:
                 "CHARGE": 1.0,
             }
         )
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -74,9 +72,7 @@ class TestCharges:
             }
         )
 
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -101,9 +97,7 @@ class TestCharges:
             }
         )
 
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -128,9 +122,7 @@ class TestCharges:
             }
         )
 
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -153,9 +145,7 @@ class TestCutSys:
             }
         )
 
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -176,9 +166,7 @@ class TestCutSys:
             }
         )
 
-        dem = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config
-        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
 

@@ -76,16 +76,10 @@ class _relax_geometry(modules):
 
     def forward(self, image, max=999, algo="CGRAD", out=1, restart=False, **args):
 
-        self._module_parameters = dict(
-            max=max, algo=algo, out=out, restart=restart, **args
-        )
+        self._module_parameters = dict(max=max, algo=algo, out=out, restart=restart, **args)
 
         self.update_parameters(
-            {
-                "DEMON_MODULE": {
-                    "ACTIVE": {"OPT": {"MAX": max, algo: True, "OUT": out, **args}}
-                }
-            }
+            {"DEMON_MODULE": {"ACTIVE": {"OPT": {"MAX": max, algo: True, "OUT": out, **args}}}}
         )
 
         self.context.calculate(symbols=image.symbols, positions=image.positions)

@@ -160,13 +160,9 @@ class TestAromatic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        mod.calculate(
-            symbols=benzen.symbols, positions=benzen.positions, read_charges=True
-        )
+        mod.calculate(symbols=benzen.symbols, positions=benzen.positions, read_charges=True)
 
         results = mod.results
 
@@ -197,13 +193,9 @@ class TestAromatic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        mod.calculate(
-            symbols=benzen.symbols, positions=benzen.positions, read_charges=True
-        )
+        mod.calculate(symbols=benzen.symbols, positions=benzen.positions, read_charges=True)
 
         results = mod.results
 
@@ -220,9 +212,7 @@ class TestAromatic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=last.symbols, positions=last.positions, read_charges=True)
 
@@ -254,18 +244,13 @@ class TestAromatic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
         mod.clean_workdir()
 
-        mod.calculate(
-            symbols=pyrene.symbols, positions=pyrene.positions, read_charges=True
-        )
+        mod.calculate(symbols=pyrene.symbols, positions=pyrene.positions, read_charges=True)
 
         results = mod.results
-        last = results["output_geometry"]
-        last.get_initial_charges()
+        results["output_geometry"]
 
         assert np.allclose(results["energy"]["energy"], -31.34507905, atol=1e-7)
         assert np.allclose(results["energy"]["london_energy"], -0.00677663, atol=1e-7)
@@ -289,13 +274,9 @@ class TestAromatic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        mod.calculate(
-            symbols=pyrene.symbols, positions=pyrene.positions, read_charges=True
-        )
+        mod.calculate(symbols=pyrene.symbols, positions=pyrene.positions, read_charges=True)
 
         results = mod.results
 
@@ -312,9 +293,7 @@ class TestAromatic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
         mod.clean_workdir()
 
         mod.calculate(symbols=last.symbols, positions=last.positions, read_charges=True)
@@ -345,13 +324,9 @@ class TestAromatic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        mod.calculate(
-            symbols=coronene.symbols, positions=coronene.positions, read_charges=True
-        )
+        mod.calculate(symbols=coronene.symbols, positions=coronene.positions, read_charges=True)
 
         results = mod.results
 
@@ -387,13 +362,9 @@ class TestAromatic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        mod.calculate(
-            symbols=coronene.symbols, positions=coronene.positions, read_charges=True
-        )
+        mod.calculate(symbols=coronene.symbols, positions=coronene.positions, read_charges=True)
 
         results = mod.results
 
@@ -410,9 +381,7 @@ class TestAromatic:
             }
         )
 
-        mod = deMonNano(
-            title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
-        )
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=last.symbols, positions=last.positions, read_charges=True)
 
