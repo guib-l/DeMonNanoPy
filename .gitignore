@@ -1,15 +1,14 @@
 # Environment local
 .env/
 .prompt/
-test_perso/
 basis/
-basis.04.26/
 data/
 archive/
 global.json
 .suspect_problems.md
 slurm-*
 submit.sh
+TODO.md
 
 # DeMonNano files
 .run/

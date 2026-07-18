@@ -1,41 +1,19 @@
 #!/usr/bin/env python3
 import os
 import subprocess
+from functools import wraps
 from pathlib import Path
 
-import deMonPy
 from deMonPy.exceptions import ExecuteFailed
 
 
-
-
-def read_json(filename=""):
-    import json
-    data = {}
-    try:
-        with open(filename, "r") as file:
-            data = json.load(file)
-    except FileNotFoundError:
-        print(f"File {filename} not found.")
-    except json.JSONDecodeError:
-        print("Invalid JSON format.")
-    return data
-
-
 class Process:
+    def __init__(self, executable, workdir="", omp_threads=1, prefix="DEMON"):
 
-    def __init__(
-            self,
-            executable,
-            workdir="",
-            omp_threads=1,
-            prefix='DEMON'):
-
-        self.executable  = Path(executable).expanduser() if executable else None
-        self.workdir     = Path(workdir).expanduser() if workdir else Path(".")
-        self.prefix      = prefix
+        self.executable = Path(executable).expanduser() if executable else None
+        self.workdir = Path(workdir).expanduser() if workdir else Path(".")
+        self.prefix = prefix
         self.omp_threads = omp_threads
-
 
     def execute(self, check=True, timeout=None):
 
@@ -63,7 +41,7 @@ class Process:
                 text=True,
                 timeout=timeout,
                 check=False,
-                shell=False
+                shell=False,
             )
         except OSError as err:
             raise EnvironmentError(f'Failed to execute "{exe}"') from err
@@ -71,18 +49,15 @@ class Process:
         if check and result.returncode != 0:
             raise ExecuteFailed(
                 f'Calculator "{self.prefix}" failed with return code '
-                f'{result.returncode} in {wd}\nstderr:\n{result.stderr}'
+                f"{result.returncode} in {wd}\nstderr:\n{result.stderr}"
             )
 
         return result
 
 
-from functools import wraps
-
-
 def assert_flags(myset):
     def decorateur(func):
-    
+
         @wraps(func)
         def wrapper(self, *args, **kwargs):
 
@@ -91,20 +66,21 @@ def assert_flags(myset):
             if isinstance(myset, list):
                 for ms in myset:
                     if ms not in _flags:
-                        return 
+                        return
             else:
                 if myset not in _flags:
-                    return 
+                    return
 
             return func(self, *args, **kwargs)
 
         return wrapper
+
     return decorateur
 
 
 def exclude_flags(myset):
     def decorateur(func):
-    
+
         @wraps(func)
         def wrapper(self, *args, **kwargs):
 
@@ -113,19 +89,13 @@ def exclude_flags(myset):
             if isinstance(myset, list):
                 for ms in myset:
                     if ms in _flags:
-                        return 
+                        return
             else:
                 if myset in _flags:
-                    return 
-
+                    return
 
             return func(self, *args, **kwargs)
 
         return wrapper
+
     return decorateur
-
-
-
-
-
-

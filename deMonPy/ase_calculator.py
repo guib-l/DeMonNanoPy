@@ -30,11 +30,11 @@ from copy import deepcopy
 
 import numpy as np
 from ase.calculators.calculator import Calculator, all_changes
-from ase.units import Hartree, Bohr
+from ase.units import Bohr, Hartree
 
 import deMonPy
 from deMonPy.deMonNano import deMonNano
-
+from deMonPy.exceptions import OutputParseError
 
 # Conversion factor: deMonNano reports gradients in Hartree/Bohr.
 # ASE expects forces in eV/Angstrom.  F = -gradient.
@@ -182,12 +182,14 @@ class DeMonNano(Calculator):
         # --- forces (Hartree/Bohr -> eV/Ang) ---
         if need_forces:
             forces = self._parse_forces(workdir, len(atoms))
-            if forces is not None:
-                self.results["forces"] = forces
-            else:
-                # Provide zero forces so ASE does not crash; the user
-                # should check the output manually.
-                self.results["forces"] = np.zeros((len(atoms), 3))
+            if forces is None:
+                raise OutputParseError(
+                    f"Could not parse the CARTESIAN GRADIENT block for "
+                    f"{len(atoms)} atoms in {os.path.join(workdir, 'deMon.out')}. "
+                    f"Forces are unavailable; check that the calculation "
+                    f"completed and that the 'PRINT GRAD' directive was active."
+                )
+            self.results["forces"] = forces
 
     # ------------------------------------------------------------------
     # Force parsing

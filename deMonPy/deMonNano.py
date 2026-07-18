@@ -26,19 +26,14 @@ Typical usage::
 
 import os
 import sys
-import glob
 from copy import deepcopy
 
-import numpy as np
-
 import deMonPy
-from deMonPy.profile import Process
+from deMonPy.encoder import AseEncoder
 from deMonPy.exceptions import ConfigError, ExecuteFailed
 from deMonPy.input import write_input
 from deMonPy.output import read_output
-from deMonPy.encoder import AseEncoder
-
-
+from deMonPy.profile import Process
 
 
 class BasicCalculation:
@@ -75,6 +70,8 @@ class BasicCalculation:
             prefix=prefix,
             omp_threads=omp_threads,
         )
+        self.workdir = workdir
+        self.state = {}
 
     def execute(self, ignore_fails=False):
         """Run the underlying process.
@@ -124,18 +121,30 @@ class BasicCalculation:
         """
         return self.state["state-%s" % index]
 
+    #: Instance attributes excluded from :meth:`to_dict` because they are
+    #: either self-referential (``state`` holds snapshots that embed the
+    #: very dict returned here) or non-serialisable engine objects.
+    _TO_DICT_EXCLUDE = ("state", "process", "_wi", "_wo")
+
     def to_dict(self):
         """Return the instance namespace as a plain dictionary.
 
-        This is intended for lightweight serialisation and debugging.
+        This is intended for lightweight serialisation and debugging.  A
+        **shallow copy** is returned (mutating it does not touch the
+        instance), and the self-referential ``state`` snapshot plus the
+        internal engine objects (``process``, ``_wi``, ``_wo``) are
+        omitted so that the result is free of reference cycles and stays
+        JSON-serialisable.
 
         Returns:
-            dict: Shallow copy of ``self.__dict__``.
+            dict: Shallow copy of ``self.__dict__`` without the internal
+            and self-referential entries.
         """
-        return self.__dict__
-    
-
-
+        return {
+            key: value
+            for key, value in self.__dict__.items()
+            if key not in self._TO_DICT_EXCLUDE
+        }
 
 
 class deMonNano(BasicCalculation):
@@ -162,16 +171,17 @@ class deMonNano(BasicCalculation):
     """
 
     def __init__(
-            self,
-            execut=None,
-            workdir=".",
-            omp_threads=1,
-            prefix="DEMON",
-            title="CALCULATION DEMONANO",
-            properties=['energy'],
-            basis={},
-            ase_obj=True,
-            **parameters):
+        self,
+        execut=None,
+        workdir=".",
+        omp_threads=1,
+        prefix="DEMON",
+        title="CALCULATION DEMONANO",
+        properties=None,
+        basis=None,
+        ase_obj=True,
+        **parameters,
+    ):
         """Initialise a deMonNano calculator.
 
         Args:
@@ -194,47 +204,54 @@ class deMonNano(BasicCalculation):
                 ``DEMON_WORKDIR``, ``DEMON_PARAMETERS`` and
                 ``DEMON_MODULE``.
         """
+        if properties is None:
+            properties = ["energy"]
+        if basis is None:
+            basis = {}
+
         self.parameters = parameters.copy()
-        
-        _execut  = parameters.pop("DEMON_EXECUTABLE",execut or deMonPy.DEMON_EXECUTABLE)
-        _prefix  = parameters.pop("PREFIX",prefix)
-        _workdir = parameters.pop("DEMON_WORKDIR",workdir)
+        self._ase_obj = ase_obj
 
-        BasicCalculation.__init__(self,
-                                  _execut,
-                                  _workdir,
-                                  _prefix,
-                                  omp_threads=omp_threads)
-        
+        _execut = parameters.pop("DEMON_EXECUTABLE", execut or deMonPy.DEMON_EXECUTABLE)
+        _prefix = parameters.pop("PREFIX", prefix)
+        _workdir = parameters.pop("DEMON_WORKDIR", workdir)
+
+        BasicCalculation.__init__(self, _execut, _workdir, _prefix, omp_threads=omp_threads)
+
         # Start running directory
-        self.title   = title
-        self.workdir = parameters.pop("WORKDIR",workdir)
-
+        self.title = title
+        self.workdir = parameters.pop("WORKDIR", workdir)
 
         self.set_workdir()
 
         # Initialize
-        self.state   = {}
+        self.state = {}
         self.results = {}
 
         self.flags = set()
 
         # Build parameters
-        self.basis = parameters.pop("BASIS",basis or deMonPy.DEMON_BASIS)
+        self.basis = parameters.pop("BASIS", basis or deMonPy.DEMON_BASIS)
 
-        self._wi = write_input(BASIS=self.basis,
-                               **parameters)
+        self._wi = write_input(BASIS=self.basis, **parameters)
         self.flags = self._wi.flags
-        
-        self._wo = read_output(properties=properties,
-                               workdir=self.workdir,
-                               flags=self.flags,
-                               output="deMon.out",
-                               ase_obj=ase_obj)
-        
+
+        self._wo = read_output(
+            properties=properties,
+            workdir=self.workdir,
+            flags=self.flags,
+            output="deMon.out",
+            ase_obj=ase_obj,
+        )
+
     _ARTIFACT_PATTERNS = (
-        "deMon.inp", "deMon.out", "deMon.mol", "deMon.coef",
-        "deMon.rst", "deMon.*.mol", "*.log",
+        "deMon.inp",
+        "deMon.out",
+        "deMon.mol",
+        "deMon.coef",
+        "deMon.rst",
+        "deMon.*.mol",
+        "*.log",
     )
 
     def clean_workdir(self):
@@ -255,7 +272,7 @@ class deMonNano(BasicCalculation):
             for f in wd.glob(pattern):
                 if f.is_file():
                     f.unlink()
-                
+
     def reset(self):
         """Clear stored states, results and active flags.
 
@@ -269,16 +286,13 @@ class deMonNano(BasicCalculation):
 
         self.flags = set()
 
-    def update(
-            self,
-            properties=['energy'],
-            basis={},
-            **parameters):
+    def update(self, properties=None, basis=None, **parameters):
         """Rebuild the input writer and output reader with new parameters.
 
         This replaces both :attr:`_wi` and :attr:`_wo` so that the next
         :meth:`calculate` call uses the updated configuration.  The
         :attr:`flags` set is re-derived from the new parameter keys.
+        The ``ase_obj`` setting chosen at construction time is preserved.
 
         Args:
             properties: List of output properties requested from the
@@ -288,31 +302,38 @@ class deMonNano(BasicCalculation):
             **parameters: Full deMonNano configuration dictionaries
                 (same structure as the constructor).
         """
+        if properties is None:
+            properties = ["energy"]
+        if basis is None:
+            basis = {}
+
         self.parameters = parameters.copy()
 
         # Build parameters
-        self.basis = parameters.pop("BASIS",basis or deMonPy.DEMON_BASIS)
+        self.basis = parameters.pop("BASIS", basis or deMonPy.DEMON_BASIS)
 
-        self._wi = write_input(BASIS=self.basis,
-                               **parameters)
+        self._wi = write_input(BASIS=self.basis, **parameters)
         self.flags = self._wi.flags
-        
-        self._wo = read_output(properties=properties,
-                               workdir=self.workdir,
-                               flags=self.flags,
-                               output="deMon.out")
 
+        self._wo = read_output(
+            properties=properties,
+            workdir=self.workdir,
+            flags=self.flags,
+            output="deMon.out",
+            ase_obj=self._ase_obj,
+        )
 
     def calculate(
-            self,
-            *,
-            symbols,
-            positions,
-            index=0,
-            read_charges=False,
-            extract_debug=False,
-            clean_repository=True,
-            **kwargs):
+        self,
+        *,
+        symbols,
+        positions,
+        index=0,
+        read_charges=False,
+        extract_debug=False,
+        clean_repository=True,
+        **kwargs,
+    ):
         """Run a full single-point (or flagged) calculation.
 
         This is the main entry point.  It sequentially:
@@ -331,29 +352,21 @@ class deMonNano(BasicCalculation):
                 snapshot.  Defaults to ``0``.
             **kwargs: Reserved for future calculation options.
         """
-        
-        self.write_input(
-            symbols,
-            positions,
-            clean=clean_repository
-        )
-        
+
+        self.write_input(symbols, positions, clean=clean_repository)
+
         self.execute(ignore_fails=False)
 
+        self.parse_output(read_charges=read_charges, extract_debug=extract_debug, **kwargs)
 
-        self.parse_output(read_charges=read_charges, 
-                         extract_debug=extract_debug,
-                         **kwargs)
-
-        
         self.set_state(
             index=index,
             **{
-                "symbols":symbols,
-                "positions":positions,
-                "results":self.results.copy(),
-                "calculator":self.to_dict()
-            }
+                "symbols": symbols,
+                "positions": positions,
+                "results": self.results.copy(),
+                "calculator": self.to_dict(),
+            },
         )
 
     def write_input(self, symbols, geometry, clean=True):
@@ -400,12 +413,10 @@ class deMonNano(BasicCalculation):
         self._wi._write_neb()
 
         # Geometry writing
-        self._wi._write_geometry(symbols=symbols,
-                                 positions=geometry)
+        self._wi._write_geometry(symbols=symbols, positions=geometry)
         self._wi._write_molecules()
 
         self._wi.write(workdir=self.workdir)
-
 
     def parse_output(self, read_charges=False, extract_debug=False, **kwargs):
         """Parse deMonNano output files and populate :attr:`results`.
@@ -451,10 +462,7 @@ class deMonNano(BasicCalculation):
             is_charges = True
             is_md = True
 
-        self._wo.read_geometry(output='deMon.mol',
-                               is_charges=is_charges,
-                               velocities=is_md,
-                               keep=1)
+        self._wo.read_geometry(output="deMon.mol", is_charges=is_charges, velocities=is_md, keep=1)
 
         self._wo.read_errors()
         self.results = self._wo.complet_results
@@ -470,6 +478,7 @@ class deMonNano(BasicCalculation):
                 Defaults to :data:`sys.stdout`.
         """
         import json
+
         print(
             json.dumps(
                 self._wo.complet_results,
@@ -507,13 +516,7 @@ class deMonNano(BasicCalculation):
                 formatted.append(f"[{e.get('kind', '?')}] {e.get('message', '')}")
             else:
                 formatted.append(str(e))
-        raise ExecuteFailed(
-            "Calculation reported errors:\n  " + "\n  ".join(formatted)
-        )
-
-
-
-from deMonPy import available_modules
+        raise ExecuteFailed("Calculation reported errors:\n  " + "\n  ".join(formatted))
 
 
 class Module_DeMonNano(deMonNano):
@@ -544,17 +547,18 @@ class Module_DeMonNano(deMonNano):
     """
 
     def __init__(
-            self,
-            module=None,
-            execut=None,
-            workdir=".",
-            omp_threads=1,
-            prefix="DEMON",
-            title="CALCULATION MODULE-DEMONANO",
-            properties=['energy'],
-            basis={},
-            available_modules=available_modules,
-            **parameters):
+        self,
+        module=None,
+        execut=None,
+        workdir=".",
+        omp_threads=1,
+        prefix="DEMON",
+        title="CALCULATION MODULE-DEMONANO",
+        properties=None,
+        basis=None,
+        available_modules=None,
+        **parameters,
+    ):
         """Initialise a module-aware deMonNano calculator.
 
         Args:
@@ -587,14 +591,17 @@ class Module_DeMonNano(deMonNano):
             title=title,
             properties=properties,
             basis=basis,
-            **parameters
+            **parameters,
         )
 
-        self.module   = module
+        if available_modules is None:
+            available_modules = deMonPy.available_modules
+        self.available_modules = available_modules
+
+        self.module = module
 
         self.is_build = False
-        self.build    = None
-
+        self.build = None
 
     @property
     def module(self):
@@ -605,8 +612,9 @@ class Module_DeMonNano(deMonNano):
     def module(self, module):
         """Set the active module by name.
 
-        The *module* string is looked up in
-        :data:`~deMonPy.available_modules` and a **shallow copy** of the
+        The *module* string is looked up in :attr:`available_modules`
+        (the registry supplied at construction time, defaulting to
+        :data:`~deMonPy.available_modules`) and a **deep copy** of the
         matching definition is stored so that the registry entry is not
         mutated.
 
@@ -616,10 +624,9 @@ class Module_DeMonNano(deMonNano):
         Raises:
             NotImplementedError: If *module* is not a registered name.
         """
-        if module not in available_modules.keys():
+        if module not in self.available_modules.keys():
             raise NotImplementedError(f"{module} is not available")
-        self._module = deepcopy(available_modules[module])
-
+        self._module = deepcopy(self.available_modules[module])
 
     def initialize(self, **kwds):
         """Instantiate the selected module and bind it to this calculator.
@@ -634,34 +641,39 @@ class Module_DeMonNano(deMonNano):
                 default argument dictionary before instantiation.
 
         Raises:
-            AssertionError: If the module definition has no ``"module"``
+            ConfigError: If the module definition has no ``"module"``
                 class entry.
         """
-        params = self.parameters
-        module = self._module.pop("module", None)
-        args   = self._module.pop("args", {})
+        # Read the module definition without consuming it, and work on a
+        # copy of the parameters, so that ``initialize()`` stays
+        # idempotent: a ``reset()`` -> ``__call__()`` cycle (e.g. an
+        # optimisation loop relaunching the module) can call it again.
+        module = self._module.get("module", None)
+        args = dict(self._module.get("args", {}))
 
         if module is None:
             raise ConfigError("Unknown module: module definition has no 'module' entry")
-        
+
+        params = deepcopy(self.parameters)
         args.update(**kwds)
         params.update(**args)
 
         self.build = module(context=self, **params)
         self.is_build = True
 
-
     def reset(self):
-        """Clear the built module instance.
+        """Clear the built module instance and the parent calculator state.
 
-        After calling this method :attr:`is_build` is ``False`` and
-        :attr:`build` is ``None``.  A new :meth:`initialize` (or an
-        implicit one through :meth:`__call__`) is required before the
-        calculator can dispatch work again.
+        In addition to clearing :attr:`build` and setting
+        :attr:`is_build` to ``False``, this calls
+        :meth:`deMonNano.reset` so that :attr:`results`, :attr:`state`
+        and :attr:`flags` are emptied as well.  A new :meth:`initialize`
+        (or an implicit one through :meth:`__call__`) is required before
+        the calculator can dispatch work again.
         """
+        super().reset()
         self.is_build = False
         self.build = None
-
 
     def __call__(self, method=None, **kwds):
         """Dispatch a call to the active module.
@@ -698,12 +710,4 @@ class Module_DeMonNano(deMonNano):
             return func(**kwds)
 
         else:
-            raise NotImplementedError(
-                f"Method {method} is unknow in module {self.build.__name__}"
-            )
-
-
-
-
-
-
+            raise NotImplementedError(f"Method {method} is unknow in module {self.build.__name__}")

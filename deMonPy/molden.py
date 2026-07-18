@@ -1,6 +1,6 @@
-
 import importlib
 import sys
+
 
 def optional_import(module_name):
     try:
@@ -8,7 +8,8 @@ def optional_import(module_name):
     except ImportError:
         return None
 
-np  = optional_import("numpy")
+
+np = optional_import("numpy")
 ase = optional_import("ase")
 
 
@@ -17,56 +18,52 @@ def convert_float(val, safe=False):
         return float(val)
     except ValueError:
         return val if not safe else None
-    
+
 
 def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=True):
     info = []
     lines = fileobj.readlines()
     if lines[0] == "\n":
         lines = lines[1:]
-        
+
     images = []
 
-    nbmol = 0 
+    nbmol = 0
     periodic = False
-    
-    while len(lines) > 0:
 
+    while len(lines) > 0:
         symbols = []
-        positions,charges,veloc = [],[],[]
+        positions, charges, veloc = [], [], []
         natoms = int(lines.pop(0))
         comment = lines[0]
-        
+
         if not velocities:
-            info.append(  comment  )
+            info.append(comment)
             lines.pop(0)  # Comment line; ignored
         else:
             comment = lines.pop(0)  # Comment line; ignored
-            #print(comment.split()[2:])
-            
-            _values = list(map(float,comment.split()[2:]))
-            #print(_values)
-            info.append( [*_values[:4]] )
-            
+            # print(comment.split()[2:])
 
-        
+            _values = list(map(float, comment.split()[2:]))
+            # print(_values)
+            info.append([*_values[:4]])
+
         nread = natoms
-        while nread>0:
-
-            if len(lines[0].split())==1:
+        while nread > 0:
+            if len(lines[0].split()) == 1:
                 break
             line = lines.pop(0)
 
             if is_charges:
                 try:
                     symbol, x, y, z, c = line.split()[:5]
-                except:
+                except ValueError:
                     symbol, x, y, z = line.split()[:4]
                     c = 0.0
                 symbol = symbol.lower().capitalize()
                 symbols.append(symbol)
                 positions.append([float(x), float(y), float(z)])
-                charges.append( float(c) )
+                charges.append(float(c))
                 if velocities:
                     vx, vy, vz = line.split()[5:8]
                     veloc.append([float(vx), float(vy), float(vz)])
@@ -75,12 +72,11 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=T
                 symbol = symbol.lower().capitalize()
                 symbols.append(symbol)
                 positions.append([float(x), float(y), float(z)])
-                charges.append( 0.00 )
+                charges.append(0.00)
 
-            
             nread -= 1
 
-        true_atoms = np.array(symbols)!="Xx"
+        true_atoms = np.array(symbols) != "Xx"
         _positions = np.array(positions)[true_atoms]
         _symbols = np.array(symbols)[true_atoms]
         charges = np.array(charges)[true_atoms]
@@ -88,70 +84,60 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=T
         if velocities:
             veloc = np.array(veloc)[true_atoms]
 
-        lattice = (np.array(positions)[np.array(symbols)=="Xx"] )[:-1]
+        lattice = (np.array(positions)[np.array(symbols) == "Xx"])[:-1]
 
-        if len(lattice)>0:
+        if len(lattice) > 0:
             periodic = True
-            cell = np.zeros((3,3))
+            cell = np.zeros((3, 3))
             positions = _positions
             symbols = _symbols
-            print("[WARNING] : Not implemented reading cell in molden files.",file=sys.stdout)
+            print("[WARNING] : Not implemented reading cell in molden files.", file=sys.stdout)
         else:
             cell = None
             periodic = False
             lattice = None
 
-
-        if nread==0:
+        if nread == 0:
             if ase and ase_obj:
                 img = ase.Atoms(
-                    symbols, 
+                    symbols,
                     positions=positions,
                     charges=charges,
                     velocities=np.array(veloc) / ase.units.fs if velocities else None,
                     cell=cell,
-                    pbc=periodic
+                    pbc=periodic,
                 )
             elif np:
-                img = {'symbols':np.array(symbols), 
-                       'positions':np.array(positions), 
-                       'charges':np.array(charges),
-                       'velocities':np.array(veloc) / ase.units.fs if velocities else None,
-                       'cell':cell,
-                       'pbc':periodic}
+                # No ASE available: keep raw velocities (cannot convert to
+                # ASE internal units without ``ase.units.fs``).
+                img = {
+                    "symbols": np.array(symbols),
+                    "positions": np.array(positions),
+                    "charges": np.array(charges),
+                    "velocities": np.array(veloc) if velocities else None,
+                    "cell": cell,
+                    "pbc": periodic,
+                }
             else:
-                img = {'symbols':symbols, 
-                       'positions':positions, 
-                       'charges':charges,
-                       'velocities':veloc / ase.units.fs if velocities else None,
-                       'cell':cell,
-                       'pbc':periodic}
-
-            
+                img = {
+                    "symbols": symbols,
+                    "positions": positions,
+                    "charges": charges,
+                    "velocities": veloc if velocities else None,
+                    "cell": cell,
+                    "pbc": periodic,
+                }
 
         nbmol += 1
-        
+
         if nbmol % keep == 0:
             images.append(img)
 
-    #print(" \u2705 Loaded {} elements from XYZ file.".format(nbmol,))
-    return images,np.array(info)
+    # print(" \u2705 Loaded {} elements from XYZ file.".format(nbmol,))
+    return images, np.array(info)
+
 
 def read_XYZ(filename, **kwargs):
-    with open(filename,"r") as fd:
+    with open(filename, "r") as fd:
         temp = _read_xyz_ext(fd, **kwargs)
     return temp
-
-
-
-
-
-
-
-
-
-
-
-
-
-

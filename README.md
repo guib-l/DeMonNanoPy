@@ -21,7 +21,24 @@ The codebase is organized around three main layers:
 
 ## Installation
 
-See `INSTALL.md`.
+DeMonNanoPy requires **Python >= 3.11** and depends on NumPy and ASE.
+
+> **Note:** the distribution is named `DeMonNanoPy` but the import package is
+> `deMonPy`. You install `DeMonNanoPy` and `import deMonPy`.
+
+From a clone of the repository:
+
+```bash
+pip install .
+# or, for development (adds the ruff linter):
+pip install -e ".[dev]"
+```
+
+Running actual calculations additionally requires a working `deMon.x` binary
+and Slater-Koster parameter files; their paths are supplied at runtime (see
+below). See `INSTALL.md` for more details.
+
+The installed version is exposed as `deMonPy.__version__`.
 
 ## Core Concepts
 
@@ -190,6 +207,35 @@ mod.print_results()
 The module wrapper initializes a workflow object from the module registry and
 forwards keyword arguments to that workflow.
 
+### ASE Calculator
+
+DeMonNanoPy also ships an ASE-compatible calculator,
+`deMonPy.ase_calculator.DeMonNano`, so deMonNano can drive any ASE workflow
+(optimizers, molecular dynamics, ...). Energies are returned in eV and forces
+in eV/Angstrom.
+
+```python
+from ase.build import molecule
+
+from deMonPy.ase_calculator import DeMonNano
+
+
+atoms = molecule("H2O")
+atoms.calc = DeMonNano(
+    execut="~/Documents/dev_deMon/deMon.x",
+    basis={"PTYPE": "BIO", "SKFILE": "../basis"},
+    parameters={"DFTB": {"SCC": True}},
+)
+
+energy = atoms.get_potential_energy()   # eV
+forces = atoms.get_forces()             # eV / Angstrom
+```
+
+When forces are requested, the calculator enables the `PRINT GRAD` directive
+and parses the gradient block. If that block cannot be parsed it raises
+`OutputParseError` rather than returning zero forces, so an ASE optimization
+never silently "converges" on an unphysical result.
+
 ## Running the Examples
 
 Example scripts are available in the `example/` directory:
@@ -204,22 +250,21 @@ python example/exemple_ptmc.py
 
 ## Tests
 
-The project contains pytest-based tests in the `test/` directory. They assume:
+The project contains pytest-based tests in the `test/` directory. They are
+currently **integration tests** that require a local environment:
 
-- deMonNano is installed and runnable,
-- the executable path is configured in `test/conftest.py`,
-- basis files are present under `test/basis-test/`.
+- a working, runnable deMonNano binary,
+- a `global.json` file (git-ignored) providing `DEMON_EXECUTABLE` and
+  `DEMON_BASIS` paths,
+- the corresponding Slater-Koster parameter files.
 
-Run the test suite with:
+Without that configuration the suite does not collect. Splitting it into
+binary-free unit tests and opt-in integration tests is tracked in `TODO.md`.
+
+Once the environment is set up:
 
 ```bash
-pytest
-```
-
-If you are working from a fresh environment, install the package first:
-
-```bash
-pip install -e .
+pip install -e ".[dev]"
 pytest
 ```
 
@@ -234,16 +279,17 @@ Based on the current source tree, the project already includes support for:
 - geometry parsing,
 - optimization, PTMC, and MD workflow entry points.
 
-Some parser and workflow sections are still placeholders in the current codebase,
-notably parts of frequency, PTMC, NEB, and debug parsing.
+Some workflow sections are still incomplete. NEB output parsing, in
+particular, is not implemented: rather than returning silently, it records an
+explicit error entry that surfaces through `has_errors()` / `raise_on_errors()`.
 
 ## Notes
 
 - Working directories are created automatically when needed.
-- Results are stored in Python dictionaries and can be serialized as JSON.
+- Results are stored in Python dictionaries and can be serialized as JSON via
+  `deMonPy.encoder.AseEncoder` (handles NumPy arrays, sets and ASE objects).
 - Paths to the executable and basis files are user-provided and must be valid in
   the execution environment.
-- The package metadata currently targets a lightweight editable-install workflow.
 
 
 

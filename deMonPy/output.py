@@ -3,13 +3,13 @@
 # Import standard de python3
 import os
 import re
+
 import numpy as np
 
-
-import deMonPy
-from deMonPy.molden import read_XYZ
-from deMonPy.profile import assert_flags,exclude_flags
 from deMonPy.exceptions import OutputParseError
+from deMonPy.molden import read_XYZ
+from deMonPy.profile import assert_flags, exclude_flags
+
 
 def convert_float(val, safe=False):
     try:
@@ -17,10 +17,13 @@ def convert_float(val, safe=False):
     except ValueError:
         return val if not safe else None
 
+
 class IOread(object):
     """Base helper providing low-level parsing utilities for output files."""
 
-    def __init__(self,):
+    def __init__(
+        self,
+    ):
         """Initialize parsing state."""
 
         self._block = ""
@@ -28,8 +31,7 @@ class IOread(object):
 
         self.counter = 0
 
-    def compute_block(self, line, 
-            ctrl_in="", ctrl_out="", nb_line=None, add=1 ):
+    def compute_block(self, line, ctrl_in="", ctrl_out="", nb_line=None, add=1):
         """Track and accumulate a fixed-size text block.
 
         Args:
@@ -40,12 +42,12 @@ class IOread(object):
             add: Unused compatibility argument.
         """
 
-        if self.is_inside(control=ctrl_in, line=line ):
+        if self.is_inside(control=ctrl_in, line=line):
             self._tocken_block = True
             self.counter = nb_line
 
         if self.counter > 0:
-            self._block  += line
+            self._block += line
             self.counter -= 1
         else:
             self._tocken_block = False
@@ -90,13 +92,15 @@ class IOread(object):
         Returns:
             Any: Converted token slice.
         """
-        if index_in==None:
-            return ctype( line.split()[:index_out] )
-        if index_out==None:
-            return ctype( line.split()[index_in:] )
-        return ctype( line.split()[index_in:index_out] )
-        
-    def get_dict(self,):
+        if index_in is None:
+            return ctype(line.split()[:index_out])
+        if index_out is None:
+            return ctype(line.split()[index_in:])
+        return ctype(line.split()[index_in:index_out])
+
+    def get_dict(
+        self,
+    ):
         """Return a dictionary representation of parsed content.
 
         Raises:
@@ -114,12 +118,11 @@ class IOread(object):
         Returns:
             str: Extracted token or original line.
         """
-        if index==None:
+        if index is None:
             return line
         return str(line.split()[index])
 
-
-    def is_inside(self, control="", line="" ): 
+    def is_inside(self, control="", line=""):
         """Check whether a control substring is present in a line.
 
         Args:
@@ -129,40 +132,40 @@ class IOread(object):
         Returns:
             bool: True when the substring is found.
         """
-        if control in line: return  True
-        else: return False
-
-
-
+        if control in line:
+            return True
+        else:
+            return False
 
 
 class read_output(IOread):
     """Parser for deMonNano output files and derived results."""
 
     _criteria_energy_str = {
-        "DFTB total energy":"energy",
+        "DFTB total energy": "energy",
         "DFTB electronic energy": "electronic_energy",
-        "DFTB band energy"      : "band_energy",
-        "DFTB repulsive energy" : "repulsive_energy",
-        "DFTB Coulomb energy"   : "coulomb_energy",
-        "DFTB London energy"        : "london_energy",
-        "DFTB MM+Mechanical Coupl." : "MM_coupl.",
-        "DFTB electronic entropy"   : "electronic_entropy",
-        "DFTB Polarisation energy"  : "polarisation_energy",
-        "DFTB HOMO-LUMO gap"        : "HOMO-LUMO_gap",
-        "DFTB (HOMO)-(HOMO-1) gap"  : "HOMO_gap",
-        "DFTB Fermi energy level"   : "fermi_energy", 
-        "DFTB third order Coulomb energy" : "3d_coulomb_energy",
+        "DFTB band energy": "band_energy",
+        "DFTB repulsive energy": "repulsive_energy",
+        "DFTB Coulomb energy": "coulomb_energy",
+        "DFTB London energy": "london_energy",
+        "DFTB MM+Mechanical Coupl.": "MM_coupl.",
+        "DFTB electronic entropy": "electronic_entropy",
+        "DFTB Polarisation energy": "polarisation_energy",
+        "DFTB HOMO-LUMO gap": "HOMO-LUMO_gap",
+        "DFTB (HOMO)-(HOMO-1) gap": "HOMO_gap",
+        "DFTB Fermi energy level": "fermi_energy",
+        "DFTB third order Coulomb energy": "3d_coulomb_energy",
     }
 
-    
-    def __init__(self, 
-            properties=["energy"], 
-            workdir="./",
-            output="deMon.out", 
-            flags=set(),
-            ase_obj=True,
-            type_calculation={}, ): 
+    def __init__(
+        self,
+        properties=["energy"],
+        workdir="./",
+        output="deMon.out",
+        flags=set(),
+        ase_obj=True,
+        type_calculation={},
+    ):
         """Initialize the output reader.
 
         Args:
@@ -172,9 +175,10 @@ class read_output(IOread):
             flags: Active parser flags.
             type_calculation: Reserved calculation metadata.
         """
-        
-        IOread.__init__(self, )
 
+        IOread.__init__(
+            self,
+        )
 
         self.workdir = workdir
         self.output = output
@@ -183,14 +187,14 @@ class read_output(IOread):
 
         self.properties = properties
         self.complet_results = {
-            "errors":[],
+            "errors": [],
         }
         self._ase_obj = ase_obj
         self.lines = []
 
-
-
-    def read_file(self,):
+    def read_file(
+        self,
+    ):
         """Load the main output file into memory.
 
         Raises:
@@ -201,7 +205,7 @@ class read_output(IOread):
 
         filename = os.path.join(self.workdir, self.output)
         try:
-            with open(filename, 'r') as fd:
+            with open(filename, "r") as fd:
                 self.lines.extend(fd.readlines())
         except FileNotFoundError as err:
             raise OutputParseError(
@@ -209,9 +213,7 @@ class read_output(IOread):
                 f"Did the calculation fail before writing output?"
             ) from err
         except OSError as err:
-            raise OutputParseError(
-                f"Cannot read deMon output at {filename}: {err}"
-            ) from err
+            raise OutputParseError(f"Cannot read deMon output at {filename}: {err}") from err
 
     def _add_error(self, kind, message, line=None):
         """Append a structured error entry to the results.
@@ -222,12 +224,13 @@ class read_output(IOread):
             message: Human-readable description.
             line: Optional source line the error was extracted from.
         """
-        self.complet_results.setdefault("errors", []).append({
-            "kind": kind,
-            "message": message,
-            "line": line,
-        })
-    
+        self.complet_results.setdefault("errors", []).append(
+            {
+                "kind": kind,
+                "message": message,
+                "line": line,
+            }
+        )
 
     # =================================
     # READ ENERGY (basics)
@@ -235,7 +238,7 @@ class read_output(IOread):
     def read_basics(self):
         """Read basics things"""
 
-        text = '\n'.join(self.lines)
+        text = "\n".join(self.lines)
 
         data = {
             "scc_tolerance": None,
@@ -283,29 +286,25 @@ class read_output(IOread):
             elif "Number of DFTB shells" in line:
                 data["n_shells"] = int(line.split(":")[-1])
 
-        self.complet_results['properties'] = data
+        self.complet_results["properties"] = data
 
     def read_energy(self):
         """Parse energy values from the loaded output lines."""
 
         start_search = False
-        
+
         _state = {}
-        self.complet_results[f"energy"] = {}
+        self.complet_results["energy"] = {}
 
         for line in self.lines:
-                        
-            _energy = self.get_energies(line,start_search=start_search)
+            _energy = self.get_energies(line, start_search=start_search)
             _state.update(_energy)
 
-            if 'energy' in self.complet_results.keys():
+            if "energy" in self.complet_results.keys():
                 start_search = True
-        self.complet_results[f"energy"].update(_state)
+        self.complet_results["energy"].update(_state)
 
-    def get_energies(self, 
-                     line, 
-                     criteria="DFTB total energy",
-                     start_search=False):
+    def get_energies(self, line, criteria="DFTB total energy", start_search=False):
         """Extract energy terms from a single output line.
 
         Args:
@@ -316,26 +315,24 @@ class read_output(IOread):
         Returns:
             dict: Parsed energy terms found on the line.
         """
-        
+
         _energy = {}
 
         if self.is_inside(criteria, line):
             label = self._criteria_energy_str[criteria]
-            _energy[label] = self.get_float( line, index=-1)
-            
-        if start_search:
-            
-            for cs,it in self._criteria_energy_str.items():
-                if self.is_inside(cs, line):
-                    _energy[it] = self.get_float(line, index=-1) 
-        return _energy
+            _energy[label] = self.get_float(line, index=-1)
 
+        if start_search:
+            for cs, it in self._criteria_energy_str.items():
+                if self.is_inside(cs, line):
+                    _energy[it] = self.get_float(line, index=-1)
+        return _energy
 
     # =================================
     # READ GEOMETRY (basics)
 
-    @exclude_flags(["ptmc","freq","ptmd"])
-    def read_geometry(self, output='deMon.mol',is_charges=False, velocities=False, keep=1):
+    @exclude_flags(["ptmc", "freq", "ptmd"])
+    def read_geometry(self, output="deMon.mol", is_charges=False, velocities=False, keep=1):
         """Read input, output, or trajectory geometries.
 
         Args:
@@ -351,46 +348,34 @@ class read_output(IOread):
         filename = os.path.join(self.workdir, output)
         if not os.path.isfile(filename):
             raise OutputParseError(
-                f"Geometry file not found at {filename}. "
-                f"The calculation likely did not complete."
+                f"Geometry file not found at {filename}. The calculation likely did not complete."
             )
         try:
-            data, info = read_XYZ(filename, 
-                                  is_charges=is_charges, 
-                                  velocities=velocities, 
-                                  keep=keep, ase_obj=self._ase_obj)
+            data, info = read_XYZ(
+                filename,
+                is_charges=is_charges,
+                velocities=velocities,
+                keep=keep,
+                ase_obj=self._ase_obj,
+            )
         except (OSError, ValueError) as err:
-            raise OutputParseError(
-                f"Failed to parse geometry file {filename}: {err}"
-            ) from err
+            raise OutputParseError(f"Failed to parse geometry file {filename}: {err}") from err
 
-        
-        if len(data)==2:
-            self.complet_results["input_geometry"]  = data[0]
+        if len(data) == 2:
+            self.complet_results["input_geometry"] = data[0]
             self.complet_results["output_geometry"] = data[-1]
 
-        if  len(data)>2:
-            self.complet_results["input_geometry"]  = data[0]
+        if len(data) > 2:
+            self.complet_results["input_geometry"] = data[0]
             if "traj" in self.flags:
                 self.complet_results["trajectory"] = data
             self.complet_results["output_geometry"] = data[-1]
 
         if "md" in self.flags:
-            self.complet_results["time"] = info[:,3]
-            self.complet_results["potential_energy"] = info[:,0]
-            self.complet_results["kinetic_energy"] = info[:,1]
-            self.complet_results["total_energy"] = info[:,2]
-            
-
-
-
-
-
-
-
-
-
-
+            self.complet_results["time"] = info[:, 3]
+            self.complet_results["potential_energy"] = info[:, 0]
+            self.complet_results["kinetic_energy"] = info[:, 1]
+            self.complet_results["total_energy"] = info[:, 2]
 
     # =================================
     # READ PARAMETERS (basics)
@@ -406,20 +391,18 @@ class read_output(IOread):
         state = {}
 
         self.complet_results["states"] = {}
-        
-        
+
         for line in self.lines:
-                        
-            _energy = self.get_energies(line,start_search=start_search)
+            _energy = self.get_energies(line, start_search=start_search)
             _conf.update(_energy)
 
             if "*********   CONFIGURATIONS   *********" in line:
-                if count>0:
+                if count > 0:
                     self.complet_results[f"configuration_{count}"] = _conf
                 count += 1
                 _conf = {}
 
-            if self.is_inside("************    STATES    ************",line):
+            if self.is_inside("************    STATES    ************", line):
                 state_search = True
 
             if self.is_inside("for state", line) and state_search:
@@ -427,28 +410,26 @@ class read_output(IOread):
                 num = int(sl[2])
                 sub = float(sl[4])
                 wgh = []
-                state = {f"state {num}":{"energy":sub}}
+                state = {f"state {num}": {"energy": sub}}
 
             if self.is_inside("weight of conf", line) and state_search:
                 sl = line.split()
                 try:
                     wgh.append(float(sl[5]))
-                except:
+                except (ValueError, IndexError):
                     wgh.append(None)
-                state[f"state {num}"].update({"weight":wgh})
+                state[f"state {num}"].update({"weight": wgh})
 
             self.complet_results["states"].update(state)
 
         self.complet_results[f"configuration_{count}"] = _conf
 
-        
         if "states" in self.complet_results.keys():
-            if len(self.complet_results["states"].keys())>0:
+            if len(self.complet_results["states"].keys()) > 0:
                 self.complet_results.pop("energy")
 
-                energies = [ state["energy"] for k,state in self.complet_results["states"].items()]       
-                self.complet_results["energy"] = {"energy":min(energies)}
-        
+                energies = [state["energy"] for k, state in self.complet_results["states"].items()]
+                self.complet_results["energy"] = {"energy": min(energies)}
 
     @assert_flags("td-dftb")
     def read_tddftb(self):
@@ -459,102 +440,91 @@ class read_output(IOread):
             if msg in line:
                 self._add_error("tddftb", msg, line=line.strip())
                 return
-        
+
         for line in self.lines:
-            
-            if self.is_inside("requested transitions to calculate",line):
-                N = self.get_int(line,-1)
+            if self.is_inside("requested transitions to calculate", line):
+                N = self.get_int(line, -1)
                 break
 
         count = 0
-        from decimal import Decimal
-        for key,signature in zip(["triplet","singlet"],["SUMMARY TRIPLET:","SUMMARY SINGLET"]):
-            
+        for key, signature in zip(["triplet", "singlet"], ["SUMMARY TRIPLET:", "SUMMARY SINGLET"]):
             args = {}
-            for i,line in enumerate(self.lines):
-
-                self.compute_block(line, signature,"",nb_line=N+4)
+            for i, line in enumerate(self.lines):
+                self.compute_block(line, signature, "", nb_line=N + 4)
                 if self._tocken_block:
-                    
                     values = line.split()
                     try:
                         args.update(
-                            {f"state_{count}":{
-                                "w":float(values[0]),
-                                "oscillator":float(values[1]),
-                                "from":int(values[2]),
-                                "to":int(values[4]),
-                                "weight":float(values[5]),
-                                "energy":float(values[6]),
-                            }}
+                            {
+                                f"state_{count}": {
+                                    "w": float(values[0]),
+                                    "oscillator": float(values[1]),
+                                    "from": int(values[2]),
+                                    "to": int(values[4]),
+                                    "weight": float(values[5]),
+                                    "energy": float(values[6]),
+                                }
+                            }
                         )
                         count += 1
-                    except:
+                    except (ValueError, IndexError):
                         pass
             self.complet_results[key] = args
-
 
     @assert_flags("freq")
     def read_freq(self):
         """Parse vibrational frequency results."""
-        freq,temp = [],[]
-        zpe,Nbatm = 0.00,0
+        freq, temp = [], []
+        zpe, Nbatm = 0.00, 0
 
         for line in self.lines:
-            if 'NUMBER OF ATOMS:' in line:
+            if "NUMBER OF ATOMS:" in line:
                 Nbatm = int(line.split()[-1])
-            if 'ZERO-POINT ENERGY =' in line:
+            if "ZERO-POINT ENERGY =" in line:
                 zpe = float(line.split()[3])
 
-            self.compute_block(
-                line, "MODE:", "", 6 + Nbatm
-            )
+            self.compute_block(line, "MODE:", "", 6 + Nbatm)
 
-            if self.counter==0 and self._block!="":
+            if self.counter == 0 and self._block != "":
                 temp.append(self._block)
                 self._block = ""
 
         for frq in temp:
-            mode,frequency,intensity,vect = 0,0.0,0.0,np.zeros((Nbatm,3))
+            mode, frequency, intensity = 0, 0.0, 0.0
 
-            for line in frq.split('\n'):
-                if self.is_inside(control='MODE:', line=line ):
+            for line in frq.split("\n"):
+                if self.is_inside(control="MODE:", line=line):
                     mode = int(line.split()[1])
-                if self.is_inside(control='FREQUENCY:', line=line ):
+                if self.is_inside(control="FREQUENCY:", line=line):
                     frequency = float(line.split()[1])
-                if self.is_inside(control='INTENSITY:', line=line ):
+                if self.is_inside(control="INTENSITY:", line=line):
                     intensity = float(line.split()[1])
 
             table = []
-            for lin in frq.split('\n')[6:-1]:
+            for lin in frq.split("\n")[6:-1]:
                 valeurs = lin.strip().split()
                 nombres = [convert_float(v, False) for v in valeurs]
                 table.append(nombres)
-            
-            table = np.array(table)[:,2:]
 
-            freq.append( {
-                    "mode":mode,
-                    "frequency":frequency,
-                    "intensity":intensity,
-                    "vect":table
-                } )
+            table = np.array(table)[:, 2:]
+
+            freq.append(
+                {"mode": mode, "frequency": frequency, "intensity": intensity, "vect": table}
+            )
 
         self.complet_results["frequency"] = freq
 
         self.complet_results["zpe"] = zpe
 
-
-
     def read_AOM_matrix(
-            self,
-            trigger_line = "  S", 
-            keep_matrix = "all",
-        ):
-        """ Read the AOM matrix from a DFTB output file. """
-        
+        self,
+        trigger_line="  S",
+        keep_matrix="all",
+    ):
+        """Read the AOM matrix from a DFTB output file."""
+
         lines = self.lines.copy()
-        if isinstance(keep_matrix,int):
+        if isinstance(keep_matrix, int):
             keep_matrix = [keep_matrix]
 
         start_idx = None
@@ -567,16 +537,15 @@ class read_output(IOread):
             raise ValueError(f"Section '{trigger_line}' not found in file.")
 
         data = []
-        block_num  = 0
+        block_num = 0
         authorized = True
-        symb_save  = trigger_line.strip()
+        symb_save = trigger_line.strip()
         i = start_idx
 
         size = self.complet_results["properties"]["matrix_dim"]
         tab = np.zeros((size, size))
 
         while i < len(lines):
-
             line = lines[i].strip()
             if symb_save == lines[i].strip():
                 authorized = True
@@ -586,29 +555,30 @@ class read_output(IOread):
 
             parts = line.split()
             cols = [int(x) for x in parts[4:]]
-            
+
             min_cols = min(cols)
             max_cols = max(cols)
-            
-            i+=1
-            while i < len(lines):
 
+            i += 1
+            while i < len(lines):
                 line = lines[i].strip()
                 if not line or line.startswith("Orbit") or line.startswith("&&"):
                     break
 
                 parts = line.split()
-                try: row = int(parts[0])
-                except: break
+                try:
+                    row = int(parts[0])
+                except (ValueError, IndexError):
+                    break
 
                 values = [convert_float(x, safe=True) for x in parts[4:]]
-                tab[min_cols-1:max_cols,row-1] = values
+                tab[min_cols - 1 : max_cols, row - 1] = values
 
-                i+=1
+                i += 1
 
-            if cols[-1]==size:
+            if cols[-1] == size:
                 tab = tab.T
-                if keep_matrix=="all":
+                if keep_matrix == "all":
                     data.append(tab.copy())
                     tab = np.zeros((size, size))
                 elif keep_matrix == [-1]:
@@ -623,17 +593,15 @@ class read_output(IOread):
                 authorized = False
         return data
 
-
     @assert_flags("print")
     def read_debug(self, extract_data=False, keep_matrix=-1):
-        
+
         if extract_data:
-            
             matrix = {}
             labels = {}
-            
+
             in_section = False
-            text = '\n'.join(self.lines)
+            text = "\n".join(self.lines)
 
             for line in text.splitlines():
                 if "SCC ATOM-DEPENDENT GAMMA MATRIX" in line:
@@ -645,109 +613,107 @@ class read_output(IOread):
                         continue
                     if "&&" in line:
                         break
-                    
+
                     if line.startswith("Shell El"):
                         parts = line.split()
                         current_cols = list(map(int, parts[2:]))
                         continue
-                    
+
                     parts = line.split()
-                    
+
                     if len(parts) < 3:
                         continue
-                    
+
                     row_idx = int(parts[0])
                     element = parts[1]
                     values = list(map(float, parts[2:]))
 
                     labels[row_idx] = element
-                    
+
                     if row_idx not in matrix:
                         matrix[row_idx] = {}
-                    
+
                     for col_idx, val in zip(current_cols, values):
                         matrix[row_idx][col_idx] = val
 
-
             size = max(matrix.keys())
-            full_matrix = np.zeros((size,size))
-            
+            full_matrix = np.zeros((size, size))
+
             for i in matrix:
                 for j in matrix[i]:
-                    full_matrix[i-1][j-1] = matrix[i][j]
+                    full_matrix[i - 1][j - 1] = matrix[i][j]
 
             self.complet_results["Gamma"] = full_matrix.copy()
 
             tab = self.read_AOM_matrix(
-                trigger_line = "                    S ",
-                keep_matrix = keep_matrix,)
+                trigger_line="                    S ",
+                keep_matrix=keep_matrix,
+            )
             self.complet_results["Overlaps"] = tab.copy()
 
             tab = self.read_AOM_matrix(
-                trigger_line = "                    F0",
-                keep_matrix = keep_matrix,)
+                trigger_line="                    F0",
+                keep_matrix=keep_matrix,
+            )
             self.complet_results["Ham0"] = tab.copy()
 
             tab = self.read_AOM_matrix(
-                trigger_line = "                    F ",
-                keep_matrix = keep_matrix,)
+                trigger_line="                    F ",
+                keep_matrix=keep_matrix,
+            )
             self.complet_results["Hamiltonian"] = tab.copy()
 
             tab = self.read_AOM_matrix(
-                trigger_line = "                    P ",
-                keep_matrix = keep_matrix,)
+                trigger_line="                    P ",
+                keep_matrix=keep_matrix,
+            )
             self.complet_results["Density"] = tab.copy()
 
             tab = self.read_AOM_matrix(
-                trigger_line = "                    C ",
-                keep_matrix = keep_matrix,)
+                trigger_line="                    C ",
+                keep_matrix=keep_matrix,
+            )
             self.complet_results["Coefficients"] = tab.copy()
-            
 
     @assert_flags("pbc")
-    def read_pbc(self,):
+    def read_pbc(
+        self,
+    ):
 
-        text = '\n'.join(self.lines)
-        
+        text = "\n".join(self.lines)
+
         kpoints_total = {}
         energyK = []
         lines = text.splitlines()
         n_dims = self.complet_results["properties"]["matrix_dim"]
 
-        count,limit = False,0
-        for i,line in enumerate(lines):
-            
+        count, limit = False, 0
+        for i, line in enumerate(lines):
             if "kpoint number" in line:
                 label = int(line.split()[-1])
-                kpoints_total[f"kpt_{label}"] = list(map(float,lines[i-2].split()))[1:]
+                kpoints_total[f"kpt_{label}"] = list(map(float, lines[i - 2].split()))[1:]
                 count = True
-                if energyK!=[]:
+                if energyK != []:
                     kpoints_total[f"kpts_{label}"] = energyK
                 energyK = []
-                limit = i + n_dims*2
-            
+                limit = i + n_dims * 2
+
             if count and i <= limit:
                 l = line.split()
                 try:
-                    energyK.append(
-                        [float(l[0]),float(l[1])]
-                    )
-                except:
+                    energyK.append([float(l[0]), float(l[1])])
+                except (ValueError, IndexError):
                     pass
-            print(energyK)
-
-        print(kpoints_total)
-            
 
     @assert_flags("print")
     def read_print(self):
         """Parse print output sections."""
-        
-        text = '\n'.join(self.lines)
-        
+
+        text = "\n".join(self.lines)
+
         occupied = []
         virtual = []
-        
+
         in_section = False
 
         for line in text.splitlines():
@@ -756,12 +722,12 @@ class read_output(IOread):
                 occupied = []
                 virtual = []
                 continue
-            
+
             if in_section:
                 if "Occupied Eigen values" in line:
                     nums = re.findall(r"[-+]?\d*\.\d+", line)
                     occupied.extend(map(float, nums))
-                    
+
                 elif "Virtual Eigen values" in line:
                     nums = re.findall(r"[-+]?\d*\.\d+", line)
                     virtual.extend(map(float, nums))
@@ -769,15 +735,10 @@ class read_output(IOread):
             if "DFTB total energy" in line:
                 in_section = False
 
-
-        self.complet_results['moe'] =  {
-            "occupied": occupied,
-            "virtual": virtual
-        }
+        self.complet_results["moe"] = {"occupied": occupied, "virtual": virtual}
 
         filename = os.path.join(self.workdir, "deMon.coef")
         if os.path.exists(filename):
-            
             data = {
                 "n_atoms": None,
                 "n_basis": None,
@@ -787,52 +748,50 @@ class read_output(IOread):
                 "atoms": [],
                 "mo_energies": [],
                 "occupations": [],
-                "mo_coefficients": []
+                "mo_coefficients": [],
             }
-        
-            section = None
+
             with open(filename, "r") as f:
                 lines = f.readlines()
-        
+
             i = 0
             while i < len(lines):
                 line = lines[i].strip()
-        
+
                 # --------- HEADER ----------
                 if line == "NAtoms":
-                    data["n_atoms"] = int(lines[i+1].strip())
+                    data["n_atoms"] = int(lines[i + 1].strip())
                     i += 2
                     continue
-                
+
                 elif line == "N basis":
-                    data["n_basis"] = int(lines[i+1].strip())
+                    data["n_basis"] = int(lines[i + 1].strip())
                     i += 2
                     continue
-                
+
                 elif line == "PArameter type":
-                    data["parameter_type"] = lines[i+1].strip()
+                    data["parameter_type"] = lines[i + 1].strip()
                     i += 2
                     continue
-                
+
                 elif line == "homo":
-                    data["homo"] = int(lines[i+1].strip())
+                    data["homo"] = int(lines[i + 1].strip())
                     i += 2
                     continue
-                
+
                 elif "llmos" in line:
-                    parts = lines[i+1].split()
+                    parts = lines[i + 1].split()
                     data["lumo_range"] = tuple(map(int, parts))
                     i += 2
                     continue
-                
-                
+
                 # --------- ATOMS ----------
                 elif line.startswith("atomic position"):
                     i += 1
                     data["atoms"] = []
                     while i < len(lines) and lines[i].strip():
                         parts = lines[i].split()
-                        if parts[0] == 'occupation':
+                        if parts[0] == "occupation":
                             break
                         atom = {
                             "Z": int(parts[0]),
@@ -846,7 +805,7 @@ class read_output(IOread):
                         data["atoms"].append(atom)
                         i += 1
                     continue
-                
+
                 # --------- MO ENERGIES ----------
                 elif line.startswith("occupation and MOE"):
                     i += 1
@@ -854,16 +813,15 @@ class read_output(IOread):
                     data["mo_energies"] = []
                     while i < len(lines) and lines[i].strip():
                         parts = lines[i].split()
-                        if parts[1] == 'Coefficients':
+                        if parts[1] == "Coefficients":
                             break
                         data["occupations"].append(float(parts[1]))
                         data["mo_energies"].append(float(parts[2]))
                         i += 1
-                    continue
-
                     data["occupations"] = np.array(data["occupations"])
                     data["mo_energies"] = np.array(data["mo_energies"])
-                
+                    continue
+
                 # --------- MO COEFFICIENTS ----------
                 elif line.startswith("MO Coefficients"):
                     i += 1
@@ -871,32 +829,31 @@ class read_output(IOread):
                     data["mo_coefficients"] = []
                     while i < len(lines) and lines[i].strip():
                         parts = lines[i].split()
-                        if parts[0] == 'NAtoms':
+                        if parts[0] == "NAtoms":
                             break
                         nums = re.findall(r"[-+]?\d*\.\d+", lines[i])
                         coeffs.extend(map(float, nums))
                         i += 1
-                    
+
                     data["mo_coefficients"] = np.reshape(
-                        np.array(coeffs),
-                        (data["n_basis"],data["n_basis"])
+                        np.array(coeffs), (data["n_basis"], data["n_basis"])
                     )
                     continue
-                
+
                 i += 1
 
-            self.complet_results['mos'] =  data
-        
-        
-            
-    def read_errors(self,):
+            self.complet_results["mos"] = data
+
+    def read_errors(
+        self,
+    ):
         """Scan for textual errors emitted by deMonNano and record them.
 
         Appends structured entries produced by :meth:`_add_error`.
         """
         for line in self.lines:
-            if 'ERROR :' in line:
-                _str = line.split(':')[-1].strip()
+            if "ERROR :" in line:
+                _str = line.split(":")[-1].strip()
                 self._add_error("demon", _str, line=line.strip())
 
         msg = ["optimization not converged"]
@@ -905,10 +862,10 @@ class read_output(IOread):
                 if m in line:
                     self._add_error("optimization", m, line=line.strip())
 
-    @exclude_flags(["ptmc","freq"])
+    @exclude_flags(["ptmc", "freq"])
     def parse_tensors(self):
 
-        text = '\n'.join(self.lines)
+        text = "\n".join(self.lines)
         data = {}
 
         # Helpers
@@ -922,7 +879,7 @@ class read_output(IOread):
         data["mass_center"] = extract_vector(
             r"mass center\s*=\s*([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)"
         )
-        
+
         data["charge_center"] = extract_vector(
             r"charge center\s*=\s*([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)"
         )
@@ -940,16 +897,15 @@ class read_output(IOread):
             data["dipole_norm"] = float(norme.group(1))
 
         # Matrices
-        inertia = [[0]*3 for _ in range(3)]
-        quadrupole = [[0]*3 for _ in range(3)]
+        inertia = [[0] * 3 for _ in range(3)]
+        quadrupole = [[0] * 3 for _ in range(3)]
 
         matrix_pattern = re.findall(
-            r"\(\s*(\d)\s*,\s*(\d)\s*\)\s*=\s*([-\d\.]+)\s+([-\d\.]+)",
-            text
+            r"\(\s*(\d)\s*,\s*(\d)\s*\)\s*=\s*([-\d\.]+)\s+([-\d\.]+)", text
         )
 
         for i, j, val1, val2 in matrix_pattern:
-            i, j = int(i)-1, int(j)-1
+            i, j = int(i) - 1, int(j) - 1
             inertia[i][j] = float(val1)
             quadrupole[i][j] = float(val2)
 
@@ -958,20 +914,18 @@ class read_output(IOread):
 
         # Eigenvalues
         eig_inertia = re.search(
-            r"Inertia eigenvalues\s*=\s*([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)",
-            text
+            r"Inertia eigenvalues\s*=\s*([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)", text
         )
         if eig_inertia:
             data["inertia_eigenvalues"] = [float(x) for x in eig_inertia.groups()]
 
         eig_charge = re.search(
-            r"Charges eigenvalues\s*=\s*([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)",
-            text
+            r"Charges eigenvalues\s*=\s*([-\d\.]+)\s+([-\d\.]+)\s+([-\d\.]+)", text
         )
         if eig_charge:
             data["charge_eigenvalues"] = [float(x) for x in eig_charge.groups()]
 
-        self.complet_results['tensors'] = data
+        self.complet_results["tensors"] = data
 
     # =================================
     # READ MODULES (basics)
@@ -990,27 +944,27 @@ class read_output(IOread):
 
         if "doforces" in self.flags:
             forces = []
-            filename = os.path.join(self.workdir,"forces.out")
+            filename = os.path.join(self.workdir, "forces.out")
             with open(filename) as fd:
-                for i,line in enumerate(fd.readlines()):
-                    if i==0:continue
-                    forces.append( list(map(float,line.split())) )
-            self.complet_results['forces'] = np.array(forces)
+                for i, line in enumerate(fd.readlines()):
+                    if i == 0:
+                        continue
+                    forces.append(list(map(float, line.split())))
+            self.complet_results["forces"] = np.array(forces)
 
-        
-        self.complet_results['optimization'] = {}
+        self.complet_results["optimization"] = {}
         for line in self.lines:
-            if 'Maximum gradient =' in line:
+            if "Maximum gradient =" in line:
                 value = float(line.split()[-1])
-                self.complet_results['optimization']['grad_max'] = value
+                self.complet_results["optimization"]["grad_max"] = value
                 break
-        
 
     @assert_flags("ptmc")
     def _read_ptmc(self):
         """Parse PTMC-specific output sections."""
         import re
-        text = '\n'.join(self.lines)
+
+        text = "\n".join(self.lines)
         data = {}
 
         seed_match = re.findall(r"SEED\s*=\s*((?:\d+\s+)+)", text)
@@ -1021,7 +975,7 @@ class read_output(IOread):
         patterns = {
             "nb_step": r"NB STEP\s*=\s*(\d+)",
             "optout": r"OPTOUT\s*=\s*(\d+)",
-            "nb_temp": r"NB TEMP\s*=\s*(\d+)"
+            "nb_temp": r"NB TEMP\s*=\s*(\d+)",
         }
 
         for key, pattern in patterns.items():
@@ -1033,11 +987,7 @@ class read_output(IOread):
         temp_matches = re.findall(r"\n\s*(\d+)\s+([\d\.]+)\s+([\d\.E\-\+]+)", text)
 
         for idx, t, val in temp_matches:
-            temps.append({
-                "index": int(idx),
-                "temperature": float(t),
-                "value": float(val)
-            })
+            temps.append({"index": int(idx), "temperature": float(t), "value": float(val)})
 
         data["temperatures"] = temps
 
@@ -1062,52 +1012,45 @@ class read_output(IOread):
 
         data["exchange"] = exchange
 
-        self.complet_results['ptmc'] = data
+        self.complet_results["ptmc"] = data
 
         _traj = {}
-        if 'traj' in self.flags:
-
+        if "traj" in self.flags:
             for out in range(len(data["temperatures"])):
-                output = f"deMon.{(out+1):02}.mol"
-                filename = os.path.join(self.workdir,output)
-                data,info = read_XYZ(filename,is_charges=False, velocities=False, keep=1)
+                output = f"deMon.{(out + 1):02}.mol"
+                filename = os.path.join(self.workdir, output)
+                data, info = read_XYZ(filename, is_charges=False, velocities=False, keep=1)
 
-                energies = np.array(list(map(lambda x:float(x.split()[2]),info)))
+                energies = np.array(list(map(lambda x: float(x.split()[2]), info)))
 
                 _traj[output] = {
-                    "trajectory":data,
-                    "energies":energies,
+                    "trajectory": data,
+                    "energies": energies,
                 }
 
             self.complet_results["trajectory"] = _traj
 
-
     @assert_flags("md")
     def _read_md(self):
         """Parse molecular dynamics summary values."""
-        
+
         energies_flags = {
-            "average_potential_energy":"Average POTENTIAL ENERGY",
-            "std_potential_energy":"Std Dev POTENTIAL ENERGY",
-            "average_kinetic_energy":"Average KINETIC ENERGY",
-            "std_kinetic_energy":"Std Dev KINETIC ENERGY",
-            "average_total_energy":"Average TOTAL ENERGY",
-            "std_total_energy":"Std Dev TOTAL ENERGY",
-            "average_temperature":"Average TEMPERATURE",
-            "std_temperature":"Std Dev TEMPERATURE",
-            "energy_from_thermostat":"Energy transfer from thermostat",
-            "energy_loss":"Energy loss from constraints"
+            "average_potential_energy": "Average POTENTIAL ENERGY",
+            "std_potential_energy": "Std Dev POTENTIAL ENERGY",
+            "average_kinetic_energy": "Average KINETIC ENERGY",
+            "std_kinetic_energy": "Std Dev KINETIC ENERGY",
+            "average_total_energy": "Average TOTAL ENERGY",
+            "std_total_energy": "Std Dev TOTAL ENERGY",
+            "average_temperature": "Average TEMPERATURE",
+            "std_temperature": "Std Dev TEMPERATURE",
+            "energy_from_thermostat": "Energy transfer from thermostat",
+            "energy_loss": "Energy loss from constraints",
         }
 
         for line in self.lines:
-            for it,_flag in energies_flags.items():
+            for it, _flag in energies_flags.items():
                 if _flag in line:
-                    self.complet_results["energy"].update(
-                        {
-                            it:float(line.split()[-2])
-                        }
-                    )
-                
+                    self.complet_results["energy"].update({it: float(line.split()[-2])})
 
     @assert_flags("neb")
     def _read_neb(self):
@@ -1122,10 +1065,3 @@ class read_output(IOread):
             "neb",
             "NEB output parsing is not implemented yet.",
         )
-
-
-
-
-
-
-
