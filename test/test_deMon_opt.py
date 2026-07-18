@@ -286,7 +286,7 @@ class TestOptimization:
         )
         assert "trajectory" not in results.keys()
 
-    @pytest.mark.bird
+    @pytest.mark.beta
     def _test_opt_bfgs(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -313,7 +313,7 @@ class TestOptimization:
             "Errors TRAJECTORY optimization"
         )
 
-    @pytest.mark.bird
+    @pytest.mark.beta
     def _test_opt_lbfgs(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -340,7 +340,7 @@ class TestOptimization:
             "Errors TRAJECTORY optimization"
         )
 
-    @pytest.mark.bird
+    @pytest.mark.beta
     def _test_opt_lbfgs_mem(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -368,7 +368,7 @@ class TestOptimization:
             "Errors TRAJECTORY optimization"
         )
 
-    @pytest.mark.bird
+    @pytest.mark.beta
     def test_opt_sp(self):
 
         test_force = np.array(

@@ -106,7 +106,6 @@ class TestDFTBCI:
         assert np.allclose(conf_2["energy"], -23.10000944, atol=1e-7)
 
     @pytest.mark.forces
-    @pytest.mark.bird
     def test_ci_grad(self):
 
         parameter_config = deepcopy(parameters)

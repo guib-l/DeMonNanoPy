@@ -104,7 +104,7 @@ WORKDIR = ".run/dftbrg/"
 
 
 class TestDFTB_Rg:
-    @pytest.mark.bird
+    
     def test_argon(self):
 
         parameter_config = deepcopy(parameters)
@@ -127,7 +127,6 @@ class TestDFTB_Rg:
 
         assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7)
 
-    @pytest.mark.bird
     def test_argon_pola(self):
 
         parameter_config = deepcopy(parameters)
@@ -154,7 +153,6 @@ class TestDFTB_Rg:
         assert np.allclose(results["energy"]["energy"], -19.51939793, atol=1e-7)
 
     @pytest.mark.forces
-    @pytest.mark.bird
     def test_argon_grad(self):
 
         parameter_config = deepcopy(parameters)
@@ -190,7 +188,6 @@ class TestDFTB_Rg:
         assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7)
         assert np.allclose(results["forces"], test_force, atol=1e-7)
 
-    @pytest.mark.bird
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
     def test_argon_read(self):
 
