@@ -328,6 +328,9 @@ class deMonNano(BasicCalculation):
         *,
         symbols,
         positions,
+        cell=None,
+        pbc=False,
+        kpts=None,
         index=0,
         read_charges=False,
         extract_debug=False,
@@ -353,7 +356,7 @@ class deMonNano(BasicCalculation):
             **kwargs: Reserved for future calculation options.
         """
 
-        self.write_input(symbols, positions, clean=clean_repository)
+        self.write_input(symbols, positions, cell=cell, kpts=kpts, clean=clean_repository)
 
         self.execute(ignore_fails=False)
 
@@ -369,7 +372,7 @@ class deMonNano(BasicCalculation):
             },
         )
 
-    def write_input(self, symbols, geometry, clean=True):
+    def write_input(self, symbols, geometry, cell=None, kpts=None, clean=True):
         """Assemble and write the ``deMon.inp`` file.
 
         Every parameter and module section guarded by
@@ -404,7 +407,7 @@ class deMonNano(BasicCalculation):
         self._wi._write_cutsys()
         self._wi._write_dipole()
         self._wi._write_rg()
-        self._wi._write_pbc()
+        self._wi._write_pbc(cell=cell, kpts=kpts)
 
         # Modules
         self._wi._write_opt()

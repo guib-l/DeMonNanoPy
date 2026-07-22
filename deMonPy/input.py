@@ -364,27 +364,36 @@ class write_input:
         self.io_lines["QMMM"] = ["QM/MM", f"COUPLING={coupling}{_read}"]
 
     @assert_flags("pbc")
-    def _write_pbc(self, params=None):
+    def _write_pbc(self, cell=None, kpts=None, params=None):
 
         if params is None:
             params = self.parameters["PBC"]
 
         self.io_lines["PERIODIC"] = [f"{params['TYPE']}"]
 
-        assert np.shape(params["LATTICE"]) == (3, 3)
-        assert np.shape(params["KPTS"]) == (3,)
+        if cell is not None:
+            _lattice = cell.copy()
+        else:
+            _lattice = params["LATTICE"]
 
-        lattice = params["LATTICE"]
+        if kpts is not None:
+            _kpts = kpts
+        else:
+            _kpts = params["KPTS"]
+
+        assert np.shape(_lattice) == (3, 3)
+        assert np.shape(_kpts) == (3,)
+
         txt = "\n"
-        for i, l1 in enumerate(lattice):
+        for i, l1 in enumerate(_lattice):
             txt += "\t"
             for l in l1:
                 txt += f"{l:.8f}  "
             if i < 2:
                 txt += "\n"
         self.io_lines["PERIODIC"].append(txt)
-        kpts = params["KPTS"]
-        self.io_lines["PERIODIC"].append(f"\nBAND NK1={kpts[0]} NK2={kpts[1]} NK3={kpts[2]}")
+
+        self.io_lines["PERIODIC"].append(f"\nBAND NK1={_kpts[0]} NK2={_kpts[1]} NK3={_kpts[2]}")
 
     def _write_basis(self):
         """Write basis and parameter file references."""
