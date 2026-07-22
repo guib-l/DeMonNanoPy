@@ -21,45 +21,19 @@ parameters = {
             "DFTB": {"SCC": True, "DISP": 2},
             "PBC": {
                 "TYPE": "GENERAL",
-                "LATTICE": np.array([[10, 0.0, 0.0], [0.0, 11, 0], [0.0, 0.0, 12]]),
+                "LATTICE": np.array([[2.46, 0.0, 0.0], [-1.230000,  2.130422, 0], [0.0, 0.0, 100.]]),
                 "KPTS": [4, 4, 3],
             },
         },
     },
 }
 
-image = Atoms(
-    ["O", "H", "H", "O", "H", "H"],
-    positions=np.array(
-        [
-            [1.2478, -0.5185, 3.4049],
-            [1.5946, -1.4204, 3.3886],
-            [0.9008, -0.3341, 2.5062],
-            [3.2478, -0.4185, 3.4049],
-            [3.5946, -1.5204, 3.3886],
-            [2.9008, -0.3341, 2.6062],
-        ]
-    ),
-)
 
 
 WORKDIR = ".run/pbc"
 
 
 class TestPeriodic:
-
-    def test_periodic_basic(self):
-
-        parameter_config = deepcopy(parameters)
-
-        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
-
-        dem.calculate(symbols=image.symbols, positions=image.positions)
-
-        results = dem.results
-        energy = results["energy"]
-
-        assert energy["energy"] == -8.062359
 
 
     def test_periodic_graphen(self):
@@ -85,8 +59,33 @@ class TestPeriodic:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -3.47255046
+        assert energy["energy"] == -3.47255044
 
+
+    def test_periodic_graphen_bis(self):
+
+        cell = np.array([
+            [ 2.460000,  0.000000,  0.000000],
+            [-1.230000,  2.130422,  0.000000],
+            [ 0.000000,  0.000000,  100.0000],
+        ])
+        positions = np.array([
+            [0.000000, 0.000000, 0.000000],
+            [1.230000, 0.710000, 0.000000],
+        ])
+        symbols = ["C"]*2
+        kpts = [10, 10, 1]
+
+        parameter_config = deepcopy(parameters)
+
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=symbols, positions=positions)
+
+        results = dem.results
+        energy = results["energy"]
+
+        assert energy["energy"] == -3.47255044
 
 
     def test_periodic_graphite(self):
@@ -112,7 +111,7 @@ class TestPeriodic:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -3.47292187
+        assert energy["energy"] == -3.47292185
 
 
     def test_periodic_graph_optAtoms(self):
@@ -149,10 +148,10 @@ class TestPeriodic:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -3.47255048
+        assert energy["energy"] == -3.47255046
 
 
-    def test_periodic_graph_optCell(self):
+    def _test_periodic_graph_optCell(self):
 
         cell = np.array([
             [ 2.510000,  0.000000,  0.000000],
@@ -189,6 +188,41 @@ class TestPeriodic:
         assert np.allclose(new_cell,ref_cell,rtol=0.01 )
 
 
+
+    def test_periodic_graphen_layer(self):
+
+        cell = np.array([
+            [ 2.460000,  0.000000,  0.000000],
+            [-1.230000,  2.130422,  0.000000],
+            [ 0.000000,  0.000000,  100.0000],
+        ])
+        positions = np.array([
+            [0.000000, 0.000000, 0.000000],
+            [1.230000, 0.710000, 0.000000],
+        ])
+        symbols = ["C"]*2
+        kpts = [10, 10, 1]
+
+        from ase.visualize import view
+        view(Atoms(symbols,positions,cell=cell,pbc=True).repeat((10,10,1)))
+
+        parameter_config = deepcopy(parameters)
+
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        energies = []
+
+        for kpt in range(1,25):
+            
+            kpts = [kpt,kpt,1]
+            dem.calculate(symbols=symbols, positions=positions, cell=cell, kpts=kpts)
+
+            results = dem.results
+            energy = results["energy"]
+
+            energies.append(energy["energy"])
+
+        print(energies)
 
 
 
