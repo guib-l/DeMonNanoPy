@@ -81,8 +81,6 @@ WORKDIR = ".run/dftbci/"
 
 
 class TestDFTBCI:
-
-    
     def test_ci(self):
 
         parameter_config = deepcopy(parameters)
@@ -195,7 +193,6 @@ class TestDFTBCI:
         assert np.allclose(energy["coulomb_energy"], 0.12999541, atol=1e-7)
         assert np.allclose(energy["repulsive_energy"], 0.63529586, atol=1e-7)
 
-
     @pytest.mark.beta
     def test_ci_noslat(self):
 
@@ -219,14 +216,13 @@ class TestDFTBCI:
         assert np.allclose(conf_1["energy"], -23.34473263, atol=1e-7)
         assert np.allclose(conf_2["energy"], -23.10000944, atol=1e-7)
 
-
     @pytest.mark.beta
     def test_ci_excci(self):
 
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "CI": {"SIZECI": 2, "NOSLAT": False, "EXCCI":4},
+                "CI": {"SIZECI": 2, "NOSLAT": False, "EXCCI": 4},
                 "CUTSYS": {
                     "FRAGMENT": [20, 3],
                 },
@@ -243,18 +239,4 @@ class TestDFTBCI:
         assert np.allclose(conf_1["energy"], -23.34473263, atol=1e-7)
         assert np.allclose(conf_2["energy"], -23.24749332, atol=1e-7)
 
-        assert np.allclose(len(results['states']), 10.0)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        assert np.allclose(len(results["states"]), 10.0)

@@ -105,7 +105,6 @@ WORKDIR = ".run/dftbrg/"
 
 
 class TestDFTB_Rg:
-    
     def test_argon(self):
 
         parameter_config = deepcopy(parameters)
@@ -127,7 +126,6 @@ class TestDFTB_Rg:
         results = dem.results
 
         assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7)
-
 
     def test_argon_opt(self):
 
@@ -159,8 +157,6 @@ class TestDFTB_Rg:
         results = dem.results
 
         assert np.allclose(results["energy"]["energy"], -19.53597981, atol=1e-7)
-
-
 
     def test_argon_md(self):
 
@@ -209,9 +205,6 @@ class TestDFTB_Rg:
 
         assert temperature[0] < 155.1 and temperature[0] > 154.9
 
-
-
-
     def test_argon_cluster(self):
 
         parameter_config = deepcopy(parameters)
@@ -226,10 +219,9 @@ class TestDFTB_Rg:
                 "RG": {"COUPLING": "ARGON", "ALPHARG": 11.07, "FILENAME": None},
             }
         )
-        images,ref = read_XYZ("data_test/rg_test.mol")
+        images, ref = read_XYZ("data_test/rg_test.mol")
 
-        for i,image in enumerate(images):
-
+        for i, image in enumerate(images):
             dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
             dem.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -237,7 +229,6 @@ class TestDFTB_Rg:
             reference = float(ref[i].split()[3])
 
             assert np.allclose(results["energy"]["energy"], reference, atol=1e-7)
-
 
     def test_argon_cluster_ion(self):
 
@@ -250,14 +241,13 @@ class TestDFTB_Rg:
                     "POLA": True,
                     "NOPOLQM": True,
                 },
-                "CHARGE":1.,
+                "CHARGE": 1.0,
                 "RG": {"COUPLING": "ARGON", "ALPHARG": 11.07, "FILENAME": None},
             }
         )
-        images,ref = read_XYZ("data_test/rg+_test.mol")
+        images, ref = read_XYZ("data_test/rg+_test.mol")
 
-        for i,image in enumerate(images):
-
+        for i, image in enumerate(images):
             dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
             dem.calculate(symbols=image.symbols, positions=image.positions)
 

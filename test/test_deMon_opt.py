@@ -140,7 +140,7 @@ class TestOptimization:
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
         results = mod.results
-        
+
         assert results["optimization"]["grad_max"] < 1e-2
         assert results["optimization"]["grad_max"] > 1e-5
 
