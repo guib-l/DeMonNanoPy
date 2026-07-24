@@ -44,10 +44,10 @@ class TestOptimization:
             module="opt", title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters
         )
 
-        # mod(image=image, max=10)
+        mod(image=image, max=10)
 
-        # results = mod.results
-        # assert np.allclose(results["energy"]["energy"], -8.14876390, atol=1e-7)
+        results = mod.results
+        assert np.allclose(results["energy"]["energy"], -8.14876390, atol=1e-7)
 
 
 class TestMonteCarlo:

@@ -361,16 +361,16 @@ class write_input:
 
         if npts > 1:
             print("WARNING : didn't work for many path for this moment.")
-        self.io_lines["PATHS"] = [ f"NPTS={npts}",f"NPTHS={npths}"]
+        self.io_lines["PATHS"] = [f"NPTS={npts}", f"NPTHS={npths}"]
 
         path = "\n"
         chkpths = params["CHKPTS"]
         filecheck = ""
-        for pts,chk in chkpths.items():
+        for pts, chk in chkpths.items():
             path += f"{pts} "
             filecheck += f"CHKPTS NAME={pts}\n"
-            for i,q in enumerate(chk):
-                filecheck += f"{i+1} " + " ".join(list(map(str,q)))
+            for i, q in enumerate(chk):
+                filecheck += f"{i + 1} " + " ".join(list(map(str, q)))
                 filecheck += "\n"
 
         self.file_path_check = filecheck
@@ -383,8 +383,7 @@ class write_input:
         if params is None:
             params = self.parameters["RTTDDFTB"]
 
-            self.io_lines["RTTDDFTB"] =  self.handler_writen(params, bind_str="=")
-
+            self.io_lines["RTTDDFTB"] = self.handler_writen(params, bind_str="=")
 
     @assert_flags("rg")
     def _write_rg(self, params=None):
@@ -426,8 +425,8 @@ class write_input:
         txt = "\n"
         for i, l1 in enumerate(_lattice):
             txt += "\t"
-            for l in l1:
-                txt += f"{l:.8f}  "
+            for li in l1:
+                txt += f"{li:.8f}  "
             if i < 2:
                 txt += "\n"
         self.io_lines["PERIODIC"].append(txt)
@@ -436,7 +435,7 @@ class write_input:
 
     def _write_basis(self):
         """Write basis and parameter file references."""
-        params = self.io_lines.pop("PARAM")
+        params = self.io_lines.get("PARAM")
 
         if isinstance(params, list):
             self.io_lines["PARAM"] = params
@@ -544,7 +543,6 @@ class write_input:
             else:
                 if np.all([True if np.all(elm in symbols) else False for elm in elmts]):
                     self.io_lines["BONDPARAMS"].append(f"\n{str(key)} {float(item)}")
-
 
     @assert_flags("wmull")
     def _write_bondparam_wmull(self, symbols, params=None):
@@ -762,8 +760,7 @@ class write_input:
         """
 
         if "paths" in self.flags:
-
-            with open(os.path.join(workdir,"deMon.pth.inp"),"w") as fd:
+            with open(os.path.join(workdir, "deMon.pth.inp"), "w") as fd:
                 fd.write(self.file_path_check)
 
         path = os.path.join(workdir, filename)

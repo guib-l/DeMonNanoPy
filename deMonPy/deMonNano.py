@@ -141,9 +141,7 @@ class BasicCalculation:
             and self-referential entries.
         """
         return {
-            key: value
-            for key, value in self.__dict__.items()
-            if key not in self._TO_DICT_EXCLUDE
+            key: value for key, value in self.__dict__.items() if key not in self._TO_DICT_EXCLUDE
         }
 
 
@@ -302,6 +300,7 @@ class deMonNano(BasicCalculation):
             **parameters: Full deMonNano configuration dictionaries
                 (same structure as the constructor).
         """
+
         if properties is None:
             properties = ["energy"]
         if basis is None:
@@ -310,7 +309,7 @@ class deMonNano(BasicCalculation):
         self.parameters = parameters.copy()
 
         # Build parameters
-        self.basis = parameters.pop("BASIS", basis or deMonPy.DEMON_BASIS)
+        # self.basis = parameters.pop("BASIS", basis or deMonPy.DEMON_BASIS)
 
         self._wi = write_input(BASIS=self.basis, **parameters)
         self.flags = self._wi.flags
@@ -538,7 +537,6 @@ class Module_DeMonNano(deMonNano):
     Lifecycle::
 
         calc = Module_DeMonNano(module="md", execut="...", basis={...}, ...)
-        calc.initialize(image=atoms)     # build the module instance
         calc(image=atoms, max_steps=200) # run the workflow
 
     Attributes:
@@ -656,11 +654,10 @@ class Module_DeMonNano(deMonNano):
 
         if module is None:
             raise ConfigError("Unknown module: module definition has no 'module' entry")
-        
+
         params = deepcopy(self.parameters)
-        print("params",params)
         args.update(**kwds)
-        
+
         params.update(**args)
 
         self.build = module(context=self, **params)

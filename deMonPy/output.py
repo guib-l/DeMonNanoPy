@@ -699,9 +699,9 @@ class read_output(IOread):
                 limit = i + n_dims * 2
 
             if count and i <= limit:
-                l = line.split()
+                li = line.split()
                 try:
-                    energyK.append([float(l[0]), float(l[1])])
+                    energyK.append([float(li[0]), float(li[1])])
                 except (ValueError, IndexError):
                     pass
 

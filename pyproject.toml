@@ -62,7 +62,4 @@ line-length = 100
 # Start conservative: pyflakes (F) + a subset of pycodestyle (E) + isort (I).
 # Broaden this list once the codebase has been formatted once.
 select = ["E", "F", "I"]
-ignore = [
-    "E501",  # line-too-long: handled by the formatter, not enforced yet
-    "E741",  # ambiguous variable names (e.g. `l`) still present in the code
-]
+ignore = []

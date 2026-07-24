@@ -85,10 +85,10 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=T
             veloc = np.array(veloc)[true_atoms]
 
         lattice = (np.array(positions)[np.array(symbols) == "Xx"])[:-1]
-        
+
         if len(lattice) > 0:
             periodic = True
-            cell = np.zeros((3,3))
+            cell = np.zeros((3, 3))
             positions = _positions
             symbols = _symbols
 

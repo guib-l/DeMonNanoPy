@@ -10,6 +10,7 @@ class modules:
         self.context = context or None
 
         self.context.reset()
+
         self.context.update(**parameters)
 
     def update_parameters(self, kwds):
