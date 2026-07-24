@@ -209,18 +209,18 @@ class deMonNano(BasicCalculation):
         if basis is None:
             basis = {}
 
-        self.parameters = parameters.copy()
+        self.parameters = deepcopy(parameters)
         self._ase_obj = ase_obj
 
-        _execut = parameters.pop("DEMON_EXECUTABLE", execut or deMonPy.DEMON_EXECUTABLE)
-        _prefix = parameters.pop("PREFIX", prefix)
-        _workdir = parameters.pop("DEMON_WORKDIR", workdir)
+        _execut = self.parameters.pop("DEMON_EXECUTABLE", execut or deMonPy.DEMON_EXECUTABLE)
+        _prefix = self.parameters.pop("PREFIX", prefix)
+        _workdir = self.parameters.pop("DEMON_WORKDIR", workdir)
 
         BasicCalculation.__init__(self, _execut, _workdir, _prefix, omp_threads=omp_threads)
 
         # Start running directory
         self.title = title
-        self.workdir = parameters.pop("WORKDIR", workdir)
+        self.workdir = self.parameters.pop("WORKDIR", workdir)
 
         self.set_workdir()
 
@@ -231,9 +231,9 @@ class deMonNano(BasicCalculation):
         self.flags = set()
 
         # Build parameters
-        self.basis = parameters.pop("BASIS", basis or deMonPy.DEMON_BASIS)
+        self.basis = self.parameters.pop("BASIS", basis or deMonPy.DEMON_BASIS)
 
-        self._wi = write_input(BASIS=self.basis, **parameters)
+        self._wi = write_input(BASIS=self.basis, **self.parameters)
         self.flags = self._wi.flags
 
         self._wo = read_output(
@@ -404,9 +404,11 @@ class deMonNano(BasicCalculation):
         self._wi._write_freq()
         self._wi._write_tddftb()
         self._wi._write_qmmm()
+        self._wi._write_rttddftb()
         self._wi._write_cutsys()
         self._wi._write_dipole()
         self._wi._write_rg()
+        self._wi._write_paths()
         self._wi._write_pbc(cell=cell, kpts=kpts)
 
         # Modules
@@ -558,7 +560,6 @@ class Module_DeMonNano(deMonNano):
         prefix="DEMON",
         title="CALCULATION MODULE-DEMONANO",
         properties=None,
-        basis=None,
         available_modules=None,
         **parameters,
     ):
@@ -593,7 +594,6 @@ class Module_DeMonNano(deMonNano):
             prefix=prefix,
             title=title,
             properties=properties,
-            basis=basis,
             **parameters,
         )
 
@@ -656,9 +656,11 @@ class Module_DeMonNano(deMonNano):
 
         if module is None:
             raise ConfigError("Unknown module: module definition has no 'module' entry")
-
+        
         params = deepcopy(self.parameters)
+        print("params",params)
         args.update(**kwds)
+        
         params.update(**args)
 
         self.build = module(context=self, **params)

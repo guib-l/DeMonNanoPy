@@ -8,6 +8,7 @@ from ase.atoms import Atoms
 
 import deMonPy
 from deMonPy.deMonNano import deMonNano
+from deMonPy.molden import read_XYZ
 
 deMonPy.configure_from_file(os.path.join("..", "global.json"))
 
@@ -127,6 +128,144 @@ class TestDFTB_Rg:
 
         assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7)
 
+
+    def test_argon_opt(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                    "POLA": True,
+                    "NOPOLQM": True,
+                },
+                "RG": {"COUPLING": "ARGON", "ALPHARG": 11.07, "FILENAME": None},
+            }
+        )
+        parameter_config.update(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {
+                        "OPT": {"MAX": 999, "OUT": 1, "TRAJECTORY": True},
+                    },
+                }
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+
+        assert np.allclose(results["energy"]["energy"], -19.53597981, atol=1e-7)
+
+
+
+    def test_argon_md(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                    "POLA": True,
+                    "NOPOLQM": True,
+                },
+                "RG": {"COUPLING": "ARGON", "ALPHARG": 11.07, "FILENAME": None},
+            }
+        )
+        parameter_config.update(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {
+                        "MD": {
+                            "MDYNAMICS": {
+                                "ZERO": False,
+                                "RANDOM": 155,
+                            },
+                            "TIMESTEP": 0.4,
+                            "MDSTEP": {"MAX": 100, "OUT": 1, "SOUT": 1, "TSIM": None},
+                            "TRAJECTORY": True,
+                        },
+                    },
+                }
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        pote = results["potential_energy"]
+        kine = results["kinetic_energy"]
+        tote = results["total_energy"]
+
+        assert np.sum((tote - (pote + kine))[1:]) <= 1e-5
+
+        traj = results["trajectory"]
+        temperature = [atm.get_temperature() for atm in traj]
+
+        assert temperature[0] < 155.1 and temperature[0] > 154.9
+
+
+
+
+    def test_argon_cluster(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                    "POLA": True,
+                    "NOPOLQM": True,
+                },
+                "RG": {"COUPLING": "ARGON", "ALPHARG": 11.07, "FILENAME": None},
+            }
+        )
+        images,ref = read_XYZ("data_test/rg_test.mol")
+
+        for i,image in enumerate(images):
+
+            dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+            dem.calculate(symbols=image.symbols, positions=image.positions)
+
+            results = dem.results
+            reference = float(ref[i].split()[3])
+
+            assert np.allclose(results["energy"]["energy"], reference, atol=1e-7)
+
+
+    def test_argon_cluster_ion(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                    "POLA": True,
+                    "NOPOLQM": True,
+                },
+                "CHARGE":1.,
+                "RG": {"COUPLING": "ARGON", "ALPHARG": 11.07, "FILENAME": None},
+            }
+        )
+        images,ref = read_XYZ("data_test/rg+_test.mol")
+
+        for i,image in enumerate(images):
+
+            dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+            dem.calculate(symbols=image.symbols, positions=image.positions)
+
+            results = dem.results
+            reference = float(ref[i].split()[3])
+
+            assert np.allclose(results["energy"]["energy"], reference, atol=1e-7)
+
     def test_argon_pola(self):
 
         parameter_config = deepcopy(parameters)
@@ -149,7 +288,6 @@ class TestDFTB_Rg:
         dem.calculate(symbols=image.symbols, positions=image.positions)
 
         results = dem.results
-        print(results["energy"]["energy"])
         assert np.allclose(results["energy"]["energy"], -19.51939793, atol=1e-7)
 
     @pytest.mark.forces
@@ -188,7 +326,7 @@ class TestDFTB_Rg:
         assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7)
         assert np.allclose(results["forces"], test_force, atol=1e-7)
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.xfail(reason="EXPERIMENTAL")
     def test_argon_read(self):
 
         parameter_config = deepcopy(parameters)

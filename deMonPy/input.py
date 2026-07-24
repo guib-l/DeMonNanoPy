@@ -284,7 +284,8 @@ class write_input:
         if params is None:
             params = self.module["MD"]
 
-        self._io_write_mddynamics(params.pop("MDYNAMICS"))
+        if "MDYNAMICS" in params.keys():
+            self._io_write_mddynamics(params.pop("MDYNAMICS"))
 
         self.io_lines["TIMESTEP"] = [str(params.pop("TIMESTEP"))]
 
@@ -342,10 +343,48 @@ class write_input:
             params.update({"WMULL": True})
         if "cm3" in self.flags:
             params.update({"CM3POT": True})
-        if "cm3inter" in self.flags:
-            params.update({"CM3INTER": True})
+
+            if "cm3inter" in self.flags:
+                params.update({"CM3POT": False})
+                params.update({"CM3INTER": True})
 
         self.io_lines["DFTB"] = self.handler_writen(params, bind_str="=")
+
+    @assert_flags("paths")
+    def _write_paths(self, params=None):
+
+        if params is None:
+            params = self.parameters["PATHS"]
+
+        npts = params["NPTS"]
+        npths = params["NPTHS"]
+
+        if npts > 1:
+            print("WARNING : didn't work for many path for this moment.")
+        self.io_lines["PATHS"] = [ f"NPTS={npts}",f"NPTHS={npths}"]
+
+        path = "\n"
+        chkpths = params["CHKPTS"]
+        filecheck = ""
+        for pts,chk in chkpths.items():
+            path += f"{pts} "
+            filecheck += f"CHKPTS NAME={pts}\n"
+            for i,q in enumerate(chk):
+                filecheck += f"{i+1} " + " ".join(list(map(str,q)))
+                filecheck += "\n"
+
+        self.file_path_check = filecheck
+
+        self.io_lines["PATHS"].append(path)
+
+    @assert_flags("rttddftb")
+    def _write_rttddftb(self, params=None):
+
+        if params is None:
+            params = self.parameters["RTTDDFTB"]
+
+            self.io_lines["RTTDDFTB"] =  self.handler_writen(params, bind_str="=")
+
 
     @assert_flags("rg")
     def _write_rg(self, params=None):
@@ -402,6 +441,8 @@ class write_input:
         if isinstance(params, list):
             self.io_lines["PARAM"] = params
         else:
+            if params["PTYPE"] == "" and params["SKFILE"] == "":
+                return
             new = ["PTYPE=" + str(params["PTYPE"]) + f"\n{params['SKFILE']}"]
             self.io_lines["PARAM"] = new
 
@@ -498,8 +539,12 @@ class write_input:
         for key, item in params["BONDPARAMS"].items():
             elmts = key.split()
 
-            if np.all([True if np.all(elm in symbols) else False for elm in elmts]):
+            if "molecules" in self.flags:
                 self.io_lines["BONDPARAMS"].append(f"\n{str(key)} {float(item)}")
+            else:
+                if np.all([True if np.all(elm in symbols) else False for elm in elmts]):
+                    self.io_lines["BONDPARAMS"].append(f"\n{str(key)} {float(item)}")
+
 
     @assert_flags("wmull")
     def _write_bondparam_wmull(self, symbols, params=None):
@@ -629,7 +674,10 @@ class write_input:
                 self.flags.remove("td-dftb")
 
         elif isinstance(value, dict):
-            self.io_lines["DFTB"].append("LRESP")
+            if "LRESP" in params.keys():
+                pass
+            else:
+                self.io_lines["DFTB"].append("LRESP")
             self.io_lines["DFTB"] += self.handler_writen(value)
             self.flags.remove("td-dftb")
 
@@ -712,6 +760,11 @@ class write_input:
             filename: Output input file name.
             workdir: Directory where the file is written.
         """
+
+        if "paths" in self.flags:
+
+            with open(os.path.join(workdir,"deMon.pth.inp"),"w") as fd:
+                fd.write(self.file_path_check)
 
         path = os.path.join(workdir, filename)
 
