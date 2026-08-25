@@ -3,6 +3,7 @@ from copy import deepcopy
 
 import numpy as np
 import pytest
+import shutil
 from ase.atoms import Atoms
 
 import deMonPy
@@ -38,6 +39,7 @@ WORKDIR = ".run/freq/"
 
 
 class TestFreq:
+
     def test_freq(self):
 
         parameter_config = deepcopy(parameters)
@@ -59,6 +61,8 @@ class TestFreq:
         assert mode_1["mode"] == 1
         assert np.allclose(mode_1["frequency"], -1178.9, atol=1e-1)
         assert np.allclose(mode_1["intensity"], 112.0, atol=1e-1)
+
+
 
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
     def test_limited_freq(self):
@@ -82,7 +86,8 @@ class TestFreq:
         assert np.allclose(mode_1["frequency"], -1178.9, atol=1e-1)
         assert np.allclose(mode_1["intensity"], 112.0, atol=1e-1)
 
-    def test_freq_ci(self):
+    @pytest.mark.beta
+    def test_freq_const(self):
 
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
@@ -107,3 +112,144 @@ class TestFreq:
         assert mode_1["mode"] == 1
         assert np.allclose(mode_1["frequency"], -1134.2, atol=1e-1)
         assert np.allclose(mode_1["intensity"], 79.6, atol=1e-1)
+
+    def test_freq_disp(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                },
+                "FREQ": True,
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+        dem.clean_workdir()
+        os.path.join(dem.workdir, "deMon.freq")
+
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        assert np.allclose(results["zpe"], 0.0475, atol=1e-4)
+        assert len(results["frequency"]) == 18
+        mode_1 = results["frequency"][0]
+        assert mode_1["mode"] == 1
+        assert np.allclose(mode_1["frequency"], -1178.9, atol=1e-1)
+        assert np.allclose(mode_1["intensity"], 112.0, atol=1e-1)
+
+    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    def test_freq_ldep(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "L-DEP": True,
+                },
+                "FREQ": True,
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+        dem.clean_workdir()
+        os.path.join(dem.workdir, "deMon.freq")
+
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        assert np.allclose(results["zpe"], 0.0475, atol=1e-4)
+        assert len(results["frequency"]) == 18
+        mode_1 = results["frequency"][0]
+        assert mode_1["mode"] == 1
+        assert np.allclose(mode_1["frequency"], -1178.9, atol=1e-1)
+        assert np.allclose(mode_1["intensity"], 112.0, atol=1e-1)
+
+
+    @pytest.mark.beta
+    def test_freq_dftb3(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "THIRD": True,
+                },
+                "FREQ": True,
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+        dem.clean_workdir()
+        os.path.join(dem.workdir, "deMon.freq")
+
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        assert np.allclose(results["zpe"], 0.0475, atol=1e-4)
+        assert len(results["frequency"]) == 18
+        mode_1 = results["frequency"][0]
+        assert mode_1["mode"] == 1
+        assert np.allclose(mode_1["frequency"], -1175.1, atol=1e-1)
+        assert np.allclose(mode_1["intensity"], 118.7, atol=1e-1)
+
+
+    def test_freq_fermi(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "FERMI": 150,
+                },
+                "FREQ": True,
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+        dem.clean_workdir()
+        os.path.join(dem.workdir, "deMon.freq")
+
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        assert np.allclose(results["zpe"], 0.0475, atol=1e-4)
+        assert len(results["frequency"]) == 18
+        mode_1 = results["frequency"][0]
+        assert mode_1["mode"] == 1
+        assert np.allclose(mode_1["frequency"], -1178.9, atol=1e-1)
+        assert np.allclose(mode_1["intensity"], 112.0, atol=1e-1)
+
+
+    def test_freq_charge(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                },
+                "CHARGE": 1.0,
+                "FREQ": True,
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+        dem.clean_workdir()
+        os.path.join(dem.workdir, "deMon.freq")
+
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        assert np.allclose(results["zpe"], 0.04725644, atol=1e-4)
+        assert len(results["frequency"]) == 18
+        mode_1 = results["frequency"][0]
+        assert mode_1["mode"] == 1
+        assert np.allclose(mode_1["frequency"], -1254.2, atol=1e-1)
+        assert np.allclose(mode_1["intensity"], 70.7, atol=1e-1)
+
+
+

@@ -402,6 +402,7 @@ class deMonNano(BasicCalculation):
         self._wi._write_debug()
         self._wi._write_freq()
         self._wi._write_tddftb()
+        self._wi._write_rttddftb()
         self._wi._write_qmmm()
         self._wi._write_rttddftb()
         self._wi._write_cutsys()

@@ -23,29 +23,9 @@ parameters = {
 
 image = Atoms(
     [
-        "C",
-        "C",
-        "N",
-        "C",
-        "C",
-        "N",
-        "C",
-        "C",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "O",
-        "H",
-        "H",
+        "C", "C", "N", "C", "C", "N", "C", "C", "H", "H", 
+        "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", 
+        "O", "H", "H"
     ],
     positions=np.array(
         [

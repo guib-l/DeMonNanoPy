@@ -40,6 +40,7 @@ WORKDIR = ".run/basics/"
 
 
 class TestDftbBasis:
+    
     def test_basic(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -507,6 +508,9 @@ class TestDftb:
         results = mod.results
         assert results["energy"]["energy"] == -8.06209343
 
+
+
+
     def test_scc_disp1(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -785,3 +789,372 @@ class TestDftb:
 
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -8.0654775, atol=1e-7)
+
+
+    def test_scc_ldepFermi(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "FERMI": 150.00,
+                            "L-DEP": True,
+                        },
+                    },
+                }
+            }
+        )
+
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.clean_workdir()
+
+        mod.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = mod.results
+        assert results["energy"]["energy"] == -8.06480023
+
+
+    def test_scc_disp1Fermi(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "TOL": 1e-8,
+                            "MEMOSCC": False,
+                            "POLA": False,
+                            "MAX": 100,
+                            "MIX": 0.2,
+                            "SIMPLE": False,
+                            "L-DEP": False,
+                            "FERMI": 150,
+                            "THRID": False,
+                            "DISP": 1,
+                            "LEV_S": None,
+                        },
+                    },
+                }
+            }
+        )
+
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = mod.results
+        assert results["energy"]["energy"] == -8.04913036
+
+    def test_scc_disp2Fermi(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "TOL": 1e-8,
+                            "MEMOSCC": False,
+                            "POLA": False,
+                            "MAX": 100,
+                            "MIX": 0.2,
+                            "SIMPLE": False,
+                            "L-DEP": False,
+                            "FERMI": 150,
+                            "THRID": False,
+                            "DISP": 2,
+                            "LEV_S": None,
+                        },
+                    },
+                }
+            }
+        )
+
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = mod.results
+        assert results["energy"]["energy"] == -8.06209886
+
+    @pytest.mark.beta
+    def test_scc_dftb3Fermi(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "TOL": 1e-8,
+                            "MEMOSCC": False,
+                            "POLA": False,
+                            "MAX": 100,
+                            "MIX": 0.2,
+                            "SIMPLE": False,
+                            "L-DEP": False,
+                            "FERMI": 150,
+                            "THIRD": True,
+                            "LEV_S": None,
+                        },
+                    },
+                }
+            }
+        )
+
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = mod.results
+        assert results["energy"]["energy"] == -8.06658147
+
+    @pytest.mark.beta
+    def test_scc_dftb3FermiDisp2(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "TOL": 1e-8,
+                            "MEMOSCC": False,
+                            "POLA": False,
+                            "MAX": 100,
+                            "MIX": 0.2,
+                            "SIMPLE": False,
+                            "L-DEP": False,
+                            "FERMI": 150,
+                            "THIRD": True,
+                            "DISP": 2,
+                            "LEV_S": None,
+                        },
+                    },
+                }
+            }
+        )
+
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = mod.results
+        assert results["energy"]["energy"] == -8.06658691
+
+    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    def test_scc_ldepMemo(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "TOL": 1e-8,
+                            "MEMOSCC": True,
+                            "POLA": False,
+                            "MAX": 100,
+                            "MIX": 0.2,
+                            "SIMPLE": False,
+                            "L-DEP": True,
+                            "FERMI": None,
+                            "THRID": False,
+                            "DISP": False,
+                            "LEV_S": None,
+                        },
+                    },
+                }
+            }
+        )
+
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = mod.results
+        assert results["energy"]["energy"] == -8.06658691
+
+    def test_scc_memoDisp2(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "TOL": 1e-8,
+                            "MEMOSCC": True,
+                            "POLA": False,
+                            "MAX": 100,
+                            "MIX": 0.2,
+                            "SIMPLE": False,
+                            "L-DEP": False,
+                            "FERMI": None,
+                            "THRID": False,
+                            "DISP": 2,
+                            "LEV_S": None,
+                        },
+                    },
+                }
+            }
+        )
+
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = mod.results
+        assert results["energy"]["energy"] == -8.06209886
+
+    def test_scc_memoFermi(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "TOL": 1e-8,
+                            "MEMOSCC": True,
+                            "POLA": False,
+                            "MAX": 100,
+                            "MIX": 0.2,
+                            "SIMPLE": False,
+                            "L-DEP": False,
+                            "FERMI": 100,
+                            "THRID": False,
+                            "DISP": False,
+                            "LEV_S": None,
+                        },
+                    },
+                }
+            }
+        )
+
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = mod.results
+        assert results["energy"]["energy"] == -8.06209343
+
+
+    @pytest.mark.forces
+    def test_scc_fermi_grad(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "TOL": 1e-8,
+                            "MEMOSCC": False,
+                            "POLA": False,
+                            "MAX": 100,
+                            "MIX": 0.2,
+                            "SIMPLE": False,
+                            "L-DEP": False,
+                            "FERMI": 50.00,
+                            "THRID": False,
+                            "DISP": False,
+                            "LEV_S": None,
+                        },
+                    },
+                }
+            }
+        )
+
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = mod.results
+        assert results["energy"]["energy"] == -8.06209343
+    
+        grad = compute_numgrad(
+            symbols=image.symbols, positions=image.positions, calculator=mod, delta=0.001
+        )
+        analytic_grad = np.array(
+            [
+                [ 0.13553022,  0.00919975,  0.01144081],
+                [ 0.01010464, -0.00027253, -0.00263266],
+                [-0.00191298,  0.00179126, -0.01298336],
+                [-0.21241967,  0.10960054, -0.11356408],
+                [ 0.02605933, -0.09880532, -0.00577862],
+                [ 0.04263581, -0.02151105,  0.12351525]
+            ])
+
+        assert np.allclose(analytic_grad, grad, atol=1e-5)
+
+    @pytest.mark.forces
+    def test_scc_ldep_grad(self):
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "TOL": 1e-8,
+                            "MEMOSCC": False,
+                            "POLA": False,
+                            "MAX": 100,
+                            "MIX": 0.2,
+                            "SIMPLE": False,
+                            "L-DEP": True,
+                            "THIRD": False,
+                            "DISP": False,
+                            "LEV_S": None,
+                        },
+                    },
+                }
+            }
+        )
+
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = mod.results
+        assert results["energy"]["energy"] == -8.06480023
+    
+        grad = compute_numgrad(
+            symbols=image.symbols, positions=image.positions, calculator=mod, delta=0.001
+        )
+        analytic_grad = np.array(
+            [
+                [ 0.13547201,  0.00987445,  0.01231395],
+                [ 0.010229  , -0.00069322, -0.00297133],
+                [-0.00201087,  0.0015743 , -0.01356546],
+                [-0.2122371 ,  0.11040224, -0.11274385],
+                [ 0.02614135, -0.09936096, -0.00602997],
+                [ 0.04240032, -0.02179681,  0.12299666]
+            ])
+
+        assert np.allclose(analytic_grad, grad, atol=1e-5)
+
+
+
+
+
+
+
+
+
+

@@ -174,6 +174,7 @@ class TestAromatic:
         assert np.allclose(results["energy"]["energy"], -12.56863286, atol=1e-7)
         assert np.allclose(results["energy"]["london_energy"], -0.00058171, atol=1e-7)
 
+    @pytest.mark.optional
     def test_benzen_cm3(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -255,6 +256,7 @@ class TestAromatic:
         assert np.allclose(results["energy"]["energy"], -31.34507905, atol=1e-7)
         assert np.allclose(results["energy"]["london_energy"], -0.00677663, atol=1e-7)
 
+    @pytest.mark.optional
     def test_pyrene_cm3(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -305,6 +307,7 @@ class TestAromatic:
         assert np.allclose(results["energy"]["energy"], -31.3529546, atol=1e-7)
         assert np.allclose(results["energy"]["london_energy"], -0.00677337, atol=1e-5)
 
+    @pytest.mark.optional
     def test_coronene_mulliken(self):
 
         copy_parameters = copy.deepcopy(parameters)

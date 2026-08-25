@@ -3,6 +3,7 @@ import os
 
 import numpy as np
 import pytest
+import shutil
 
 import deMonPy
 from deMonPy.deMonNano import deMonNano
@@ -55,7 +56,6 @@ symbols = ["Au"] * 20
 
 class TestRTDFTB:
 
-    #@pytest.mark.xfail(reason="TO BE CONTINUE")
     def test_tddftb(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -64,6 +64,9 @@ class TestRTDFTB:
             {"DFTB": {"SCC": True}, "TD-DFTB": {"LRESP": 25, "NO_TRIP": True}}
         )
 
+        shutil.copy2("test/basis-test/Au-bremen/Au-Au_BREMEN_shift_p.skf", f"{WORKDIR}/Au-Au_BREMEN_shift_p.skf")
+        shutil.copy2("test/basis-test/Au-bremen/SCC-SLAKO", f"{WORKDIR}/SCC-SLAKO")
+
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=symbols, positions=positions)
@@ -71,8 +74,12 @@ class TestRTDFTB:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -57.09364137, atol=1e-7)
 
-    #@pytest.mark.xfail(reason="TO BE CONTINUE")
+
     def _test_basic_rtdftb(self):
+
+        from scipy.io import FortranFile
+
+        n_step = 2000
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters["BASIS"] = {"PTYPE": "", "SKFILE": ""}
@@ -84,18 +91,41 @@ class TestRTDFTB:
             {
                 "MD": {
                     "TIMESTEP": 0.05,
-                    "MDSTEP": {"MAX": 2000, "OUT": 100, "SOUT": 100},
+                    "MDSTEP": {"MAX": n_step, "OUT": 100, "SOUT": 100},
                     "TRAJECTORY": True,
                 },
             }
         )
+
+        shutil.copy2("test/basis-test/Au-bremen/Au-Au_BREMEN_shift_p.skf", 
+                     f"{WORKDIR}/Au-Au_BREMEN_shift_p.skf")
+        shutil.copy2("test/basis-test/Au-bremen/SCC-SLAKO", 
+                     f"{WORKDIR}/SCC-SLAKO")
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
         mod.calculate(symbols=symbols, positions=positions)
 
         results = mod.results
-        assert np.allclose(results["energy"]["energy"], -20.7065151, atol=1e-7)
+
+        assert os.path.isfile(f"{WORKDIR}/deMon.dip.bin.1")
+
+        f = FortranFile(f"{WORKDIR}/deMon.dip.bin.1", "r")
+
+        step, dipole = np.zeros(n_step), np.zeros((n_step,3))
+
+        for i in range(n_step):
+            record = f.read_reals(dtype="float64")
+            step[i] = record[0]
+            dipole[i] = record[1:]
+        f.close()
+        
+        with open(f"test/data_test/deMon.dip.1.ref","r") as fd:
+            data = fd.readlines()[0]
+            data = np.array(list(map(float,data.split())))
+
+        assert np.allclose(data,dipole.ravel(), atol=1e-4)
+        assert np.allclose(results["energy"]["energy"], -57.09364137, atol=1e-7)
 
 
 

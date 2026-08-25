@@ -25,27 +25,8 @@ parameters = {
 
 image = Atoms(
     [
-        "C",
-        "C",
-        "N",
-        "C",
-        "C",
-        "N",
-        "C",
-        "C",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "H",
-        "Ar",
+        "C", "C", "N", "C", "C", "N", "C", "C", "H", "H", "H",
+        "H", "H", "H", "H", "H", "H", "H", "H", "H", "Ar",
     ],
     positions=np.array(
         [
@@ -74,6 +55,17 @@ image = Atoms(
     ),
 )
 
+amonia = Atoms(
+    ["N","H","H","H"],
+    positions=np.array(
+        [
+            [3.909756207549047,-0.000000059186190,-2.347416764065182],   
+            [3.909756207549047, 0.939730940813810,-2.735713764065181],   
+            [4.723587207549047,-0.469865059186190,-2.735713764065181],   
+            [3.095925207549047,-0.469865059186190,-2.735713764065181],   
+        ]
+    )
+)
 
 test_force = np.array(
     [
@@ -105,6 +97,7 @@ WORKDIR = ".run/dftbrg/"
 
 
 class TestDFTB_Rg:
+
     def test_argon(self):
 
         parameter_config = deepcopy(parameters)
@@ -279,6 +272,254 @@ class TestDFTB_Rg:
 
         results = dem.results
         assert np.allclose(results["energy"]["energy"], -19.51939793, atol=1e-7)
+
+
+    def test_argon_ldep(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                    "POLA": True,
+                    "NOPOLQM": True,
+                    "L-DEP": True,
+                },
+                "RG": {
+                    "COUPLING": "ARGON",
+                    "ALPHARG": 11.07,
+                },
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        assert np.allclose(results["energy"]["energy"], -19.56988169, atol=1e-7)
+
+    def test_argon_fermi(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                    "POLA": True,
+                    "NOPOLQM": True,
+                    "FERMI": 50.00,
+                },
+                "RG": {
+                    "COUPLING": "ARGON",
+                    "ALPHARG": 11.07,
+                },
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7)
+
+    @pytest.mark.beta
+    def test_argon_dftb3(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                    "POLA": True,
+                    "NOPOLQM": True,
+                    "THIRD": True,
+                },
+                "RG": {
+                    "COUPLING": "ARGON",
+                    "ALPHARG": 11.07,
+                },
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        assert np.allclose(results["energy"]["energy"], -19.51971435, atol=1e-7)
+
+
+
+    @pytest.mark.beta
+    def test_argon_ci(self):
+
+        _image = image+amonia
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                    "POLA": True,
+                    "NOPOLQM": True,
+                },
+                "CHARGE":1.0,
+                "CI": {"CONST": 1, },
+                "CUTSYS": {
+                    "FRAGMENT": [20, 3],
+                },
+                "RG": {
+                    "COUPLING": "ARGON",
+                    "ALPHARG": 11.07,
+                },
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=_image.symbols, positions=_image.positions)
+
+        results = dem.results
+        energy = results["energy"]
+        assert np.allclose(energy["energy"], -22.75794379, atol=1e-7)
+
+    @pytest.mark.beta
+    def test_argon_const(self):
+
+        _image = image+amonia
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                    "POLA": True,
+                    "NOPOLQM": True,
+                },
+                "CHARGE":1.0,
+                "CI": {"SIZECI": 2, "NOSLAT": False},
+                "CUTSYS": {
+                    "FRAGMENT": [20, 3],
+                },
+                "RG": {
+                    "COUPLING": "ARGON",
+                    "ALPHARG": 11.07,
+                },
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=_image.symbols, positions=_image.positions)
+
+        results = dem.results
+        conf_1 = results["configuration_1"]
+        conf_2 = results["configuration_2"]
+        assert np.allclose(conf_1["energy"], -22.75794379, atol=1e-7)
+        assert np.allclose(conf_2["energy"], -22.55212638, atol=1e-7)
+
+    @pytest.mark.beta
+    def test_argon_ci_exci(self):
+
+        _image = image+amonia
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                    "POLA": True,
+                    "NOPOLQM": True,
+                },
+                "CHARGE":1.0,
+                "CI": {"SIZECI": 2, "NOSLAT": False, "EXCCI": 4},
+                "CUTSYS": {
+                    "FRAGMENT": [20, 3],
+                },
+                "RG": {
+                    "COUPLING": "ARGON",
+                    "ALPHARG": 11.07,
+                },
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=_image.symbols, positions=_image.positions)
+
+        results = dem.results
+        conf_1 = results["configuration_1"]
+        conf_2 = results["configuration_2"]
+
+        assert np.allclose(conf_1["energy"], -22.75794379, atol=1e-7)
+        assert np.allclose(conf_2["energy"], -22.66060063, atol=1e-7)
+
+        assert np.allclose(len(results["states"]), 10.0)
+
+        assert np.allclose(results["energy"]["energy"], -22.7625355, atol=1e-7)
+
+
+    def test_argon_freq(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                    "POLA": True,
+                    "NOPOLQM": True,
+                },
+                "FREQ": True,
+                "RG": {
+                    "COUPLING": "ARGON",
+                    "ALPHARG": 11.07,
+                },
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        assert np.allclose(results["zpe"], 0.18155212, atol=1e-4)
+        assert len(results["frequency"]) == 63
+        mode_1 = results["frequency"][34]
+        assert mode_1["mode"] == 35
+        assert np.allclose(mode_1["frequency"], 1402.3, atol=1e-1)
+        assert np.allclose(mode_1["intensity"], 132.0, atol=1e-1)
+        
+    def test_argon_tddftb(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                    "POLA": True,
+                    "NOPOLQM": True,
+                },
+                "TD-DFTB": True,
+                "RG": {
+                    "COUPLING": "ARGON",
+                    "ALPHARG": 11.07,
+                },
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        energy = results["energy"]        
+        assert energy["energy"] == -19.51939925
+
+        assert "triplet" in results.keys()
+        assert "singlet" in results.keys()
 
     @pytest.mark.forces
     def test_argon_grad(self):

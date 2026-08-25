@@ -331,7 +331,7 @@ class read_output(IOread):
     # =================================
     # READ GEOMETRY (basics)
 
-    @exclude_flags(["ptmc", "freq", "ptmd"])
+    @exclude_flags(["ptmc", "freq", "ptmd", "rttddftb"])
     def read_geometry(self, output="deMon.mol", is_charges=False, velocities=False, keep=1):
         """Read input, output, or trajectory geometries.
 

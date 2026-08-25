@@ -656,6 +656,19 @@ class write_input:
 
         self.io_lines["CUTSYS"].append(txt)
 
+    @assert_flags("rttddftb")
+    def _write_rttddftb(self, params=None):
+        """Write TD-DFTB response options.
+
+        Args:
+            params: TD-DFTB parameter value or block.
+        """
+        if params is None:
+            params = self.parameters["RTTDDFTB"]
+
+        self.io_lines["RTTDDFTB"] = self.handler_writen(params)
+
+
     @assert_flags("td-dftb")
     def _write_tddftb(self, params=None):
         """Write TD-DFTB response options.
