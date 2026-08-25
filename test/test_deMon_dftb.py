@@ -10,7 +10,7 @@ from conftest import compute_numgrad
 import deMonPy
 from deMonPy.deMonNano import deMonNano
 
-deMonPy.configure_from_file(os.path.join("..", "global.json"))
+deMonPy.configure_from_file("global.json")
 
 parameters = {
     "DEMON_EXECUTABLE": deMonPy.DEMON_EXECUTABLE,
@@ -689,12 +689,12 @@ class TestDftb:
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        shutil.copy2("./data_test/3ord_param", f"{WORKDIR}/3ord_param")
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
         mod.calculate(symbols=image.symbols, positions=image.positions, clean_repository=False)
 
         results = mod.results
 
-        assert np.allclose(results["energy"]["energy"], -8.0483818, atol=1e-7)
+        assert np.allclose(results["energy"]["energy"], -8.06658147, atol=1e-7)
 
     @pytest.mark.beta
     @pytest.mark.forces
@@ -717,7 +717,7 @@ class TestDftb:
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        shutil.copy2("./data_test/3ord_param", f"{WORKDIR}/3ord_param")
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
 

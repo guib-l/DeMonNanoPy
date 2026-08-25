@@ -7,7 +7,7 @@ from ase.atoms import Atoms
 import deMonPy
 from deMonPy.deMonNano import deMonNano
 
-deMonPy.configure_from_file(os.path.join("..", "global.json"))
+deMonPy.configure_from_file("global.json")
 
 parameters = {
     "DEMON_EXECUTABLE": deMonPy.DEMON_EXECUTABLE,
@@ -38,7 +38,8 @@ WORKDIR = ".run/demon"
 
 
 class TestBasicUsage:
-    def _test_single_point(self):
+    
+    def test_single_point(self):
 
         parameter_config = deepcopy(parameters)
 

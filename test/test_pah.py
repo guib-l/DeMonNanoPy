@@ -7,7 +7,7 @@ import deMonPy
 from deMonPy.deMonNano import deMonNano
 from deMonPy.molden import read_XYZ
 
-deMonPy.configure_from_file(os.path.join("..", "global.json"))
+deMonPy.configure_from_file("global.json")
 
 parameters = {
     "DEMON_EXECUTABLE": deMonPy.DEMON_EXECUTABLE,
@@ -34,7 +34,7 @@ class TestPAH:
 
         LIMITS = 2
 
-        images, ref = read_XYZ("data_test/pyren-neutral.mol")
+        images, ref = read_XYZ("test/data_test/pyren-neutral.mol")
 
         copy_parameters = copy.deepcopy(parameters)
 
@@ -52,7 +52,7 @@ class TestPAH:
 
         LIMITS = 2
 
-        images, ref = read_XYZ("data_test/pyren-cation.mol")
+        images, ref = read_XYZ("test/data_test/pyren-cation.mol")
 
         copy_parameters = copy.deepcopy(parameters)
 
@@ -82,7 +82,7 @@ class TestPAH:
 
     def _test_coronene_opt(self):
 
-        images, ref = read_XYZ("data_test/coronene-neutral.mol")
+        images, ref = read_XYZ("test/data_test/coronene-neutral.mol")
         image = images[0]
 
         copy_parameters = copy.deepcopy(parameters)
@@ -174,7 +174,7 @@ class TestPAH:
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
+        shutil.copy2("test/data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
         mod.calculate(symbols=[], positions=[], clean_repository=False)
 
@@ -235,7 +235,7 @@ class TestPAH:
             )
             mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-            shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
+            shutil.copy2("test/data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
             mod.calculate(symbols=[], positions=[], clean_repository=False)
 
@@ -319,7 +319,7 @@ class TestPAH:
 
             mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-            shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
+            shutil.copy2("test/data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
             mod.calculate(symbols=[], positions=[], clean_repository=False)
 

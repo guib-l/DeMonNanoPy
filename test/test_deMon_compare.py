@@ -8,7 +8,7 @@ from ase.atoms import Atoms
 import deMonPy
 from deMonPy.deMonNano import deMonNano
 
-deMonPy.configure_from_file(os.path.join("..", "global.json"))
+deMonPy.configure_from_file("global.json")
 
 deMonPy.DEMON_BASIS = "../../basis-test"
 

@@ -8,7 +8,7 @@ import deMonPy
 from deMonPy.deMonNano import deMonNano
 from deMonPy.molden import read_XYZ
 
-deMonPy.configure_from_file(os.path.join("..", "global.json"))
+deMonPy.configure_from_file("global.json")
 
 parameters = {
     "DEMON_EXECUTABLE": deMonPy.DEMON_EXECUTABLE,
@@ -260,7 +260,7 @@ class TestPeriodic:
 
     def test_periodic_graphen_layer_2(self):
 
-        images, ref = read_XYZ("data_test/graphene.mol")
+        images, ref = read_XYZ("test/data_test/graphene.mol")
 
         image = images[0]
         image.cell = np.array(

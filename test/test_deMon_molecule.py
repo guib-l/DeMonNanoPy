@@ -9,7 +9,7 @@ from ase.atoms import Atoms
 import deMonPy
 from deMonPy.deMonNano import deMonNano
 
-deMonPy.configure_from_file(os.path.join("..", "global.json"))
+deMonPy.configure_from_file("global.json")
 
 parameters = {
     "DEMON_EXECUTABLE": deMonPy.DEMON_EXECUTABLE,
@@ -64,7 +64,7 @@ class TestMolecule:
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
+        shutil.copy2("test/data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
         mod.calculate(symbols=image.symbols, positions=image.positions, clean_repository=False)
 
@@ -93,7 +93,7 @@ class TestMolecule:
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
+        shutil.copy2("test/data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
         mod.calculate(symbols=image.symbols, positions=image.positions, clean_repository=False)
 
@@ -122,7 +122,7 @@ class TestMolecule:
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
+        shutil.copy2("test/data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
         mod.calculate(symbols=image.symbols, positions=image.positions, clean_repository=False)
 
@@ -152,7 +152,7 @@ class TestMolecule:
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        shutil.copy2("./data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
+        shutil.copy2("test/data_test/MOLECULES", f"{WORKDIR}/MOLECULES")
 
         mod.calculate(symbols=image.symbols, positions=image.positions, clean_repository=False)
 

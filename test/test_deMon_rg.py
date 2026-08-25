@@ -10,7 +10,7 @@ import deMonPy
 from deMonPy.deMonNano import deMonNano
 from deMonPy.molden import read_XYZ
 
-deMonPy.configure_from_file(os.path.join("..", "global.json"))
+deMonPy.configure_from_file("global.json")
 
 parameters = {
     "DEMON_EXECUTABLE": deMonPy.DEMON_EXECUTABLE,
@@ -219,7 +219,7 @@ class TestDFTB_Rg:
                 "RG": {"COUPLING": "ARGON", "ALPHARG": 11.07, "FILENAME": None},
             }
         )
-        images, ref = read_XYZ("data_test/rg_test.mol")
+        images, ref = read_XYZ("test/data_test/rg_test.mol")
 
         for i, image in enumerate(images):
             dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
@@ -245,7 +245,7 @@ class TestDFTB_Rg:
                 "RG": {"COUPLING": "ARGON", "ALPHARG": 11.07, "FILENAME": None},
             }
         )
-        images, ref = read_XYZ("data_test/rg+_test.mol")
+        images, ref = read_XYZ("test/data_test/rg+_test.mol")
 
         for i, image in enumerate(images):
             dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)

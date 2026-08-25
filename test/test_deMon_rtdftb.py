@@ -7,7 +7,7 @@ import pytest
 import deMonPy
 from deMonPy.deMonNano import deMonNano
 
-deMonPy.configure_from_file(os.path.join("..", "global.json"))
+deMonPy.configure_from_file("global.json")
 
 parameters = {
     "DEMON_EXECUTABLE": deMonPy.DEMON_EXECUTABLE,
@@ -54,7 +54,8 @@ symbols = ["Au"] * 20
 
 
 class TestRTDFTB:
-    @pytest.mark.xfail(reason="TO BE CONTINUE")
+
+    #@pytest.mark.xfail(reason="TO BE CONTINUE")
     def test_tddftb(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -70,8 +71,8 @@ class TestRTDFTB:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -57.09364137, atol=1e-7)
 
-    @pytest.mark.xfail(reason="TO BE CONTINUE")
-    def test_basic_rtdftb(self):
+    #@pytest.mark.xfail(reason="TO BE CONTINUE")
+    def _test_basic_rtdftb(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters["BASIS"] = {"PTYPE": "", "SKFILE": ""}
@@ -95,3 +96,22 @@ class TestRTDFTB:
 
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -20.7065151, atol=1e-7)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -392,13 +392,13 @@ class deMonNano(BasicCalculation):
 
         # Parameters
         self._wi._write_dftb()
+        self._wi._write_basis()
         self._wi._write_charge()
         self._wi._write_bondparam_wmull(symbols)
         self._wi._write_bondparam_cm3(symbols)
         self._wi._write_bondparam_cm3inter(symbols)
         self._wi._write_ci()
         self._wi._write_multi()
-        self._wi._write_basis()
         self._wi._write_debug()
         self._wi._write_freq()
         self._wi._write_tddftb()
@@ -409,14 +409,14 @@ class deMonNano(BasicCalculation):
         self._wi._write_rg()
         self._wi._write_paths()
         self._wi._write_pbc(cell=cell, kpts=kpts)
-
-        # Modules
+#
+        ## Modules
         self._wi._write_opt()
         self._wi._write_ptmc()
         self._wi._write_md()
         self._wi._write_neb()
-
-        # Geometry writing
+#
+        ## Geometry writing
         self._wi._write_geometry(symbols=symbols, positions=geometry)
         self._wi._write_molecules()
 

@@ -441,9 +441,12 @@ class write_input:
             self.io_lines["PARAM"] = params
         else:
             if params["PTYPE"] == "" and params["SKFILE"] == "":
+                self.io_lines.pop("PARAM")
                 return
-            new = ["PTYPE=" + str(params["PTYPE"]) + f"\n{params['SKFILE']}"]
-            self.io_lines["PARAM"] = new
+            else:
+                new = ["PTYPE=" + str(params["PTYPE"]) + f"\n{params['SKFILE']}"]
+                self.io_lines["PARAM"] = new
+        
 
     @exclude_flags("molecules")
     def _write_geometry(self, symbols, positions, fmt="%10.7f"):
