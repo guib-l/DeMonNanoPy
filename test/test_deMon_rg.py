@@ -9,6 +9,7 @@ from ase.atoms import Atoms
 import deMonPy
 from deMonPy.deMonNano import deMonNano
 from deMonPy.molden import read_XYZ
+from conftest import compute_numgrad
 
 deMonPy.configure_from_file("global.json")
 
@@ -521,42 +522,6 @@ class TestDFTB_Rg:
         assert "triplet" in results.keys()
         assert "singlet" in results.keys()
 
-    @pytest.mark.forces
-    def test_argon_grad(self):
-
-        parameter_config = deepcopy(parameters)
-        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
-            {
-                "DFTB": {
-                    "SCC": True,
-                    "DISP": 2,
-                    "POLA": True,
-                    "NOPOLQM": True,
-                },
-                "RG": {"COUPLING": "ARGON", "ALPHARG": 11.07, "FILENAME": None},
-            }
-        )
-        parameter_config.update(
-            {
-                "DEMON_MODULE": {
-                    "ACTIVE": {
-                        "OPT": {
-                            "SP": True,
-                        },
-                    },
-                }
-            }
-        )
-
-        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
-
-        dem.calculate(symbols=image.symbols, positions=image.positions)
-
-        results = dem.results
-
-        assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7)
-        assert np.allclose(results["forces"], test_force, atol=1e-7)
-
     @pytest.mark.xfail(reason="EXPERIMENTAL")
     def test_argon_read(self):
 
@@ -581,3 +546,44 @@ class TestDFTB_Rg:
         results = dem.results
 
         assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7)
+
+    @pytest.mark.forces
+    def test_argon_grad(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                    "POLA": True,
+                    "NOPOLQM": True,
+                },
+                "RG": {"COUPLING": "ARGON", "ALPHARG": 11.07, },
+            }
+        )
+
+        parameter_config_bis = deepcopy(parameter_config)
+        parameter_config_bis.update(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {
+                        "OPT": {"SP": True, "TRAJECTORY": True},
+                    },
+                }
+            }
+        )
+        
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config_bis)
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+
+        assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7)
+
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+        grad = compute_numgrad(
+            symbols=image.symbols, positions=image.positions, calculator=dem, delta=0.001
+        )
+
+        assert np.allclose(results["forces"], grad, atol=1e-5)

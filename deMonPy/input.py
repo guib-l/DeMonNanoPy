@@ -391,14 +391,14 @@ class write_input:
         if params is None:
             params = self.parameters["RG"]
 
-        _alpharg = params.pop("ALPHARG", "")
+        _alpharg = params.get("ALPHARG", "")
         self.io_lines["DFTB"].append(f"ALPHARG={_alpharg}")
 
         coupling = params["COUPLING"]
 
         _read = ""
         if coupling == "READ":
-            _read = f"\n{params.pop('FILENAME', '')}"
+            _read = f"\n{params.get('FILENAME', '')}"
         self.io_lines["QMMM"] = ["QM/MM", f"COUPLING={coupling}{_read}"]
 
     @assert_flags("pbc")
@@ -642,7 +642,7 @@ class write_input:
         if params is None:
             params = self.parameters["CUTSYS"]
 
-        frags = params.pop("FRAGMENT")
+        frags = params.get("FRAGMENT")
         self.io_lines["CUTSYS"] = []
         self.io_lines["CUTSYS"].append(f"NMOL={len(frags)}")
 

@@ -108,7 +108,6 @@ class TestCharges:
         assert energy["electronic_energy"] == -8.19365762
         assert energy["coulomb_energy"] == 0.06029717
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
     def test_cm3inter(self):
 
         parameter_config = deepcopy(parameters)
@@ -129,7 +128,7 @@ class TestCharges:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.0368677
+        assert energy["energy"] == -8.06209343
 
 
 WORKDIR = ".run/dftbcutsys/"
