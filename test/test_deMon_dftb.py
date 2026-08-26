@@ -1,5 +1,4 @@
 import copy
-import os
 
 # import configs
 import numpy as np
@@ -40,7 +39,6 @@ WORKDIR = ".run/basics/"
 
 
 class TestDftbBasis:
-    
     def test_basic(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -337,7 +335,7 @@ class TestDftb:
                 }
             }
         )
-        
+
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters_bis)
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -511,9 +509,6 @@ class TestDftb:
         results = mod.results
         assert results["energy"]["energy"] == -8.06209343
 
-
-
-
     def test_scc_disp1(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -607,7 +602,7 @@ class TestDftb:
                 }
             }
         )
-        
+
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters_bis)
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -648,7 +643,7 @@ class TestDftb:
                 }
             }
         )
-        
+
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters_bis)
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -778,7 +773,7 @@ class TestDftb:
                 }
             }
         )
-        
+
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters_bis)
 
         shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
@@ -842,7 +837,6 @@ class TestDftb:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -8.0654775, atol=1e-7)
 
-
     def test_scc_ldepFermi(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -868,7 +862,6 @@ class TestDftb:
 
         results = mod.results
         assert results["energy"]["energy"] == -8.06480023
-
 
     def test_scc_disp1Fermi(self):
 
@@ -1103,7 +1096,6 @@ class TestDftb:
         results = mod.results
         assert results["energy"]["energy"] == -8.06209343
 
-
     @pytest.mark.forces
     def test_scc_fermi_grad(self):
 
@@ -1141,7 +1133,7 @@ class TestDftb:
                 }
             }
         )
-        
+
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters_bis)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
@@ -1193,7 +1185,7 @@ class TestDftb:
                 }
             }
         )
-        
+
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters_bis)
 
         mod.calculate(symbols=image.symbols, positions=image.positions)
@@ -1207,13 +1199,3 @@ class TestDftb:
         )
 
         assert np.allclose(results["forces"], grad, atol=1e-5)
-
-
-
-
-
-
-
-
-
-

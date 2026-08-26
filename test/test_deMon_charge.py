@@ -1,8 +1,6 @@
-import os
 from copy import deepcopy
 
 import numpy as np
-import pytest
 from ase.atoms import Atoms
 
 import deMonPy

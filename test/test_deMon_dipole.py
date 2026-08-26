@@ -38,7 +38,6 @@ WORKDIR = ".run/dipole/"
 
 
 class TestFreq:
-    
     def test_dipole_file(self):
 
         parameter_config = deepcopy(parameters)

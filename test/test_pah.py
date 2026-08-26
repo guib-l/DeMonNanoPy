@@ -1,5 +1,4 @@
 import copy
-import os
 
 import numpy as np
 
@@ -218,7 +217,7 @@ class TestPAH:
 
         energies = []
 
-        for l in np.linspace(2.7, 15.5, 20):
+        for _l in np.linspace(2.7, 15.5, 20):
             copy_parameters = copy.deepcopy(base_parameters)
             copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update(
                 {
@@ -227,7 +226,7 @@ class TestPAH:
                         "COORDS": np.array(
                             [
                                 [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
-                                [0.0, 0.0, l, 1.0, 0.0, 0.0, 0.0],
+                                [0.0, 0.0, _l, 1.0, 0.0, 0.0, 0.0],
                             ]
                         ),
                     }
@@ -301,7 +300,7 @@ class TestPAH:
 
         energies = []
 
-        for l in np.linspace(2.7, 15.5, 20):
+        for _l in np.linspace(2.7, 15.5, 20):
             copy_parameters = copy.deepcopy(base_parameters)
             copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update(
                 {
@@ -310,7 +309,7 @@ class TestPAH:
                         "COORDS": np.array(
                             [
                                 [0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0],
-                                [0.0, 0.0, l, 1.0, 0.0, 0.0, 0.0],
+                                [0.0, 0.0, _l, 1.0, 0.0, 0.0, 0.0],
                             ]
                         ),
                     }

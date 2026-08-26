@@ -1,5 +1,4 @@
 import copy
-import os
 
 import numpy as np
 import pytest
@@ -10,7 +9,7 @@ from deMonPy.deMonNano import deMonNano
 
 deMonPy.configure_from_file("global.json")
 
-deMonPy.DEMON_BASIS = "../../basis-test"
+deMonPy.DEMON_BASIS = "../../test/basis-test"
 
 
 parameters = {
@@ -119,6 +118,10 @@ WORKDIR = ".run/compare/"
 
 
 class TestComparison:
+
+    deMonPy.configure_from_file("global.json")
+
+    deMonPy.DEMON_BASIS = "../../test/basis-test"
     """
     Class designed to compare the results of deMonNano with the DFTB+ code.
     An example of the dftb_in.hsd input file is provided bel
@@ -200,7 +203,7 @@ class TestComparison:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": "../../basis-test"},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {
@@ -225,7 +228,7 @@ class TestComparison:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": "../../basis-test"},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {
@@ -250,7 +253,7 @@ class TestComparison:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": "../../basis-test"},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {
@@ -276,7 +279,7 @@ class TestComparison:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": "../../basis-test"},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {"SCC": True, "TOL": 1e-10, "DISP": 2},
@@ -299,7 +302,7 @@ class TestComparison:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": "../../basis-test"},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {
@@ -417,7 +420,7 @@ class TestComparison:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": "../../basis-test"},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {"SCC": True, "TOL": 1e-10, "L-DEP": True},

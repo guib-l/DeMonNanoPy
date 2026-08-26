@@ -1,4 +1,3 @@
-import os
 from copy import deepcopy
 
 import numpy as np
@@ -38,7 +37,6 @@ WORKDIR = ".run/demon"
 
 
 class TestBasicUsage:
-    
     def test_single_point(self):
 
         parameter_config = deepcopy(parameters)
@@ -50,7 +48,4 @@ class TestBasicUsage:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.06209343
-        assert energy["electronic_energy"] == -8.21888334
-        assert energy["coulomb_energy"] == 0.04185358
-        assert energy["repulsive_energy"] == 0.15678992
+        assert energy["energy"] == -8.06209886

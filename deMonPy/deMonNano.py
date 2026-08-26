@@ -410,13 +410,13 @@ class deMonNano(BasicCalculation):
         self._wi._write_rg()
         self._wi._write_paths()
         self._wi._write_pbc(cell=cell, kpts=kpts)
-#
+        #
         ## Modules
         self._wi._write_opt()
         self._wi._write_ptmc()
         self._wi._write_md()
         self._wi._write_neb()
-#
+        #
         ## Geometry writing
         self._wi._write_geometry(symbols=symbols, positions=geometry)
         self._wi._write_molecules()

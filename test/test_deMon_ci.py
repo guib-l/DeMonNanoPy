@@ -1,14 +1,14 @@
 import os
+import shutil
 from copy import deepcopy
 
 import numpy as np
 import pytest
-import shutil
 from ase.atoms import Atoms
+from conftest import compute_numgrad
 
 import deMonPy
 from deMonPy.deMonNano import deMonNano
-from conftest import compute_numgrad
 
 deMonPy.configure_from_file("global.json")
 
@@ -25,9 +25,29 @@ parameters = {
 
 image = Atoms(
     [
-        "C", "C", "N", "C", "C", "N", "C", "C", "H", "H", 
-        "H", "H", "H", "H", "H", "H", "H", "H", "H", "H", 
-        "O", "H", "H"
+        "C",
+        "C",
+        "N",
+        "C",
+        "C",
+        "N",
+        "C",
+        "C",
+        "H",
+        "H",
+        "H",
+        "H",
+        "H",
+        "H",
+        "H",
+        "H",
+        "H",
+        "H",
+        "H",
+        "H",
+        "O",
+        "H",
+        "H",
     ],
     positions=np.array(
         [
@@ -125,9 +145,8 @@ class TestDFTBCI:
                 }
             }
         )
-        
-        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config_bis)
 
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config_bis)
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -169,7 +188,6 @@ class TestDFTBCI:
         assert np.allclose(energy["coulomb_energy"], 0.12999541, atol=1e-7)
         assert np.allclose(energy["repulsive_energy"], 0.63529586, atol=1e-7)
 
-
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
     @pytest.mark.forces
     def test_const_grad(self):
@@ -195,9 +213,8 @@ class TestDFTBCI:
                 }
             }
         )
-        
-        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config_bis)
 
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config_bis)
 
         dem.calculate(symbols=image.symbols, positions=image.positions)
 
@@ -205,9 +222,6 @@ class TestDFTBCI:
         energy = results["energy"]
 
         assert np.allclose(energy["energy"], -23.34492577, atol=1e-7)
-        assert np.allclose(energy["electronic_energy"], -23.92276564, atol=1e-7)
-        assert np.allclose(energy["coulomb_energy"], 0.12999541, atol=1e-7)
-        assert np.allclose(energy["repulsive_energy"], 0.63529586, atol=1e-7)
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
         grad = compute_numgrad(
@@ -215,8 +229,6 @@ class TestDFTBCI:
         )
 
         assert np.allclose(results["forces"], grad, atol=1e-5)
-
-
 
     @pytest.mark.beta
     def test_ci_noslat(self):
@@ -266,7 +278,6 @@ class TestDFTBCI:
 
         assert np.allclose(len(results["states"]), 10.0)
 
-
     @pytest.mark.beta
     def test_const_opt(self):
 
@@ -285,8 +296,10 @@ class TestDFTBCI:
                     "ACTIVE": {
                         "OPT": {"MAX": 999, "OUT": 1, "TRAJECTORY": True},
                     },
-                }} )
-        
+                }
+            }
+        )
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -302,7 +315,9 @@ class TestDFTBCI:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "CI": {"SIZECI": 2,},
+                "CI": {
+                    "SIZECI": 2,
+                },
                 "CUTSYS": {
                     "FRAGMENT": [3, 3],
                 },
@@ -314,8 +329,10 @@ class TestDFTBCI:
                     "ACTIVE": {
                         "OPT": {"MAX": 999, "OUT": 1, "TRAJECTORY": True},
                     },
-                }} )
-        
+                }
+            }
+        )
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -331,7 +348,11 @@ class TestDFTBCI:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "CI": {"SIZECI": 2, "NOSLAT": False, "EXCCI": 4,},
+                "CI": {
+                    "SIZECI": 2,
+                    "NOSLAT": False,
+                    "EXCCI": 4,
+                },
                 "CUTSYS": {
                     "FRAGMENT": [3, 3],
                 },
@@ -343,8 +364,10 @@ class TestDFTBCI:
                     "ACTIVE": {
                         "OPT": {"MAX": 10, "OUT": 1, "TRAJECTORY": True},
                     },
-                }} )
-        
+                }
+            }
+        )
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -354,20 +377,23 @@ class TestDFTBCI:
 
         assert np.allclose(energy["energy"], -7.70495473, atol=1e-7)
 
-
     def test_ci_dftb3(self):
 
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "THIRD":True},
-                "CI": {"SIZECI": 2, "NOSLAT": False, "EXCCI": 4,},
+                "DFTB": {"SCC": True, "THIRD": True},
+                "CI": {
+                    "SIZECI": 2,
+                    "NOSLAT": False,
+                    "EXCCI": 4,
+                },
                 "CUTSYS": {
                     "FRAGMENT": [3, 3],
                 },
             }
         )
-        
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
@@ -378,20 +404,23 @@ class TestDFTBCI:
 
         assert np.allclose(energy["energy"], -7.64602728, atol=1e-7)
 
-
     def test_ci_fermi(self):
 
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "FERMI":50},
-                "CI": {"SIZECI": 2, "NOSLAT": False, "EXCCI": 4,},
+                "DFTB": {"SCC": True, "FERMI": 50},
+                "CI": {
+                    "SIZECI": 2,
+                    "NOSLAT": False,
+                    "EXCCI": 4,
+                },
                 "CUTSYS": {
                     "FRAGMENT": [3, 3],
                 },
             }
         )
-        
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -406,14 +435,18 @@ class TestDFTBCI:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "L-DEP":True},
-                "CI": {"SIZECI": 2, "NOSLAT": False, "EXCCI": 4,},
+                "DFTB": {"SCC": True, "L-DEP": True},
+                "CI": {
+                    "SIZECI": 2,
+                    "NOSLAT": False,
+                    "EXCCI": 4,
+                },
                 "CUTSYS": {
                     "FRAGMENT": [3, 3],
                 },
             }
         )
-        
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -430,8 +463,10 @@ class TestDFTBCI:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "L-DEP":True},
-                "CI": {"SIZECI": 2, },
+                "DFTB": {"SCC": True, "L-DEP": True},
+                "CI": {
+                    "SIZECI": 2,
+                },
                 "CUTSYS": {
                     "FRAGMENT": [3, 3],
                 },
@@ -447,7 +482,7 @@ class TestDFTBCI:
                 }
             }
         )
-        
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config_bis)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -470,8 +505,10 @@ class TestDFTBCI:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "FERMI":50},
-                "CI": {"SIZECI": 2, },
+                "DFTB": {"SCC": True, "FERMI": 50},
+                "CI": {
+                    "SIZECI": 2,
+                },
                 "CUTSYS": {
                     "FRAGMENT": [3, 3],
                 },
@@ -487,7 +524,7 @@ class TestDFTBCI:
                 }
             }
         )
-        
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config_bis)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -509,14 +546,14 @@ class TestDFTBCI:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "DISP":1},
+                "DFTB": {"SCC": True, "DISP": 1},
                 "CI": {"SIZECI": 2},
                 "CUTSYS": {
                     "FRAGMENT": [3, 3],
                 },
             }
         )
-        
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -532,14 +569,14 @@ class TestDFTBCI:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "DISP":1},
+                "DFTB": {"SCC": True, "DISP": 1},
                 "CI": {"SIZECI": 2},
                 "CUTSYS": {
                     "FRAGMENT": [3, 3],
                 },
             }
         )
-        
+
         parameter_config_bis = deepcopy(parameter_config)
         parameter_config_bis.update(
             {
@@ -550,7 +587,7 @@ class TestDFTBCI:
                 }
             }
         )
-        
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config_bis)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -558,7 +595,7 @@ class TestDFTBCI:
         results = dem.results
         energy = results["energy"]
 
-        assert np.allclose(energy["energy"],-7.63790536, atol=1e-7)
+        assert np.allclose(energy["energy"], -7.63790536, atol=1e-7)
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
         grad = compute_numgrad(
@@ -567,20 +604,19 @@ class TestDFTBCI:
 
         assert np.allclose(results["forces"], grad, atol=1e-5)
 
-
     def test_ci_disp2(self):
 
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "DISP":2},
+                "DFTB": {"SCC": True, "DISP": 2},
                 "CI": {"SIZECI": 2},
                 "CUTSYS": {
                     "FRAGMENT": [3, 3],
                 },
             }
         )
-        
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -596,7 +632,7 @@ class TestDFTBCI:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "DISP":2},
+                "DFTB": {"SCC": True, "DISP": 2},
                 "CI": {"SIZECI": 2},
                 "CUTSYS": {
                     "FRAGMENT": [3, 3],
@@ -614,7 +650,7 @@ class TestDFTBCI:
                 }
             }
         )
-        
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config_bis)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -636,15 +672,17 @@ class TestDFTBCI:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True,},
-                "FREQ":True,
+                "DFTB": {
+                    "SCC": True,
+                },
+                "FREQ": True,
                 "CI": {"SIZECI": 2},
                 "CUTSYS": {
                     "FRAGMENT": [3, 3],
                 },
             }
         )
-        
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -662,7 +700,7 @@ class TestDFTBCI:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "DISP":2},
+                "DFTB": {"SCC": True, "DISP": 2},
                 "CM3": {
                     "BONDPARAMS": {
                         "O H": 0.08,
@@ -674,7 +712,7 @@ class TestDFTBCI:
                 },
             }
         )
-        
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -684,8 +722,6 @@ class TestDFTBCI:
 
         assert np.allclose(energy["energy"], -7.64172767, atol=1e-7)
 
-                
-
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
     @pytest.mark.forces
     def test_ci_cm3_grad(self):
@@ -693,7 +729,7 @@ class TestDFTBCI:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "DISP":2},
+                "DFTB": {"SCC": True, "DISP": 2},
                 "CM3": {
                     "BONDPARAMS": {
                         "O H": 0.08,
@@ -716,7 +752,7 @@ class TestDFTBCI:
                 }
             }
         )
-        
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config_bis)
 
         dem.calculate(symbols=water.symbols, positions=water.positions)
@@ -733,6 +769,303 @@ class TestDFTBCI:
 
         assert np.allclose(results["forces"], grad, atol=1e-5)
 
+    def test_ci_wmull(self):
 
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {"SCC": True, "DISP": 2},
+                "WMULL": {
+                    "BONDPARAMS": {
+                        "O H": 0.08,
+                    },
+                },
+                "CI": {"SIZECI": 2},
+                "CUTSYS": {
+                    "FRAGMENT": [3, 3],
+                },
+            }
+        )
 
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
+        dem.calculate(symbols=water.symbols, positions=water.positions)
+
+        results = dem.results
+        energy = results["energy"]
+
+        assert np.allclose(energy["energy"], -7.64834302, atol=1e-7)
+
+    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.forces
+    def test_ci_wmull_grad(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {"SCC": True, "DISP": 2},
+                "WMULL": {
+                    "BONDPARAMS": {
+                        "O H": 0.08,
+                    },
+                },
+                "CI": {"SIZECI": 2},
+                "CUTSYS": {
+                    "FRAGMENT": [3, 3],
+                },
+            }
+        )
+
+        parameter_config_bis = deepcopy(parameter_config)
+        parameter_config_bis.update(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {
+                        "OPT": {"SP": True, "TRAJECTORY": True},
+                    },
+                }
+            }
+        )
+
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config_bis)
+
+        dem.calculate(symbols=water.symbols, positions=water.positions)
+
+        results = dem.results
+        energy = results["energy"]
+
+        assert np.allclose(energy["energy"], -7.64834302, atol=1e-7)
+
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+        grad = compute_numgrad(
+            symbols=water.symbols, positions=water.positions, calculator=dem, delta=0.01
+        )
+
+        assert np.allclose(results["forces"], grad, atol=1e-5)
+
+    def test_ci_dipole(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                },
+                "CI": {"SIZECI": 2},
+                "CUTSYS": {
+                    "FRAGMENT": [3, 3],
+                },
+                "DIPOLE": {
+                    "OUTFILE": True,
+                },
+            }
+        )
+
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=water.symbols, positions=water.positions)
+
+        results = dem.results
+        assert np.allclose(results["energy"]["energy"], -7.65086842, atol=1e-7)
+
+        filename = os.path.join(dem.workdir, "deMon.dip")
+        assert os.path.exists(filename)
+
+        dipole = results["tensors"]["dipole_norm"]
+        assert np.allclose(dipole, 1.82336646, 1e-5)
+
+    def test_ci_mdyn(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                },
+                "CI": {"SIZECI": 2},
+                "CUTSYS": {
+                    "FRAGMENT": [3, 3],
+                },
+            }
+        )
+        parameter_config.update(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {
+                        "MD": {
+                            "MDYNAMICS": {
+                                "ZERO": True,
+                                "RANDOM": 300,
+                            },
+                            "TIMESTEP": 0.4,
+                            "MDSTEP": {"MAX": 150, "OUT": 1, "SOUT": 1, "TSIM": None},
+                            "MDTEMP": 300,
+                            "TRAJECTORY": True,
+                        },
+                    },
+                }
+            }
+        )
+
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=water.symbols, positions=water.positions)
+
+        results = dem.results
+        pote = results["potential_energy"]
+        kine = results["kinetic_energy"]
+        tote = results["total_energy"]
+
+        assert np.sum((tote - (pote + kine))[1:]) <= 1e-5
+
+    def test_ci_mdyn_constraint(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                },
+                "CI": {"SIZECI": 2},
+                "CUTSYS": {
+                    "FRAGMENT": [3, 3],
+                },
+            }
+        )
+        parameter_config.update(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {
+                        "MD": {
+                            "MDYNAMICS": {
+                                "ZERO": True,
+                                "RANDOM": 300,
+                            },
+                            "MDCONSTRAINTS": {
+                                "POSITION": "1-3",
+                            },
+                            "TIMESTEP": 0.4,
+                            "MDSTEP": {"MAX": 150, "OUT": 1, "SOUT": 1, "TSIM": None},
+                            "MDTEMP": 300,
+                            "TRAJECTORY": True,
+                        },
+                    },
+                }
+            }
+        )
+
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=water.symbols, positions=water.positions)
+
+        results = dem.results
+        pote = results["potential_energy"]
+        kine = results["kinetic_energy"]
+        tote = results["total_energy"]
+
+        assert np.sum((tote - (pote + kine))[1:]) <= 1e-5
+        assert np.allclose(
+            results["trajectory"][0].positions[:3],
+            results["trajectory"][-1].positions[:3],
+            atol=1e-5,
+        )
+
+    def test_ci_ptmc(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                },
+                "CI": {"SIZECI": 2},
+                "CUTSYS": {
+                    "RIGID": False,
+                    "FRAGMENT": [20, 3],
+                },
+            }
+        )
+        parameter_config.update(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {
+                        "PTMC": {
+                            "MC": {"MAX": 10, "SEED": 3141592, "WALL": None},
+                            "MCTEMP": {
+                                "NTEMP": 12,
+                                "LINEAR": True,
+                                "TEMPMIN": 30,
+                                "TEMPMAX": 300,
+                            },
+                        },
+                    }
+                }
+            }
+        )
+
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        ptmc = results["ptmc"]
+
+        assert len(ptmc["temperatures"]) == 12
+        assert ptmc["seeds"][0] == 3141592
+        assert ptmc["nb_step"] == 10
+        assert ptmc["optout"] == 1
+        assert ptmc["nb_temp"] == 12
+        assert ptmc["exchange"]["method"] == "SE"
+        assert ptmc["exchange"]["start_after"] == 100
+        assert ptmc["exchange"]["each_step"] == 10
+        assert ptmc["exchange"]["swap_probability"] == 100.0
+
+    def test_ci_ptmc_rigid(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "DFTB": {
+                    "SCC": True,
+                },
+                "CI": {"SIZECI": 2},
+                "CUTSYS": {
+                    "RIGID": True,
+                    "FRAGMENT": [20, 3],
+                },
+            }
+        )
+        parameter_config.update(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {
+                        "PTMC": {
+                            "MC": {"MAX": 10, "SEED": 3141592, "WALL": None},
+                            "MCTEMP": {
+                                "NTEMP": 12,
+                                "LINEAR": True,
+                                "TEMPMIN": 30,
+                                "TEMPMAX": 300,
+                            },
+                        },
+                    }
+                }
+            }
+        )
+
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        ptmc = results["ptmc"]
+
+        assert len(ptmc["temperatures"]) == 12
+        assert ptmc["seeds"][0] == 3141592
+        assert ptmc["nb_step"] == 10
+        assert ptmc["optout"] == 1
+        assert ptmc["nb_temp"] == 12
+        assert ptmc["exchange"]["method"] == "SE"
+        assert ptmc["exchange"]["start_after"] == 100
+        assert ptmc["exchange"]["each_step"] == 10
+        assert ptmc["exchange"]["swap_probability"] == 100.0

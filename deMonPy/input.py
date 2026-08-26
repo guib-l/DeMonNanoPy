@@ -446,7 +446,6 @@ class write_input:
             else:
                 new = ["PTYPE=" + str(params["PTYPE"]) + f"\n{params['SKFILE']}"]
                 self.io_lines["PARAM"] = new
-        
 
     @exclude_flags("molecules")
     def _write_geometry(self, symbols, positions, fmt="%10.7f"):
@@ -667,7 +666,6 @@ class write_input:
             params = self.parameters["RTTDDFTB"]
 
         self.io_lines["RTTDDFTB"] = self.handler_writen(params)
-
 
     @assert_flags("td-dftb")
     def _write_tddftb(self, params=None):
