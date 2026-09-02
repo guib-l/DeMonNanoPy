@@ -114,96 +114,18 @@ pyrene_water = Atoms(
     ),
 )
 
+DEMON_BASIS = "../../test/basis-test"
 WORKDIR = ".run/compare/"
 
 
 class TestComparison:
-
-    deMonPy.configure_from_file("global.json")
-
-    deMonPy.DEMON_BASIS = "../../test/basis-test"
-    """
-    Class designed to compare the results of deMonNano with the DFTB+ code.
-    An example of the dftb_in.hsd input file is provided bel
-
-    Input-type DFTB+:
-
-    ```markdown
-        Geometry = GenFormat {
-            29 C
-            C H O
-
-            1 1  0.175933  0.335146  1.793713
-            2 1  1.360050  0.325800  1.110006
-            3 1 -1.072593  0.111218  1.119476
-            4 1 -2.302066  0.111541  1.806122
-            5 1  1.397620  0.091799 -0.306827
-            6 1  2.606846  0.072980 -1.028286
-            7 1  0.172008 -0.133217 -1.000407
-            8 1  0.181765 -0.372636 -2.406258
-            9 1 -1.063252 -0.123546 -0.287152
-            10 1 -2.288443 -0.353337 -0.979928
-            11 1 -3.496740 -0.344828 -0.256738
-            12 1 -3.495810 -0.114190  1.119551
-            13 1  1.412155 -0.383289 -3.091169
-            14 1  2.606303 -0.162069 -2.403831
-            15 1 -1.066353 -0.601267 -3.079682
-            16 1 -2.250464 -0.592049 -2.395959
-            17 2 -4.444118 -0.521654 -0.784767
-            18 2  1.426319 -0.567696 -4.174401
-            19 2 -1.053082 -0.786725 -4.163133
-            20 2  3.557977 -0.173091 -2.952575
-            21 2 -3.197581 -0.770057 -2.924850
-            22 2 -4.446870 -0.110240  1.669451
-            23 2  0.163224  0.514366  2.878219
-            24 2  2.307746  0.497406  1.639983
-            25 2  3.554629  0.245151 -0.499450
-            26 2 -2.315834  0.291268  2.890140
-            27 3 -0.170316 -2.187170 -0.126262
-            28 2 -0.897048 -1.620657  0.162745
-            29 2  0.454556 -1.630128 -0.607749
-        }
-        Hamiltonian = DFTB {
-            Scc = Yes
-            SCCTolerance = 1e-10
-            SlaterKosterFiles {
-                C-O = "./basis-test/skf/bio-scc/co.spl"
-                O-C = "./basis-test/skf/bio-scc/oc.spl"
-                O-O = "./basis-test/skf/bio-scc/oo.spl"
-                H-O = "./basis-test/skf/bio-scc/ho.spl"
-                O-H = "./basis-test/skf/bio-scc/oh.spl"
-                C-C = "./basis-test/skf/bio-scc/cc.spl"
-                C-H = "./basis-test/skf/bio-scc/ch.spl"
-                H-C = "./basis-test/skf/bio-scc/hc.spl"
-                H-H = "./basis-test/skf/bio-scc/hh.spl"
-            }
-            PolynomialRepulsive = SetForAll { No }
-            MaxAngularMomentum {
-                O = "p"
-                C = "p"
-                H = "s"
-            }
-        }
-        Options { WriteResultsTag = Yes }
-        ParserOptions { ParserVersion = 14 }
-    ```
-
-    What is being tested:
-        - Water molecule (x2)
-        - Pyrene molecule
-        - Cluster of pyrene and water molecules
-        - Dispersion on water molecule
-        - TD-DFT on water molecule
-
-    """
-
     @pytest.mark.dftbplus
     def test_scc_water_dftbp(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {
@@ -228,7 +150,7 @@ class TestComparison:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {
@@ -253,7 +175,7 @@ class TestComparison:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {
@@ -279,7 +201,7 @@ class TestComparison:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {"SCC": True, "TOL": 1e-10, "DISP": 2},
@@ -302,7 +224,7 @@ class TestComparison:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {
@@ -420,7 +342,7 @@ class TestComparison:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {"SCC": True, "TOL": 1e-10, "L-DEP": True},

@@ -745,7 +745,6 @@ class TestDftb:
 
     @pytest.mark.beta
     @pytest.mark.forces
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
     def test_dftb3_grad(self):
         import shutil
 
@@ -757,6 +756,7 @@ class TestDftb:
                         "DFTB": {
                             "SCC": True,
                             "THIRD": True,
+                            "GCOR": 4.0,
                         },
                     },
                 }
@@ -782,7 +782,7 @@ class TestDftb:
 
         results = mod.results
 
-        assert np.allclose(results["energy"]["energy"], -8.0483818, atol=1e-7)
+        assert np.allclose(results["energy"]["energy"], -8.08604681, atol=1e-7)
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
         grad = compute_numgrad(
@@ -1106,17 +1106,7 @@ class TestDftb:
                     "ACTIVE": {
                         "DFTB": {
                             "SCC": True,
-                            "TOL": 1e-8,
-                            "MEMOSCC": False,
-                            "POLA": False,
-                            "MAX": 100,
-                            "MIX": 0.2,
-                            "SIMPLE": False,
-                            "L-DEP": False,
                             "FERMI": 50.00,
-                            "THRID": False,
-                            "DISP": False,
-                            "LEV_S": None,
                         },
                     },
                 }
@@ -1159,16 +1149,7 @@ class TestDftb:
                     "ACTIVE": {
                         "DFTB": {
                             "SCC": True,
-                            "TOL": 1e-8,
-                            "MEMOSCC": False,
-                            "POLA": False,
-                            "MAX": 100,
-                            "MIX": 0.2,
-                            "SIMPLE": False,
                             "L-DEP": True,
-                            "THIRD": False,
-                            "DISP": False,
-                            "LEV_S": None,
                         },
                     },
                 }

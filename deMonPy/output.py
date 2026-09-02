@@ -361,6 +361,11 @@ class read_output(IOread):
         except (OSError, ValueError) as err:
             raise OutputParseError(f"Failed to parse geometry file {filename}: {err}") from err
 
+        if len(data) == 1:
+            if "opt" in self.flags:
+                self.complet_results["input_geometry"] = data[0]
+                self.complet_results["output_geometry"] = data[0]
+
         if len(data) == 2:
             self.complet_results["input_geometry"] = data[0]
             self.complet_results["output_geometry"] = data[-1]
