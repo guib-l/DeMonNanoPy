@@ -122,8 +122,6 @@ class TestMDconserved:
         traj = results["trajectory"]
         assert len(traj) == 549, "MAX criteria is not conserved"
 
-        
-
     def test_md_conserve_mom(self):
         # TODO: Implement test
 

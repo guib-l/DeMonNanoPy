@@ -96,7 +96,7 @@ flags:
 | --- | --- |
 | `--run-optional` | Tests marked `optional` (longer physical systems) |
 | `--beta` | Beta features |
-| `--dftbplus` | Tests requiring a DFTB+ installation |
+| `--references` | Tests with external references calculation |
 | `--forces` | Numerical forces tests (slow) |
 
 They can be combined:
@@ -151,7 +151,7 @@ ruff format deMonPy test
    There is no continuous integration on this repository, so these local checks
    are the only safety net.
 5. Open a pull request against `main`, describing what changed and why. Mention
-   any test group your change requires (for example `--dftbplus`), so the
+   any test group your change requires (for example `--references`), so the
    reviewer can reproduce your run.
 
 ### Commit messages

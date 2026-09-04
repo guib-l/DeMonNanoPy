@@ -643,7 +643,7 @@ class write_input:
 
         frags = params.get("FRAGMENT")
         self.io_lines["CUTSYS"] = []
-        if len(frags)>0:
+        if len(frags) > 0:
             self.io_lines["CUTSYS"].append(f"NMOL={len(frags)}")
 
         txt = ""
@@ -652,7 +652,7 @@ class write_input:
 
         self.io_lines["CUTSYS"] += self.handler_writen(params)
 
-        #for key, item in params.items():
+        # for key, item in params.items():
         #    if item is True:
         #        self.io_lines["CUTSYS"].append(f"{key}")
 

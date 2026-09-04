@@ -47,7 +47,9 @@ class TestOptimization:
                     "ACTIVE": {
                         "OPT": {"MAX": 999, "OUT": 1, "TRAJECTORY": True},
                     },
-                }})
+                }
+            }
+        )
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 

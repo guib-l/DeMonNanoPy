@@ -63,10 +63,10 @@ class TestRTDFTB:
         )
 
         shutil.copy2(
-            "test/basis-test/Au-bremen/Au-Au_BREMEN_shift_p.skf",
-            f"{WORKDIR}/Au-Au_BREMEN_shift_p.skf",
+            "test/basis-test/Au-modified/Au-Au_modified.skf",
+            f"{WORKDIR}/Au-Au_modified.skf",
         )
-        shutil.copy2("test/basis-test/Au-bremen/SCC-SLAKO", f"{WORKDIR}/SCC-SLAKO")
+        shutil.copy2("test/basis-test/Au-modified/SCC-SLAKO", f"{WORKDIR}/SCC-SLAKO")
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
@@ -98,10 +98,10 @@ class TestRTDFTB:
         )
 
         shutil.copy2(
-            "test/basis-test/Au-bremen/Au-Au_BREMEN_shift_p.skf",
-            f"{WORKDIR}/Au-Au_BREMEN_shift_p.skf",
+            "test/basis-test/Au-modified/Au-Au_modified.skf",
+            f"{WORKDIR}/Au-Au_modified.skf",
         )
-        shutil.copy2("test/basis-test/Au-bremen/SCC-SLAKO", f"{WORKDIR}/SCC-SLAKO")
+        shutil.copy2("test/basis-test/Au-modified/SCC-SLAKO", f"{WORKDIR}/SCC-SLAKO")
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 

@@ -1,12 +1,12 @@
 from copy import deepcopy
 
-import pytest
 import numpy as np
+import pytest
 from ase.atoms import Atoms
+from conftest import compute_numgrad
 
 import deMonPy
 from deMonPy.deMonNano import deMonNano
-from conftest import compute_numgrad
 
 deMonPy.configure_from_file("global.json")
 
@@ -100,7 +100,8 @@ class TestCharges:
             }
         )
         parameter_config_bis = deepcopy(parameter_config)
-        parameter_config_bis.update({
+        parameter_config_bis.update(
+            {
                 "DEMON_MODULE": {
                     "ACTIVE": {
                         "OPT": {"SP": True, "TRAJECTORY": True},
@@ -152,7 +153,6 @@ class TestCharges:
         assert energy["electronic_energy"] == -8.19365762
         assert energy["coulomb_energy"] == 0.06029717
 
-    
     @pytest.mark.forces
     def test_cm3pot_grad(self):
 
@@ -167,7 +167,8 @@ class TestCharges:
             }
         )
         parameter_config_bis = deepcopy(parameter_config)
-        parameter_config_bis.update({
+        parameter_config_bis.update(
+            {
                 "DEMON_MODULE": {
                     "ACTIVE": {
                         "OPT": {"SP": True, "TRAJECTORY": True},
@@ -195,7 +196,6 @@ class TestCharges:
 
         assert np.allclose(results["forces"], grad, atol=1e-5)
 
-
     def test_cm3inter(self):
 
         parameter_config = deepcopy(parameters)
@@ -218,7 +218,6 @@ class TestCharges:
 
         assert energy["energy"] == -8.06209343
 
-    
     @pytest.mark.forces
     def test_cm3inter_grad(self):
 
@@ -233,7 +232,8 @@ class TestCharges:
             }
         )
         parameter_config_bis = deepcopy(parameter_config)
-        parameter_config_bis.update({
+        parameter_config_bis.update(
+            {
                 "DEMON_MODULE": {
                     "ACTIVE": {
                         "OPT": {"SP": True, "TRAJECTORY": True},
@@ -259,8 +259,6 @@ class TestCharges:
         assert np.allclose(results["forces"], grad, atol=1e-5)
 
 
-
-
 class TestCutSys:
     def test_cutsys(self):
 
@@ -282,7 +280,7 @@ class TestCutSys:
         assert energy["electronic_energy"] == -8.21888334
         assert energy["coulomb_energy"] == 0.04185358
         assert energy["repulsive_energy"] == 0.15678992
-    
+
     def test_cutsys_opt(self):
 
         parameter_config = deepcopy(parameters)
@@ -291,10 +289,11 @@ class TestCutSys:
                 "CUTSYS": {"FRAGMENT": [3, 3], "RIGID": False},
             }
         )
-        parameter_config.update({
+        parameter_config.update(
+            {
                 "DEMON_MODULE": {
                     "ACTIVE": {
-                        "OPT": {"MAX":99,"TRAJECTORY": True},
+                        "OPT": {"MAX": 99, "TRAJECTORY": True},
                     },
                 }
             }
@@ -309,7 +308,6 @@ class TestCutSys:
 
         assert energy["energy"] == -8.15543481
 
-
     def test_cutsys_opt_rigid(self):
 
         parameter_config = deepcopy(parameters)
@@ -318,10 +316,11 @@ class TestCutSys:
                 "CUTSYS": {"FRAGMENT": [3, 3], "RIGID": True},
             }
         )
-        parameter_config.update({
+        parameter_config.update(
+            {
                 "DEMON_MODULE": {
                     "ACTIVE": {
-                        "OPT": {"MAX":99,"TRAJECTORY": True},
+                        "OPT": {"MAX": 99, "TRAJECTORY": True},
                     },
                 }
             }
@@ -336,16 +335,21 @@ class TestCutSys:
 
         assert energy["energy"] == -8.11990885
 
-        ref   = np.linalg.norm(
-            results["trajectory"][0].positions[:3] - results["trajectory"][0].positions[0])
+        ref = np.linalg.norm(
+            results["trajectory"][0].positions[:3] - results["trajectory"][0].positions[0]
+        )
         probe = np.linalg.norm(
-            results["trajectory"][-1].positions[:3] - results["trajectory"][-1].positions[0])
+            results["trajectory"][-1].positions[:3] - results["trajectory"][-1].positions[0]
+        )
 
-        assert np.allclose( ref, probe, atol=1e-5,)
-        
+        assert np.allclose(
+            ref,
+            probe,
+            atol=1e-5,
+        )
 
     def test_cutsys_rigid(self):
-    
+
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
@@ -365,41 +369,40 @@ class TestCutSys:
         assert energy["coulomb_energy"] == 0.04185358
         assert energy["repulsive_energy"] == 0.15678992
 
-    
     def test_cutsys_natmol(self):
-    
-            parameter_config = deepcopy(parameters)
-            parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
-                {
-                    "CUTSYS": {"FRAGMENT": [], "NMOL":2, "NATMOL": 3},
-                }
-            )
-    
-            dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR_csy, **parameter_config)
-    
-            dem.calculate(symbols=image.symbols, positions=image.positions)
-    
-            results = dem.results
-            energy = results["energy"]
-    
-            assert energy["energy"] == -8.06209343
-            assert energy["electronic_energy"] == -8.21888334
-            assert energy["coulomb_energy"] == 0.04185358
-            assert energy["repulsive_energy"] == 0.15678992
 
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "CUTSYS": {"FRAGMENT": [], "NMOL": 2, "NATMOL": 3},
+            }
+        )
+
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR_csy, **parameter_config)
+
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        energy = results["energy"]
+
+        assert energy["energy"] == -8.06209343
+        assert energy["electronic_energy"] == -8.21888334
+        assert energy["coulomb_energy"] == 0.04185358
+        assert energy["repulsive_energy"] == 0.15678992
 
     def test_cutsys_opt_natmol(self):
 
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "CUTSYS": {"FRAGMENT": [], "NMOL":2, "NATMOL": 3},
+                "CUTSYS": {"FRAGMENT": [], "NMOL": 2, "NATMOL": 3},
             }
         )
-        parameter_config.update({
+        parameter_config.update(
+            {
                 "DEMON_MODULE": {
                     "ACTIVE": {
-                        "OPT": {"MAX":99,"TRAJECTORY": True},
+                        "OPT": {"MAX": 99, "TRAJECTORY": True},
                     },
                 }
             }
@@ -423,7 +426,8 @@ class TestCutSys:
                 "CUTSYS": {"FRAGMENT": [3, 3], "RIGID": False},
             }
         )
-        parameter_config.update({
+        parameter_config.update(
+            {
                 "DEMON_MODULE": {
                     "ACTIVE": {
                         "PTMC": {
@@ -457,7 +461,6 @@ class TestCutSys:
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 100
 
-
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
     def test_cutsys_ptmc_rigid(self):
 
@@ -481,7 +484,8 @@ class TestCutSys:
                 "CUTSYS": {"FRAGMENT": [3, 3], "RIGID": True},
             }
         )
-        parameter_config.update({
+        parameter_config.update(
+            {
                 "DEMON_MODULE": {
                     "ACTIVE": {
                         "PTMC": {
@@ -514,7 +518,6 @@ class TestCutSys:
         assert ptmc["exchange"]["start_after"] == 100
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 100
-
 
 
 class TestMultipl:
@@ -556,7 +559,7 @@ class TestMultipl:
         energy = results["energy"]
 
         assert energy["energy"] == -7.69430622
-        assert energy["electronic_energy"] == -7.85109614 
+        assert energy["electronic_energy"] == -7.85109614
         assert energy["coulomb_energy"] == 0.03543676
         assert energy["repulsive_energy"] == 0.15678992
 
@@ -570,7 +573,8 @@ class TestMultipl:
             }
         )
         parameter_config_bis = deepcopy(parameter_config)
-        parameter_config_bis.update({
+        parameter_config_bis.update(
+            {
                 "DEMON_MODULE": {
                     "ACTIVE": {
                         "OPT": {"SP": True, "TRAJECTORY": True},
@@ -595,7 +599,6 @@ class TestMultipl:
 
         assert np.allclose(results["forces"], grad, atol=1e-5)
 
-
     def test_multiplicity_3_cm3(self):
 
         parameter_config = deepcopy(parameters)
@@ -606,7 +609,7 @@ class TestMultipl:
                     "BONDPARAMS": {
                         "O H": 0.08,
                     },
-                }
+                },
             }
         )
 
@@ -618,7 +621,7 @@ class TestMultipl:
         energy = results["energy"]
 
         assert energy["energy"] == -7.68089083
-    
+
     @pytest.mark.forces
     def test_multiplicity_3_cm3_grad(self):
 
@@ -630,11 +633,12 @@ class TestMultipl:
                     "BONDPARAMS": {
                         "O H": 0.08,
                     },
-                }
+                },
             }
         )
         parameter_config_bis = deepcopy(parameter_config)
-        parameter_config_bis.update({
+        parameter_config_bis.update(
+            {
                 "DEMON_MODULE": {
                     "ACTIVE": {
                         "OPT": {"SP": True, "TRAJECTORY": True},
@@ -651,7 +655,7 @@ class TestMultipl:
         energy = results["energy"]
 
         assert energy["energy"] == -7.68089083
-    
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR_mlt, **parameter_config)
         grad = compute_numgrad(
             symbols=image.symbols, positions=image.positions, calculator=dem, delta=0.001
@@ -669,7 +673,7 @@ class TestMultipl:
                     "BONDPARAMS": {
                         "O H": 0.08,
                     },
-                }
+                },
             }
         )
 
@@ -682,7 +686,6 @@ class TestMultipl:
 
         assert energy["energy"] == -7.68983001
 
-
     @pytest.mark.forces
     def test_multiplicity_3_wmull_grad(self):
 
@@ -694,11 +697,12 @@ class TestMultipl:
                     "BONDPARAMS": {
                         "O H": 0.08,
                     },
-                }
+                },
             }
         )
         parameter_config_bis = deepcopy(parameter_config)
-        parameter_config_bis.update({
+        parameter_config_bis.update(
+            {
                 "DEMON_MODULE": {
                     "ACTIVE": {
                         "OPT": {"SP": True, "TRAJECTORY": True},
@@ -715,7 +719,7 @@ class TestMultipl:
         energy = results["energy"]
 
         assert energy["energy"] == -7.68983001
-    
+
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR_mlt, **parameter_config)
         grad = compute_numgrad(
             symbols=image.symbols, positions=image.positions, calculator=dem, delta=0.001

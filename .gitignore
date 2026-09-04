@@ -5,7 +5,6 @@ basis/
 data/
 archive/
 global.json
-.suspect_problems.md
 slurm-*
 submit.sh
 TODO.md

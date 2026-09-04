@@ -22,6 +22,7 @@ available_modules = {
 # Global configuration defaults
 DEMON_EXECUTABLE = None
 DEMON_BASIS = None
+DEMON_BASIS_EXT = None
 
 
 def configure(executable=None, basis=None):

@@ -1,10 +1,10 @@
 import os
+import shutil
 from copy import deepcopy
 
 import numpy as np
 from ase.atoms import Atoms
 
-import shutil
 import deMonPy
 from deMonPy.deMonNano import deMonNano
 
@@ -67,7 +67,7 @@ class TestTDDFTB:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "THIRD":True, "GCOR":4.0},
+                "DFTB": {"SCC": True, "THIRD": True, "GCOR": 4.0},
                 "TD-DFTB": True,
             }
         )
@@ -92,7 +92,10 @@ class TestTDDFTB:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "FERMI":50, },
+                "DFTB": {
+                    "SCC": True,
+                    "FERMI": 50,
+                },
                 "TD-DFTB": True,
             }
         )
@@ -113,7 +116,10 @@ class TestTDDFTB:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "L-DEP":True, },
+                "DFTB": {
+                    "SCC": True,
+                    "L-DEP": True,
+                },
                 "TD-DFTB": True,
             }
         )
@@ -134,7 +140,10 @@ class TestTDDFTB:
         parameter_config = deepcopy(parameters)
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
-                "DFTB": {"SCC": True, "DISP":2, },
+                "DFTB": {
+                    "SCC": True,
+                    "DISP": 2,
+                },
                 "TD-DFTB": True,
             }
         )
@@ -149,13 +158,6 @@ class TestTDDFTB:
 
         assert "triplet" in results.keys()
         assert "singlet" in results.keys()
-
-
-
-
-
-
-
 
     def test_tddftb_mdlresp(self):
 

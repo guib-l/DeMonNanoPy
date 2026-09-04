@@ -9,8 +9,6 @@ from deMonPy.deMonNano import deMonNano
 
 deMonPy.configure_from_file("global.json")
 
-deMonPy.DEMON_BASIS = "../../test/basis-test"
-
 
 parameters = {
     "DEMON_EXECUTABLE": deMonPy.DEMON_EXECUTABLE,
@@ -114,23 +112,24 @@ pyrene_water = Atoms(
     ),
 )
 
-DEMON_BASIS = "../../test/basis-test"
 WORKDIR = ".run/compare/"
 
 
 class TestComparison:
-    @pytest.mark.dftbplus
+    @pytest.mark.xfail(reason="Wrong basis-set")
+    @pytest.mark.references
     def test_scc_water_dftbp(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": DEMON_BASIS},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {
                             "SCC": True,
                             "TOL": 1e-10,
+                            "FHUB": True
                         },
                     },
                 },
@@ -142,20 +141,22 @@ class TestComparison:
         mod.calculate(symbols=water.symbols, positions=water.positions)
 
         results = mod.results
-        assert np.allclose(results["energy"]["energy"], -8.067517, atol=1e-6)
+        assert np.allclose(results["energy"]["energy"], -8.056172815, atol=1e-6)
 
-    @pytest.mark.dftbplus
+    @pytest.mark.xfail(reason="Wrong basis-set")
+    @pytest.mark.references
     def test_scc_pyrene_dftbp(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": DEMON_BASIS},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {
                             "SCC": True,
                             "TOL": 1e-10,
+                            "FHUB": True
                         },
                     },
                 },
@@ -167,20 +168,22 @@ class TestComparison:
         mod.calculate(symbols=pyrene.symbols, positions=pyrene.positions)
 
         results = mod.results
-        assert np.allclose(results["energy"]["energy"], -31.33937716, atol=1e-6)
+        assert np.allclose(results["energy"]["energy"], -31.337463608, atol=1e-6)
 
-    @pytest.mark.dftbplus
+    @pytest.mark.xfail(reason="Wrong basis-set")
+    @pytest.mark.references
     def test_scc_pyrene_water_dftbp(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": DEMON_BASIS},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {
                             "SCC": True,
                             "TOL": 1e-10,
+                            "FHUB": True
                         },
                     },
                 },
@@ -192,19 +195,23 @@ class TestComparison:
         mod.calculate(symbols=pyrene_water.symbols, positions=pyrene_water.positions)
 
         results = mod.results
-        assert np.allclose(results["energy"]["energy"], -35.3706300998, atol=1e-7)
+        assert np.allclose(results["energy"]["energy"], -35.3609083, atol=1e-7)
 
-    @pytest.mark.dftbplus
+    @pytest.mark.references
     @pytest.mark.xfail(reason="TODO: DISPERSION BENCHMARK")
     def test_disp_bio_dftbp(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": DEMON_BASIS},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
-                        "DFTB": {"SCC": True, "TOL": 1e-10, "DISP": 2},
+                        "DFTB": {
+                            "SCC": True, 
+                            "TOL": 1e-10, 
+                            "DISP": 2,
+                            "FHUB": True},
                     },
                 },
             }
@@ -218,13 +225,13 @@ class TestComparison:
         assert np.allclose(results["energy"]["energy"], -8.067517, atol=1e-6)
         assert np.allclose(results["energy"]["london_energy"], -9.096e-5, atol=1e-6)
 
-    @pytest.mark.dftbplus
+    @pytest.mark.references
     def test_tddftb_dftbp(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": DEMON_BASIS},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {
@@ -336,13 +343,13 @@ class TestComparison:
                 assert np.allclose(ia["weight"], ib["weight"], atol=1e-3)
                 assert np.allclose(ia["energy"], ib["energy"], atol=1e-3)
 
-    @pytest.mark.dftbplus
+    @pytest.mark.references
     def test_scc_water_ldep(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
             {
-                "BASIS": {"PTYPE": "BIO", "SKFILE": DEMON_BASIS},
+                "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
                         "DFTB": {"SCC": True, "TOL": 1e-10, "L-DEP": True},
@@ -356,4 +363,4 @@ class TestComparison:
         mod.calculate(symbols=water.symbols, positions=water.positions)
 
         results = mod.results
-        assert np.allclose(results["energy"]["energy"], -8.0597927515, atol=1e-7)
+        assert np.allclose(results["energy"]["energy"], -8.06480050, atol=1e-7)

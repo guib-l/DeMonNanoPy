@@ -158,12 +158,12 @@ class TestMolecule:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -20.7065151, atol=1e-7)
 
-    
     def test_molecule_opt(self):
         import shutil
 
         copy_parameters = copy.deepcopy(parameters)
-        copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update({
+        copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
                 "MOLECULES": {"NAMES": ["WAT", "BZZ", "WAT"]},
                 "QUATERNION": {
                     "COORDS": np.array(
@@ -176,12 +176,15 @@ class TestMolecule:
                 },
             }
         )
-        copy_parameters.update({
+        copy_parameters.update(
+            {
                 "DEMON_MODULE": {
                     "ACTIVE": {
                         "OPT": {"MAX": 999, "OUT": 1, "TRAJECTORY": True},
                     },
-                } } )
+                }
+            }
+        )
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
@@ -192,13 +195,13 @@ class TestMolecule:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -20.7269581, atol=1e-7)
 
-    
     @pytest.mark.beta
     def test_molecule_opt_rigid(self):
         import shutil
 
         copy_parameters = copy.deepcopy(parameters)
-        copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update({
+        copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
                 "MOLECULES": {"NAMES": ["WAT", "BZZ", "WAT"]},
                 "QUATERNION": {
                     "RIGID": True,
@@ -208,16 +211,19 @@ class TestMolecule:
                             [0.0, -3.0, 0.0, 0.7, 0.7, 0.0, 0.0],
                             [1.0, -3.0, -4.0, 1.0, 0.0, 0.0, 0.0],
                         ]
-                    )
+                    ),
                 },
             }
         )
-        copy_parameters.update({
+        copy_parameters.update(
+            {
                 "DEMON_MODULE": {
                     "ACTIVE": {
                         "OPT": {"MAX": 999, "OUT": 1, "TRAJECTORY": True},
                     },
-                } } )
+                }
+            }
+        )
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
@@ -227,14 +233,14 @@ class TestMolecule:
 
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -20.7269581, atol=1e-7)
-    
-    
+
     @pytest.mark.beta
     def test_molecule_freq(self):
         import shutil
 
         copy_parameters = copy.deepcopy(parameters)
-        copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update({
+        copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
                 "FREQ": True,
                 "MOLECULES": {"NAMES": ["WAT", "BZZ", "WAT"]},
                 "QUATERNION": {
@@ -262,7 +268,6 @@ class TestMolecule:
         assert mode_1["mode"] == 1
         assert np.allclose(mode_1["frequency"], -587.7, atol=1e-1)
         assert np.allclose(mode_1["intensity"], 9.5, atol=1e-1)
-
 
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
     @pytest.mark.beta
@@ -335,7 +340,6 @@ class TestMolecule:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -20.70651510, atol=1e-7)
 
-
     @pytest.mark.beta
     def test_molecule_cutsys(self):
         import shutil
@@ -369,8 +373,6 @@ class TestMolecule:
 
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -20.70651510, atol=1e-7)
-
-
 
     @pytest.mark.beta
     def test_molecule_mdyn(self):
@@ -537,37 +539,3 @@ class TestMolecule:
         assert ptmc["exchange"]["start_after"] == 100
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 100.0
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

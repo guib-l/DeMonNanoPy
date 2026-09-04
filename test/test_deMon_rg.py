@@ -354,7 +354,7 @@ class TestDFTB_Rg:
                     "POLA": True,
                     "NOPOLQM": True,
                     "THIRD": True,
-                    "GCOR": 4.0
+                    "GCOR": 4.0,
                 },
                 "RG": {
                     "COUPLING": "ARGON",
@@ -510,7 +510,6 @@ class TestDFTB_Rg:
         assert np.allclose(mode_1["frequency"], 1402.3, atol=1e-1)
         assert np.allclose(mode_1["intensity"], 132.0, atol=1e-1)
 
-
     def test_argon_tddftb(self):
 
         parameter_config = deepcopy(parameters)
@@ -539,8 +538,6 @@ class TestDFTB_Rg:
 
         assert "triplet" in results.keys()
         assert "singlet" in results.keys()
-
-
 
     @pytest.mark.xfail(reason="EXPERIMENTAL")
     def test_argon_read(self):
@@ -974,7 +971,6 @@ class TestDFTB_Rg:
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 100.0
 
-    
     def test_argon_ptmc_rigid(self):
 
         parameter_config = deepcopy(parameters)

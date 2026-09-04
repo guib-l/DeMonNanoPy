@@ -1,6 +1,8 @@
 import numpy as np
+import os,sys
+import shutil
 import pytest
-
+from pathlib import Path
 
 def pytest_addoption(parser):
     parser.addoption(
@@ -8,7 +10,7 @@ def pytest_addoption(parser):
     )
     parser.addoption("--beta", action="store_true", default=False, help="run beta-features tests")
     parser.addoption(
-        "--dftbplus", action="store_true", default=False, help="run dftbplus-features tests"
+        "--references", action="store_true", default=False, help="run references-features tests"
     )
     parser.addoption(
         "--forces", action="store_true", default=False, help="run forces-features tests"
@@ -29,10 +31,10 @@ def pytest_collection_modifyitems(config, items):
             if "beta" in item.keywords:
                 item.add_marker(skip_optional)
 
-    if not config.getoption("--dftbplus"):
-        skip_optional = pytest.mark.skip(reason="need --dftbplus option")
+    if not config.getoption("--references"):
+        skip_optional = pytest.mark.skip(reason="need --references option")
         for item in items:
-            if "dftbplus" in item.keywords:
+            if "references" in item.keywords:
                 item.add_marker(skip_optional)
 
     if not config.getoption("--forces"):
@@ -67,3 +69,22 @@ def compute_numgrad(symbols, positions, calculator, delta=0.01):
             grad[i, j] = (0.5 * eb - 0.5 * ea) / (delta)
 
     return grad * BOHR
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    report = outcome.get_result()
+
+    if report.when == "call" and report.failed:
+        
+        workdir = getattr(item.module, "WORKDIR", None)
+
+        source = Path(workdir)
+        destination = Path(os.path.join(workdir, f"failed_{item.name}"))
+
+        destination.mkdir(exist_ok=True)
+
+        for fichier in source.iterdir():
+            if fichier.is_file():
+                shutil.copy2(fichier, destination / fichier.name)
