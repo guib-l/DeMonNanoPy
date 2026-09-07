@@ -116,7 +116,6 @@ WORKDIR = ".run/compare/"
 
 
 class TestComparison:
-    @pytest.mark.xfail(reason="Wrong basis-set")
     @pytest.mark.references
     def test_scc_water_dftbp(self):
 
@@ -143,7 +142,6 @@ class TestComparison:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -8.056172815, atol=1e-6)
 
-    @pytest.mark.xfail(reason="Wrong basis-set")
     @pytest.mark.references
     def test_scc_pyrene_dftbp(self):
 
@@ -170,7 +168,6 @@ class TestComparison:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -31.337463608, atol=1e-6)
 
-    @pytest.mark.xfail(reason="Wrong basis-set")
     @pytest.mark.references
     def test_scc_pyrene_water_dftbp(self):
 
