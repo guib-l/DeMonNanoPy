@@ -1,10 +1,9 @@
-import configs
+import os
 import numpy as np
 from ase.atoms import Atoms
 
 import deMonPy
 from deMonPy.ase_calculator import DeMonNano
-from deMonPy.deMonNano import Module_DeMonNano
 
 deMonPy.configure_from_file("global.json")
 
@@ -60,8 +59,8 @@ def exemple_run_bfgs():
         **parameters,
     )
     image.calc = calc
-    opt = BFGS(image, trajectory='H2O.traj')
-    opt.run(fmax=0.05)
+    opt = BFGS(image, trajectory=os.path.join(WORKDIR,'H2O.traj'))
+    opt.run(fmax=0.005)
 
 
 if __name__ == "__main__":

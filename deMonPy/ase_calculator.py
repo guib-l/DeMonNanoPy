@@ -124,8 +124,8 @@ class DeMonNano(Calculator):
 
         workdir = self._directory
 
-        execut = self.parameters.get("execut") or deMonPy.DEMON_EXECUTABLE
-        basis = self.parameters.get("basis") or deMonPy.DEMON_BASIS
+        execut = self.parameters.get("DEMON_EXECUTABLE") or deMonPy.DEMON_EXECUTABLE
+        basis = self.parameters.get("BASIS") or deMonPy.DEMON_BASIS
         omp_threads = self.parameters.get("omp_threads", 1)
         prefix = self.parameters.get("prefix", "DEMON")
         title = self.parameters.get("title", "CALCULATION DEMONANO")
@@ -149,7 +149,7 @@ class DeMonNano(Calculator):
             prefix=prefix,
             title=title,
             properties=properties,
-            basis=basis if isinstance(basis, dict) else {"PTYPE": "BIO", "SKFILE": basis},
+            basis=basis if isinstance(basis, dict) else {},
             DEMON_PARAMETERS=demon_parameters,
             DEMON_MODULE=demon_module
         )
