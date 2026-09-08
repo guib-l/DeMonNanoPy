@@ -285,34 +285,34 @@ class write_input:
             params = self.module["MD"]
 
         if "MDYNAMICS" in params.keys():
-            self._io_write_mddynamics(params.pop("MDYNAMICS"))
+            self._io_write_mddynamics(params.get("MDYNAMICS"))
 
-        self.io_lines["TIMESTEP"] = [str(params.pop("TIMESTEP"))]
+        self.io_lines["TIMESTEP"] = [str(params.get("TIMESTEP"))]
 
-        mdtemp = params.pop("MDTEMP", None)
+        mdtemp = params.get("MDTEMP", None)
         if mdtemp is not None:
             self.io_lines["MDTEMP"] = [str(mdtemp)]
 
-        self.io_lines["MDSTEP"] = self.handler_writen(params.pop("MDSTEP"))
+        self.io_lines["MDSTEP"] = self.handler_writen(params.get("MDSTEP"))
 
         if "MDCONSTRAINTS" in params.keys():
-            self.io_lines["MDCONSTRAINTS"] = self._write_constraint(params.pop("MDCONSTRAINTS"))
+            self.io_lines["MDCONSTRAINTS"] = self._write_constraint(params.pogetp("MDCONSTRAINTS"))
 
         if "CONSERVE" in params.keys():
-            self.io_lines["CONSERVE"] = self.handler_writen(params.pop("CONSERVE"))
+            self.io_lines["CONSERVE"] = self.handler_writen(params.get("CONSERVE"))
 
         if "MDBATH" in params.keys():
-            self._io_write_bath(params.pop("MDBATH"))
+            self._io_write_bath(params.get("MDBATH"))
 
         if "PARATEMP" in params.keys():
             self.flags.add("ptmd")
-            self.io_lines["PARATEMP"] = self.handler_writen(params.pop("PARATEMP"))
+            self.io_lines["PARATEMP"] = self.handler_writen(params.get("PARATEMP"))
 
         if "CARPAR" in params.keys():
-            self.io_lines["CARPAR"] = self.handler_writen(params.pop("CARPAR"))
+            self.io_lines["CARPAR"] = self.handler_writen(params.get("CARPAR"))
 
         if "TRAJECTORY" in params:
-            if params.pop("TRAJECTORY", None):
+            if params.get("TRAJECTORY", None):
                 self.flags.add("traj")
 
     @assert_flags("neb")

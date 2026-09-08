@@ -2,16 +2,18 @@ import configs
 import numpy as np
 from ase.atoms import Atoms
 
+import deMonPy
 from deMonPy.deMonNano import Module_DeMonNano
 
+deMonPy.configure_from_file("global.json")
+
 parameters = {
-    "DEMON_EXECUTABLE": configs.EXECUTABLE,
-    "BASIS": {"PTYPE": "BIO", "SKFILE": "../../basis"},
+    "DEMON_EXECUTABLE": deMonPy.DEMON_EXECUTABLE,
+    "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
     "DEMON_PARAMETERS": {
         "ACTIVE": {
-            "DFTB": {
-                "SCC": True,
-            },
+            "DFTB": {"SCC": True},
+            "CHARGE": 0.0,
         },
     },
 }
@@ -38,7 +40,6 @@ def exemple_run_md():
     mod = Module_DeMonNano(
         module="md",
         title="CALCULATION DEMONANO",
-        execut="~/Documents/dev_deMon/deMon.x",
         workdir=WORKDIR,
         **parameters,
     )
@@ -53,7 +54,6 @@ def exemple_run_md_velocities():
     mod = Module_DeMonNano(
         module="md",
         title="CALCULATION DEMONANO",
-        execut="~/Documents/dev_deMon/deMon.x",
         workdir=WORKDIR,
         **parameters,
     )
@@ -78,7 +78,6 @@ def exemple_run_restart_md():
     mod = Module_DeMonNano(
         module="md",
         title="CALCULATION DEMONANO",
-        execut="~/Documents/dev_deMon/deMon.x",
         workdir=WORKDIR,
         **parameters,
     )
@@ -93,8 +92,11 @@ def exemple_run_restart_md():
 
 
 if __name__ == "__main__":
+
     exemple_run_md()
 
     exemple_run_md_velocities()
 
     exemple_run_restart_md()
+
+

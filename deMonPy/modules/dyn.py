@@ -15,20 +15,26 @@ class _dyn(modules):
 
     def update_mddynamics(self, velocities=None, temp=300, wall=None):
 
+        self.context.parameters["DEMON_MODULE"]["ACTIVE"]["MD"].update({"MDYNAMICS":{}})
         params = self.context.parameters["DEMON_MODULE"]["ACTIVE"]["MD"]["MDYNAMICS"]
         params["READ"] = {"VELOCITIES": list(velocities)} if velocities is not None else False
         params["RANDOM"] = temp
         params["WALL"] = wall
 
     def update_mdstep(self, max=100, out=1):
+
+        self.context.parameters["DEMON_MODULE"]["ACTIVE"]["MD"].update({"MDSTEP":{}})
         params = self.context.parameters["DEMON_MODULE"]["ACTIVE"]["MD"]["MDSTEP"]
         params["OUT"] = out
         params["MAX"] = max
 
     def update_time_step(self, timestep=0.4):
+
+        self.context.parameters["DEMON_MODULE"]["ACTIVE"]["MD"].update({"TIMESTEP":{}})
         self.context.parameters["DEMON_MODULE"]["ACTIVE"]["MD"]["TIMESTEP"] = timestep
 
     def add_trajectory_output(self, out_traj=True):
+        
         params = self.context.parameters["DEMON_MODULE"]["ACTIVE"]["MD"]
         params["TRAJECTORY"] = out_traj
 
@@ -70,6 +76,8 @@ class _dyn(modules):
             out_traj=out_traj,
             **args,
         )
+
+        self.context.parameters["DEMON_MODULE"] = {"ACTIVE":{"MD":{}}}
 
         self.update_mddynamics(velocities, temp, wall)
         self.update_mdstep(max_steps, out)

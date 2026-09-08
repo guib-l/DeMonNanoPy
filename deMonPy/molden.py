@@ -142,3 +142,70 @@ def read_XYZ(filename, **kwargs):
     with open(filename, "r") as fd:
         temp = _read_xyz_ext(fd, **kwargs)
     return temp
+
+
+def write_xyz_ext(fileobj, images, charges=None, energy=None, speed=None, comment='', fmt='%22.15f'):
+    """
+    Write XYZ file with additional information.
+    Parameters
+    ----------
+    fileobj : file object
+        File object to write to.
+    images : list of Atoms
+        List of Atoms objects to write.
+    charges : list of float
+        List of charges for each atom in the images.
+    energy : list of float, optional
+        List of energies for each image. If None, no energy will be written.
+    comment : str, optional
+        Comment to be written in the file. Default is ''.
+    fmt : str, optional
+        Format string for the coordinates. Default is '%22.15f'.
+    """
+    
+    comment = comment.rstrip()
+
+    if '\n' in comment:
+        raise ValueError('Comment line should not have line breaks.')
+    
+    nImg = len(images)
+    if charges is None:
+        charges = [None,] * nImg
+    if energy is None:
+        energy = [None,] * nImg
+
+    for atoms,charge,energie in zip(images,charges,energy):
+        natoms = len(atoms)
+    
+        if charge is None:
+            charge = [0.,] * natoms
+
+        fileobj.write('%s \n'%natoms)
+        fileobj.write('energy (Ha) : %s | %s\n' % (energie, comment))
+        for s, (x, y, z), c in zip(atoms.symbols, atoms.positions, charge):
+            fileobj.write('%-2s %s %s %s %s\n' % (s, fmt % x, fmt % y, fmt % z, fmt % c ))
+
+
+def write_XYZ(filename, images, intent='w',**kwargs):
+    if not isinstance(images,list):
+        images = [images]
+    with open(filename,intent) as fd:
+        write_xyz_ext(fd, images,**kwargs)
+    return None
+
+
+
+
+# *************************** \
+def progressbar(it, prefix="", size=80, out=sys.stdout): # Python3.3+
+    count = len(it)
+    def show(j):
+        x = int(size*j/count)
+        print("{}[{}{}] {}/{}".format(prefix, u'█'*x, "."*(size-x), j, count), 
+                end='\r', file=out, flush=True)
+    show(0)
+    for i, item in enumerate(it):
+        yield item
+        show(i+1)
+    print("\n", flush=True, file=out)
+

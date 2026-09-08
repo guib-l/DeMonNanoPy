@@ -57,7 +57,6 @@ class DeMonNano(Calculator):
     default_parameters = {
         "execut": None,
         "basis": {},
-        "parameters": {},
         "omp_threads": 1,
         "prefix": "DEMON",
         "title": "CALCULATION DEMONANO",
@@ -66,7 +65,7 @@ class DeMonNano(Calculator):
     def __init__(
         self,
         restart=None,
-        label="demon",
+        label="ase_demon",
         atoms=None,
         directory=".",
         **kwargs,
@@ -123,7 +122,7 @@ class DeMonNano(Calculator):
 
         atoms = self.atoms
 
-        workdir = os.path.join(self._directory, self.label)
+        workdir = self._directory
 
         execut = self.parameters.get("execut") or deMonPy.DEMON_EXECUTABLE
         basis = self.parameters.get("basis") or deMonPy.DEMON_BASIS
@@ -132,19 +131,16 @@ class DeMonNano(Calculator):
         title = self.parameters.get("title", "CALCULATION DEMONANO")
 
         # Build the DEMON_PARAMETERS block
-        user_params = deepcopy(self.parameters.get("parameters", {}))
-        demon_parameters = {"ACTIVE": user_params}
-
-        # Determine which output properties to request
-        requested_properties = ["energy"]
+        user_params = deepcopy(self.parameters.get("DEMON_PARAMETERS", {}))
+        demon_parameters = user_params
 
         # Determine if forces are requested.  When the user asks for
         # forces deMonNano must write gradients -- this requires the
         # PRINT > GRAD flag.
         need_forces = "forces" in properties
+        demon_module = {}
         if need_forces:
-            _print_block = user_params.setdefault("PRINT", {})
-            _print_block["GRAD"] = True
+            demon_module = {"ACTIVE":{"OPT":{"SP":True}}}
 
         calc = deMonNano(
             execut=execut,
@@ -152,9 +148,10 @@ class DeMonNano(Calculator):
             omp_threads=omp_threads,
             prefix=prefix,
             title=title,
-            properties=requested_properties,
+            properties=properties,
             basis=basis if isinstance(basis, dict) else {"PTYPE": "BIO", "SKFILE": basis},
             DEMON_PARAMETERS=demon_parameters,
+            DEMON_MODULE=demon_module
         )
 
         calc.calculate(
@@ -171,17 +168,17 @@ class DeMonNano(Calculator):
 
         self.results["energy"] = energy_ev
         self.results["free_energy"] = energy_ev
-
+        
         # --- charges ---
         out_geom = raw.get("output_geometry", None)
-        if out_geom is not None and hasattr(out_geom, "get_charges"):
-            charges = out_geom.get_charges()
+        if out_geom is not None and hasattr(out_geom, "get_initial_charges"):
+            charges = out_geom.get_initial_charges()
             if charges is not None:
                 self.results["charges"] = np.array(charges)
 
         # --- forces (Hartree/Bohr -> eV/Ang) ---
         if need_forces:
-            forces = self._parse_forces(workdir, len(atoms))
+            forces = raw.get("forces", {})
             if forces is None:
                 raise OutputParseError(
                     f"Could not parse the CARTESIAN GRADIENT block for "
@@ -189,60 +186,4 @@ class DeMonNano(Calculator):
                     f"Forces are unavailable; check that the calculation "
                     f"completed and that the 'PRINT GRAD' directive was active."
                 )
-            self.results["forces"] = forces
-
-    # ------------------------------------------------------------------
-    # Force parsing
-    # ------------------------------------------------------------------
-
-    @staticmethod
-    def _parse_forces(workdir, natoms):
-        """Parse atomic forces from the deMonNano output file.
-
-        deMonNano prints gradients (in Hartree/Bohr) under the banner
-        ``CARTESIAN GRADIENT`` when the ``PRINT GRAD`` directive is
-        active.  Forces are the negated gradients converted to eV/Ang.
-
-        Args:
-            workdir: Calculation working directory.
-            natoms: Expected number of atoms.
-
-        Returns:
-            numpy.ndarray: Forces array of shape ``(natoms, 3)`` in
-            eV/Angstrom, or ``None`` if the gradient block is not found.
-        """
-        outpath = os.path.join(workdir, "deMon.out")
-        if not os.path.isfile(outpath):
-            return None
-
-        with open(outpath, "r") as fd:
-            lines = fd.readlines()
-
-        gradients = []
-        reading = False
-
-        for line in lines:
-            if "CARTESIAN GRADIENT" in line:
-                reading = True
-                gradients = []
-                continue
-
-            if reading:
-                tokens = line.split()
-                # Gradient lines contain: index symbol gx gy gz
-                if len(tokens) >= 5:
-                    try:
-                        gx = float(tokens[2])
-                        gy = float(tokens[3])
-                        gz = float(tokens[4])
-                        gradients.append([gx, gy, gz])
-                    except (ValueError, IndexError):
-                        pass
-                elif len(tokens) < 2 and len(gradients) > 0:
-                    # Blank line or separator -> end of block
-                    reading = False
-
-        if len(gradients) == natoms:
-            return -np.array(gradients) * _FORCE_CONV
-
-        return None
+            self.results["forces"] = -forces

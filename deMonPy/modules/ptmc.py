@@ -18,8 +18,10 @@ class _ptmc(modules):
         return self.forward(**kwds)
 
     def mc(self, **kwds):
-        kwds.pop("max_temp", None)
-        kwds.pop("min_temp", None)
+        kwds["min_temp"] = None
+        kwds["max_temp"] = None
+        kwds["n_temp"] = 1
+        kwds["distribution_temp"] = ""
         return self.forward(**kwds)
 
     def forward(
@@ -58,7 +60,7 @@ class _ptmc(modules):
         if temp_list is not None:
             raise NotImplementedError("temp_list (LIST) is not implemented")
 
-        if distribution_temp.lower() not in ["geom", "linear"]:
+        if distribution_temp.lower() not in ["geom", "linear", ""]:
             raise ValueError(
                 "Unknown temperature distribution "
                 f"{distribution_temp!r}: expected 'geom' or 'linear'"
@@ -71,7 +73,7 @@ class _ptmc(modules):
                         "PTMC": {
                             "MC": {"MAX": max, "SEED": seed, "WALL": wall},
                             "MCTEMP": {
-                                "TMC": None,
+                                "TMC": temperature,
                                 "NTEMP": n_temp,
                                 distribution_temp.upper(): True,
                                 "TEMPMIN": min_temp,
