@@ -12,7 +12,7 @@ parameters = {
     "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
     "DEMON_PARAMETERS": {
         "ACTIVE": {
-            "DFTB": {"SCC": True},
+            "DFTB": {"SCC": True, "DISP":2},
             "CHARGE": 0.0,
         },
     },
