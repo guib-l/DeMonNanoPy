@@ -304,6 +304,7 @@ class read_output(IOread):
                 start_search = True
         self.complet_results["energy"].update(_state)
 
+
     def get_energies(self, line, criteria="DFTB total energy", start_search=False):
         """Extract energy terms from a single output line.
 
@@ -317,13 +318,28 @@ class read_output(IOread):
         """
 
         _energy = {}
+        
+        _criteria_energy_str_bis = self._criteria_energy_str
+
+        if "mm" in self.flags:
+            _criteria_mm = {
+                "TOTAL ENERGY                =":"energy",
+                "VAN DER WAALS ENERGY":"VdW_energy",
+                "ELECTROSTATIC CHARGE ENERGY":"electrostatic_energy",
+                "UREY BRADLEY ENERGY":"UB_energy",
+                "IMPROPER TORSION ENERGY":"improper_torsion_energy",
+                "TORSION ANGLE ENERGY":"torsion_angle_energy",
+                "BOND ANGLE ENERGY":"bond_angle_energy",
+                "BOND ENERGY":"bond_energy",
+            }
+            _criteria_energy_str_bis = _criteria_mm
 
         if self.is_inside(criteria, line):
-            label = self._criteria_energy_str[criteria]
+            label = _criteria_energy_str_bis[criteria]
             _energy[label] = self.get_float(line, index=-1)
 
         if start_search:
-            for cs, it in self._criteria_energy_str.items():
+            for cs, it in _criteria_energy_str_bis.items():
                 if self.is_inside(cs, line):
                     _energy[it] = self.get_float(line, index=-1)
         return _energy

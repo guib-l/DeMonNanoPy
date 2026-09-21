@@ -47,7 +47,7 @@ _atoms_symbols_to_numbers = {
 }
 
 
-def parse_range_string(range_string: str) -> list[int]:
+def _parse_range_string(range_string: str) -> list[int]:
     """Expand a comma-separated range expression into a list of integers.
 
     Args:
@@ -57,6 +57,8 @@ def parse_range_string(range_string: str) -> list[int]:
     Returns:
         list[int]: Expanded integer values.
     """
+    if range_string=="":
+        return []
     if not range_string:
         return []
     result = []
@@ -73,7 +75,6 @@ def parse_range_string(range_string: str) -> list[int]:
             result.extend(range(start, end + step, step))
         else:
             result.append(int(part))
-
     return result
 
 
@@ -225,7 +226,7 @@ class write_input:
         """
         out = ""
         for dir, value in constraint.items():
-            value = parse_range_string(value)
+            value = _parse_range_string(value)
 
             out = f"\n{dir} {value[0]}"
             for v in value[1:]:
@@ -296,7 +297,7 @@ class write_input:
         self.io_lines["MDSTEP"] = self.handler_writen(params.get("MDSTEP"))
 
         if "MDCONSTRAINTS" in params.keys():
-            self.io_lines["MDCONSTRAINTS"] = self._write_constraint(params.pogetp("MDCONSTRAINTS"))
+            self.io_lines["MDCONSTRAINTS"] = self._write_constraint(params.get("MDCONSTRAINTS"))
 
         if "CONSERVE" in params.keys():
             self.io_lines["CONSERVE"] = self.handler_writen(params.get("CONSERVE"))
@@ -469,8 +470,8 @@ class write_input:
                 "",
             ] * len(symbols)
 
-        if "qmmm" in self.flags:
-            raise NotImplementedError("Flags QMMM set True")
+        #if "qmmm" in self.flags:
+        #    raise NotImplementedError("Flags QMMM set True")
 
         if "rg" in self.flags:
             self.complement = []
@@ -714,43 +715,93 @@ class write_input:
         if isinstance(params, dict):
             self.io_lines[f"FREQUENCY VIB={params['VIB']}"] = []
 
-    @assert_flags("qmmm")
-    def _write_qmmm(self, params=None):
-        """Write QM/MM configuration and atom partitioning.
+    @assert_flags("mm")
+    def _write_mm(self, params=None, symbols=None):
+        """Write MM configuration and atom partitioning.
 
+        Args:
+            params: MM parameter block.
+            symbols: symbols of MM atoms
+        """
+        if params is None:
+            params = self.parameters["MM"]
+        _params = params.copy()
+
+        self.io_lines["QMMM"] = ["MM"]
+
+        typemm = _params.pop("TYPEMM")
+        forcefield = _params.pop("FORCEFIELD")
+
+        self.io_lines["QMMM"] += self.handler_writen(_params,bind_str='=')
+        self.io_lines["FORCEFIELD"] = self.handler_writen(forcefield,bind_str='=')
+
+        self.complement = [
+            "",
+        ] * int(len(symbols))
+        for idx in range(len(symbols)):
+
+            self.complement[idx] = \
+                f"Q=0.0 QMMM=MM TYPEMM={typemm[symbols[idx]]}"
+
+
+    @assert_flags("qmmm")
+    def _write_qmmm(self, params=None, symbols=None):
+        """Write QM/MM configuration and atom partitioning.
+        
         Args:
             params: QM/MM parameter block.
         """
         if params is None:
             params = self.parameters["QMMM"]
+        _params = params.copy()
 
-        self.io_lines["QMMM"] = ["QM/MM"]
+        txt_mm = _params.pop("MM")
+        txt_qm = _params.pop("QM")
 
-        if "RG" in params.keys():
-            rg = params["RG"].upper()
-            self.io_lines["QMMM"].append(f"COUPLING={rg}")
+        if txt_qm == "" or None:
+            self.io_lines["QMMM"] = ["MM"]
+        elif txt_mm == "" or None:
+            self.io_lines["QMMM"] = ["QM"]
+        else:
+            self.io_lines["QMMM"] = ["QM/MM"]
+            
+        qm = _parse_range_string(txt_qm)
+        mm = _parse_range_string(txt_mm)
 
-            polaqm = params.get("polaqm".upper(), True)
-            polamm = params.get("polamm".upper(), True)
+        typemm = np.zeros(len(qm)+len(mm))
+        _typemm = _params.pop("TYPEMM")
+        if isinstance(_typemm,dict):
+            assert symbols is not None, "Not available symbols"
+            for idx in qm:
+                typemm[idx-1] = _typemm[symbols[idx-1]]
+            for idx in mm:
+                typemm[idx-1] = _typemm[symbols[idx-1]]
+        else:
+            typemm = _typemm
 
-            if not polaqm:
-                self.io_lines["DFTB"].append("NOPOLQM")
-            if not polamm:
-                self.io_lines["DFTB"].append("NOPOLMM")
+        forcefield = _params.pop("FORCEFIELD")
 
-            alpha = params.get("alpha".upper(), 0.0)
-            self.io_lines["DFTB"].append(f"ALPHARG={alpha}")
+        charges = _params.pop("CHARGES")
 
-        qm = parse_range_string(params["QM"])
-        mm = parse_range_string(params["MM"])
+        self.io_lines["QMMM"] += self.handler_writen(_params,bind_str='=')
+        self.io_lines["FORCEFIELD"] = self.handler_writen(forcefield,bind_str='=')
+
 
         self.complement = [
             "",
         ] * sum(qm + mm)
+
+        if charges is None:
+            charges = np.zeros(sum(qm + mm))
+
         for idx in qm:
-            self.complement[idx] = "Q=0.0 QMMM=QM"
+            self.complement[idx-1] = \
+                f"QMMM=QM Q={charges[idx-1]}  TYPEMM={typemm[idx-1]}"
         for idx in mm:
-            self.complement[idx] = "Q=0.0 QMMM=MM"
+            self.complement[idx-1] = \
+                f"QMMM=MM Q={charges[idx-1]} TYPEMM={typemm[idx-1]}"
+
+
 
     @assert_flags("print")
     def _write_debug(self, params=None):

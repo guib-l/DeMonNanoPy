@@ -62,6 +62,8 @@ class TestRTDFTB:
             {"DFTB": {"SCC": True}, "TD-DFTB": {"LRESP": 25, "NO_TRIP": True}}
         )
 
+        if not os.path.exists(WORKDIR):
+            os.makedirs(WORKDIR)
         shutil.copy2(
             "test/basis-test/Au-modified/Au-Au_modified.skf",
             f"{WORKDIR}/Au-Au_modified.skf",
@@ -75,7 +77,7 @@ class TestRTDFTB:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -57.09364137, atol=1e-7)
 
-    def _test_basic_rtdftb(self):
+    def test_basic_rtdftb(self):
 
         from scipy.io import FortranFile
 
@@ -97,6 +99,8 @@ class TestRTDFTB:
             }
         )
 
+        if not os.path.exists(WORKDIR):
+            os.makedirs(WORKDIR)
         shutil.copy2(
             "test/basis-test/Au-modified/Au-Au_modified.skf",
             f"{WORKDIR}/Au-Au_modified.skf",

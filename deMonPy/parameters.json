@@ -48,13 +48,29 @@
                 "VIB":null
             },
             "CHARGE":0,
+            "RG":{
+                "COUPLING": "ARGON", 
+                "ALPHARG": 11.07,  
+                "FILENAME": null
+            },
             "QMMM":{
-                "RG":"ARGON",
-                "ALPHA":11.07,
-                "POLAQM":false,
-                "POLAMM":true,
+                "COUPLING":"ELECTROSTATIC",
+                "CHR":"FF",
+                "TYPEMM":{
+                    "O":63,
+                    "H":64
+                },
                 "QM":"1-15,16-20",
                 "MM":"21"
+            },
+            "MM":{
+                "COUPLING":"ELECTROSTATIC",
+                "CHR":"INPUT",
+                "CHARGES":null,
+                "TYPEMM":{
+                    "O":63,
+                    "H":64
+                }
             },
             "CUTSYS":{
                 "FRAGMENT":[],
