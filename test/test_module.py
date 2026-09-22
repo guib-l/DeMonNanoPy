@@ -1,4 +1,5 @@
 import copy
+import pytest
 
 import numpy as np
 from ase.atoms import Atoms
@@ -36,6 +37,7 @@ WORKDIR = ".run/modules"
 
 
 class TestOptimization:
+    @pytest.mark.optim
     def test_opt(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -50,15 +52,18 @@ class TestOptimization:
 
 
 class TestMonteCarlo:
+    @pytest.mark.mc
     def test_mc(self):
         pass
 
 
 class TestPTMC:
+    @pytest.mark.mc
     def test_ptmc(self):
         pass
 
 
 class TestDynamics:
+    @pytest.mark.dynamics
     def test_dyn(self):
         pass

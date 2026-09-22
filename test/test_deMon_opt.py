@@ -38,6 +38,7 @@ WORKDIR = ".run/opt/"
 
 
 class TestOptimization:
+    @pytest.mark.optim
     def test_opt_basic(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -58,6 +59,7 @@ class TestOptimization:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -8.15563755, atol=1e-7)
 
+    @pytest.mark.optim
     def test_opt_maxiter(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -87,6 +89,7 @@ class TestOptimization:
         assert np.allclose(results["energy"]["energy"], -8.1487639, atol=1e-7)
         assert len(results["trajectory"]) == 11
 
+    @pytest.mark.optim
     def test_opt_tolerance(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -114,6 +117,7 @@ class TestOptimization:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -8.15563755, atol=1e-7)
 
+    @pytest.mark.optim
     def test_opt_gradtol(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -143,6 +147,7 @@ class TestOptimization:
         assert results["optimization"]["grad_max"] < 1e-2
         assert results["optimization"]["grad_max"] > 1e-5
 
+    @pytest.mark.optim
     def test_opt_cgrad(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -170,6 +175,7 @@ class TestOptimization:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -8.15563755, atol=1e-7), "Errors in CGRAD"
 
+    @pytest.mark.optim
     def test_opt_steepest_default(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -198,6 +204,7 @@ class TestOptimization:
         assert np.allclose(results["energy"]["energy"], -8.15497995, atol=1e-7)
         assert results["errors"][0]["message"] == "optimization not converged"
 
+    @pytest.mark.optim
     def test_opt_steepest(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -227,6 +234,7 @@ class TestOptimization:
         assert results["errors"][0]["message"] == "optimization not converged"
 
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.optim
     def test_opt_out(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -255,6 +263,7 @@ class TestOptimization:
         assert np.allclose(results["energy"]["energy"], -8.14955388, atol=1e-7)
         assert len(results["trajectory"]) == 3
 
+    @pytest.mark.optim
     def test_opt_noTraj(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -286,6 +295,7 @@ class TestOptimization:
         assert "trajectory" not in results.keys()
 
     @pytest.mark.beta
+    @pytest.mark.optim
     def _test_opt_bfgs(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -313,6 +323,7 @@ class TestOptimization:
         )
 
     @pytest.mark.beta
+    @pytest.mark.optim
     def _test_opt_lbfgs(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -340,6 +351,7 @@ class TestOptimization:
         )
 
     @pytest.mark.beta
+    @pytest.mark.optim
     def _test_opt_lbfgs_mem(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -368,6 +380,7 @@ class TestOptimization:
         )
 
     @pytest.mark.beta
+    @pytest.mark.optim
     def test_opt_sp(self):
 
         test_force = np.array(

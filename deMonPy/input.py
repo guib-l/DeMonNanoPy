@@ -288,14 +288,14 @@ class write_input:
         if "MDYNAMICS" in params.keys():
             self._io_write_mddynamics(params.get("MDYNAMICS"))
 
-        self.io_lines["TIMESTEP"] = [str(params.get("TIMESTEP"))]
-
         mdtemp = params.get("MDTEMP", None)
         if mdtemp is not None:
             self.io_lines["MDTEMP"] = [str(mdtemp)]
 
         self.io_lines["MDSTEP"] = self.handler_writen(params.get("MDSTEP"))
 
+        self.io_lines["TIMESTEP"] = [str(params.get("TIMESTEP"))]
+        
         if "MDCONSTRAINTS" in params.keys():
             self.io_lines["MDCONSTRAINTS"] = self._write_constraint(params.get("MDCONSTRAINTS"))
 
@@ -773,9 +773,9 @@ class write_input:
         if isinstance(_typemm,dict):
             assert symbols is not None, "Not available symbols"
             for idx in qm:
-                typemm[idx-1] = _typemm[symbols[idx-1]]
+                typemm[idx-1] = int(_typemm[symbols[idx-1]])
             for idx in mm:
-                typemm[idx-1] = _typemm[symbols[idx-1]]
+                typemm[idx-1] = int(_typemm[symbols[idx-1]])
         else:
             typemm = _typemm
 
@@ -796,10 +796,10 @@ class write_input:
 
         for idx in qm:
             self.complement[idx-1] = \
-                f"QMMM=QM Q={charges[idx-1]}  TYPEMM={typemm[idx-1]}"
+                f"QMMM=QM Q={charges[idx-1]}  TYPEMM={int(typemm[idx-1])}"
         for idx in mm:
             self.complement[idx-1] = \
-                f"QMMM=MM Q={charges[idx-1]} TYPEMM={typemm[idx-1]}"
+                f"QMMM=MM Q={charges[idx-1]} TYPEMM={int(typemm[idx-1])}"
 
 
 

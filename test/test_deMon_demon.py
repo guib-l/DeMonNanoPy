@@ -2,6 +2,7 @@ from copy import deepcopy
 
 import os
 import numpy as np
+import pytest
 from ase.atoms import Atoms
 
 import deMonPy
@@ -53,6 +54,7 @@ class TestBasicUsage:
 
         assert energy["energy"] == -8.06209886
 
+    @pytest.mark.optim
     def test_module_opt(self):
 
         mod = Module_DeMonNano(
@@ -66,6 +68,7 @@ class TestBasicUsage:
 
         assert np.allclose(mod.results["energy"]["energy"],-8.1488236, atol=1e-7)
 
+    @pytest.mark.dynamics
     def test_module_md(self):
 
         mod = Module_DeMonNano(
@@ -80,6 +83,7 @@ class TestBasicUsage:
         assert np.allclose(len(mod.results["trajectory"]),11, atol=1e-1)
 
 
+    @pytest.mark.mc
     def test_module_mc(self):
 
         mod = Module_DeMonNano(
@@ -99,6 +103,7 @@ class TestBasicUsage:
         assert np.allclose(mod.results["ptmc"]["nb_temp"],1, atol=1e-1)
 
 
+    @pytest.mark.forces
     def test_module_ase_sp(self):
 
         calc = DeMonNano(
@@ -112,6 +117,7 @@ class TestBasicUsage:
         
         assert np.allclose(calc.results["energy"],-219.3808842460711, atol=1e-7)
 
+    @pytest.mark.dynamics
     def test_module_ase_bfgs(self):
 
         from ase.optimize import BFGS

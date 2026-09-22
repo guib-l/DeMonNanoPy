@@ -1,4 +1,5 @@
 import copy
+import pytest
 
 import numpy as np
 from ase.atoms import Atoms
@@ -36,6 +37,7 @@ WORKDIR = ".run/mdbath/"
 
 
 class TestMDbath:
+    @pytest.mark.dynamics
     def test_md_noBath(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -88,6 +90,7 @@ class TestMDbath:
         diff = np.abs(temperature[0] - 200)
         assert diff < 0.1, "Starting temperature is not tacken into account"
 
+    @pytest.mark.dynamics
     def test_md_scalling(self):
         # TODO: Vérifier le scaling factor
 
@@ -141,6 +144,7 @@ class TestMDbath:
         diff = np.abs(temperature[0] - 200)
         assert diff < 0.1, "Starting temperature is not tacken into account"
 
+    @pytest.mark.dynamics
     def test_md_berendson(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -193,6 +197,7 @@ class TestMDbath:
         diff = np.abs(temperature[0] - 200)
         assert diff < 0.1, "Starting temperature is not tacken into account"
 
+    @pytest.mark.dynamics
     def test_md_locberendson(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -245,6 +250,7 @@ class TestMDbath:
         diff = np.abs(temperature[0] - 200)
         assert diff < 0.1, "Starting temperature is not tacken into account"
 
+    @pytest.mark.dynamics
     def test_md_anderson(self):
         # TODO: Fix correct test
 
@@ -295,6 +301,7 @@ class TestMDbath:
         diff = np.abs(temperature[0] - 200)
         assert diff < 0.1, "Starting temperature is not tacken into account"
 
+    @pytest.mark.dynamics
     def test_md_langevin(self):
         # TODO: Fix correct test
 
@@ -345,6 +352,7 @@ class TestMDbath:
         diff = np.abs(temperature[0] - 200)
         assert diff < 0.1, "Starting temperature is not tacken into account"
 
+    @pytest.mark.dynamics
     def test_md_stochr(self):
         # TODO: Fix correct test
 
@@ -395,6 +403,7 @@ class TestMDbath:
         diff = np.abs(temperature[0] - 200)
         assert diff < 0.1, "Starting temperature is not tacken into account"
 
+    @pytest.mark.dynamics
     def test_md_nose(self):
         # TODO: Fix correct test
 
@@ -445,6 +454,7 @@ class TestMDbath:
         diff = np.abs(temperature[0] - 200)
         assert diff < 0.1, "Starting temperature is not tacken into account"
 
+    @pytest.mark.dynamics
     def test_md_nose10(self):
         # TODO: Fix correct test
 

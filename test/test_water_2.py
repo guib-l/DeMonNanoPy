@@ -58,6 +58,7 @@ WORKDIR = ".run/water_2/"
 
 
 class TestWater2:
+    @pytest.mark.optim
     def compute_relaxation(self, image):
 
         copy_parameters = copy.deepcopy(parameters)

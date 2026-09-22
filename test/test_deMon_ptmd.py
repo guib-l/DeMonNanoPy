@@ -1,4 +1,5 @@
 import copy
+import pytest
 
 import numpy as np
 from ase.atoms import Atoms
@@ -36,6 +37,7 @@ WORKDIR = ".run/ptmd/"
 
 
 class TestPTMD:
+    @pytest.mark.dynamics
     def test_md_parallel(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -86,6 +88,7 @@ class TestPTMD:
         diff = np.sum((tote - (pote + kine))[1:])
         assert diff <= 1e-5, "Energy conserved"
 
+    @pytest.mark.dynamics
     def test_md_numbRep(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -135,6 +138,7 @@ class TestPTMD:
         diff = np.sum((tote - (pote + kine))[1:])
         assert diff <= 1e-5, "Energy conserved"
 
+    @pytest.mark.dynamics
     def test_md_short(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -183,6 +187,7 @@ class TestPTMD:
         diff = np.sum((tote - (pote + kine))[1:])
         assert diff <= 1e-5, "Energy conserved"
 
+    @pytest.mark.dynamics
     def test_md_linear(self):
 
         copy_parameters = copy.deepcopy(parameters)

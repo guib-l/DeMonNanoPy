@@ -37,6 +37,7 @@ WORKDIR = ".run/md/"
 
 
 class TestMDbasic:
+    @pytest.mark.dynamics
     def test_md_basic(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -76,6 +77,7 @@ class TestMDbasic:
 
         assert np.sum((tote - (pote + kine))[1:]) <= 1e-5
 
+    @pytest.mark.dynamics
     def test_md_start_zero(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -119,6 +121,7 @@ class TestMDbasic:
 
         assert temperature[0] < 0.001 and temperature[0] >= 0.00000
 
+    @pytest.mark.dynamics
     def test_md_start_155(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -167,6 +170,7 @@ class TestMDbasic:
         # print( traj[0].get_angular_momentum( ) )
 
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.dynamics
     def test_md_start_ran(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -215,6 +219,7 @@ class TestMDbasic:
         traj[0].get_velocities()
         # print( traj[0].get_angular_momentum( ) )
 
+    @pytest.mark.dynamics
     def test_md_velocity(self):
 
         import ase
@@ -272,6 +277,7 @@ class TestMDbasic:
         traj[0].get_velocities()
 
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.dynamics
     def test_md_wall_cart(self):
 
         import ase
@@ -326,6 +332,7 @@ class TestMDbasic:
 
         assert temperature[0] < 224.1 and temperature[0] > 223.9
 
+    @pytest.mark.dynamics
     def test_md_reset(self):
 
         copy_parameters = copy.deepcopy(parameters)

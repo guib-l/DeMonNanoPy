@@ -158,6 +158,7 @@ class TestMolecule:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -20.7065151, atol=1e-7)
 
+    @pytest.mark.optim
     def test_molecule_opt(self):
         import shutil
 
@@ -196,6 +197,7 @@ class TestMolecule:
         assert np.allclose(results["energy"]["energy"], -20.7269581, atol=1e-7)
 
     @pytest.mark.beta
+    @pytest.mark.optim
     def test_molecule_opt_rigid(self):
         import shutil
 
@@ -235,6 +237,7 @@ class TestMolecule:
         assert np.allclose(results["energy"]["energy"], -20.7269581, atol=1e-7)
 
     @pytest.mark.beta
+    @pytest.mark.freq
     def test_molecule_freq(self):
         import shutil
 
@@ -375,6 +378,7 @@ class TestMolecule:
         assert np.allclose(results["energy"]["energy"], -20.70651510, atol=1e-7)
 
     @pytest.mark.beta
+    @pytest.mark.dynamics
     def test_molecule_mdyn(self):
 
         parameter_config = copy.deepcopy(parameters)
@@ -426,6 +430,7 @@ class TestMolecule:
         assert np.sum((tote - (pote + kine))[1:]) <= 1e-5
 
     @pytest.mark.beta
+    @pytest.mark.dynamics
     def test_molecule_mdyn_constraint(self):
 
         parameter_config = copy.deepcopy(parameters)
@@ -485,6 +490,7 @@ class TestMolecule:
         )
 
     @pytest.mark.beta
+    @pytest.mark.mc
     def test_molecule_ptmc(self):
 
         parameter_config = copy.deepcopy(parameters)

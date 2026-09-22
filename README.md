@@ -265,8 +265,16 @@ Once the environment is set up:
 
 ```bash
 pip install -e ".[dev]"
-pytest
 ```
+
+Please, run the following commande with options:
+
+```bash
+pytest -vv --tb=short --color=yes --all
+```
+
+
+
 
 ## Current Capabilities
 

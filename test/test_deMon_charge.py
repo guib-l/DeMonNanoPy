@@ -86,6 +86,7 @@ class TestCharges:
         assert energy["coulomb_energy"] == 0.05453568
         assert energy["repulsive_energy"] == 0.15678992
 
+
     @pytest.mark.forces
     def test_wmull_grad(self):
 
@@ -281,6 +282,7 @@ class TestCutSys:
         assert energy["coulomb_energy"] == 0.04185358
         assert energy["repulsive_energy"] == 0.15678992
 
+    @pytest.mark.optim
     def test_cutsys_opt(self):
 
         parameter_config = deepcopy(parameters)
@@ -308,6 +310,7 @@ class TestCutSys:
 
         assert energy["energy"] == -8.15543481
 
+    @pytest.mark.optim
     def test_cutsys_opt_rigid(self):
 
         parameter_config = deepcopy(parameters)
@@ -390,6 +393,7 @@ class TestCutSys:
         assert energy["coulomb_energy"] == 0.04185358
         assert energy["repulsive_energy"] == 0.15678992
 
+    @pytest.mark.optim
     def test_cutsys_opt_natmol(self):
 
         parameter_config = deepcopy(parameters)

@@ -72,6 +72,7 @@ WORKDIR = ".run/water_benz/"
 
 
 class TestWaterBenzen:
+    @pytest.mark.optim
     def test_benzen(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -115,6 +116,7 @@ class TestWaterBenzen:
         assert np.allclose(modes[28], 3013, atol=1.0)
 
     @pytest.mark.optional
+    @pytest.mark.optim
     def test_water_benzen(self):
 
         copy_parameters = copy.deepcopy(parameters)

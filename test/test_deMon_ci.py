@@ -210,7 +210,7 @@ class TestDFTBCI:
         assert np.allclose(energy["coulomb_energy"], 0.12999541, atol=1e-7)
         assert np.allclose(energy["repulsive_energy"], 0.63529586, atol=1e-7)
 
-    # @pytest.mark.forces
+    @pytest.mark.forces
     def test_const_grad(self):
 
         parameter_config = deepcopy(parameters)
@@ -322,6 +322,7 @@ class TestDFTBCI:
 
         assert np.allclose(len(results["states"]), 10.0)
 
+    @pytest.mark.optim
     @pytest.mark.beta
     def test_const_opt(self):
 
@@ -353,6 +354,7 @@ class TestDFTBCI:
 
         assert np.allclose(energy["energy"], -7.6781923, atol=1e-7)
 
+    @pytest.mark.optim
     @pytest.mark.beta
     def test_ci_opt(self):
 
@@ -386,6 +388,7 @@ class TestDFTBCI:
 
         assert np.allclose(energy["energy"], -7.71029648, atol=1e-7)
 
+    @pytest.mark.optim
     @pytest.mark.beta
     def test_excci_opt(self):
 
@@ -824,6 +827,7 @@ class TestDFTBCI:
 
         assert np.allclose(results["forces"], grad, atol=1e-5)
 
+    @pytest.mark.freq
     def test_ci_freq(self):
 
         parameter_config = deepcopy(parameters)
@@ -852,6 +856,7 @@ class TestDFTBCI:
         assert np.allclose(mode_1["frequency"], -1323.4, atol=1e-1)
         assert np.allclose(mode_1["intensity"], 54.8, atol=1e-1)
 
+    @pytest.mark.freq
     def test_const_freq(self):
 
         parameter_config = deepcopy(parameters)
@@ -1059,6 +1064,7 @@ class TestDFTBCI:
         dipole = results["tensors"]["dipole_norm"]
         assert np.allclose(dipole, 1.82336646, 1e-5)
 
+    @pytest.mark.dynamics
     def test_ci_mdyn(self):
 
         parameter_config = deepcopy(parameters)
@@ -1103,6 +1109,7 @@ class TestDFTBCI:
 
         assert np.sum((tote - (pote + kine))[1:]) <= 1e-5
 
+    @pytest.mark.dynamics
     def test_ci_mdyn_constraint(self):
 
         parameter_config = deepcopy(parameters)
@@ -1155,6 +1162,7 @@ class TestDFTBCI:
             atol=1e-5,
         )
 
+    @pytest.mark.mc
     def test_ci_ptmc(self):
 
         parameter_config = deepcopy(parameters)
@@ -1205,6 +1213,7 @@ class TestDFTBCI:
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 100.0
 
+    @pytest.mark.mc
     def test_ci_ptmc_rigid(self):
 
         parameter_config = deepcopy(parameters)

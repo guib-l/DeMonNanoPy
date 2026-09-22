@@ -85,6 +85,7 @@ WORKDIR = ".run/water_coron/"
 
 
 class TestWaterCoronene:
+    @pytest.mark.optim
     def test_coronene(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -130,6 +131,7 @@ class TestWaterCoronene:
         assert len(indices) > 0
 
     @pytest.mark.optional
+    @pytest.mark.optim
     def test_water_coronene(self):
 
         copy_parameters = copy.deepcopy(parameters)

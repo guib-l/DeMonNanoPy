@@ -1,5 +1,6 @@
 import copy
 
+import pytest
 import numpy as np
 from ase.atoms import Atoms
 
@@ -35,6 +36,7 @@ WORKDIR = ".run/mdconst/"
 
 
 class TestMDconstraints:
+    @pytest.mark.dynamics
     def test_md_constraint_positions(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -77,6 +79,7 @@ class TestMDconstraints:
         traj = results["trajectory"]
         assert len(traj) == 549, "MAX criteria is not conserved"
 
+    @pytest.mark.dynamics
     def test_md_constraint_positions_2(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -119,6 +122,7 @@ class TestMDconstraints:
         traj = results["trajectory"]
         assert len(traj) == 549, "MAX criteria is not conserved"
 
+    @pytest.mark.dynamics
     def test_md_constraint_X(self):
 
         copy_parameters = copy.deepcopy(parameters)

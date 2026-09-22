@@ -1,5 +1,6 @@
 import copy
 
+import pytest
 import numpy as np
 from ase.atoms import Atoms
 
@@ -36,6 +37,7 @@ WORKDIR = ".run/mdcsvd/"
 
 
 class TestMDconserved:
+    @pytest.mark.dynamics
     def test_md_conserve_com(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -81,6 +83,7 @@ class TestMDconserved:
         assert max(coms[:, 1]) < 1e-5, ""
         assert max(coms[:, 2]) < 1e-5, ""
 
+    @pytest.mark.dynamics
     def test_md_conserve_ang(self):
         # TODO: Implement test
 
@@ -122,6 +125,7 @@ class TestMDconserved:
         traj = results["trajectory"]
         assert len(traj) == 549, "MAX criteria is not conserved"
 
+    @pytest.mark.dynamics
     def test_md_conserve_mom(self):
         # TODO: Implement test
 
@@ -163,6 +167,7 @@ class TestMDconserved:
         traj = results["trajectory"]
         assert len(traj) == 549, "MAX criteria is not conserved"
 
+    @pytest.mark.dynamics
     def test_md_conserve_all(self):
         # TODO: Implement tests
 

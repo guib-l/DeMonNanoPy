@@ -1,7 +1,7 @@
 import copy
 import os
 import shutil
-
+import pytest
 import numpy as np
 
 import deMonPy
@@ -77,6 +77,7 @@ class TestRTDFTB:
         results = mod.results
         assert np.allclose(results["energy"]["energy"], -57.09364137, atol=1e-7)
 
+    @pytest.mark.dynamics
     def test_basic_rtdftb(self):
 
         from scipy.io import FortranFile

@@ -39,6 +39,7 @@ WORKDIR = ".run/freq/"
 
 
 class TestFreq:
+    @pytest.mark.freq
     def test_freq(self):
 
         parameter_config = deepcopy(parameters)
@@ -62,6 +63,7 @@ class TestFreq:
         assert np.allclose(mode_1["intensity"], 112.0, atol=1e-1)
 
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.freq
     def test_limited_freq(self):
 
         parameter_config = deepcopy(parameters)
@@ -84,6 +86,7 @@ class TestFreq:
         assert np.allclose(mode_1["intensity"], 112.0, atol=1e-1)
 
     @pytest.mark.beta
+    @pytest.mark.freq
     def test_freq_const(self):
 
         parameter_config = deepcopy(parameters)
@@ -110,6 +113,7 @@ class TestFreq:
         assert np.allclose(mode_1["frequency"], -1134.2, atol=1e-1)
         assert np.allclose(mode_1["intensity"], 79.6, atol=1e-1)
 
+    @pytest.mark.freq
     def test_freq_disp(self):
 
         parameter_config = deepcopy(parameters)
@@ -137,6 +141,7 @@ class TestFreq:
         assert np.allclose(mode_1["intensity"], 112.0, atol=1e-1)
 
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.freq
     def test_freq_ldep(self):
 
         parameter_config = deepcopy(parameters)
@@ -164,6 +169,7 @@ class TestFreq:
         assert np.allclose(mode_1["intensity"], 112.0, atol=1e-1)
 
     @pytest.mark.beta
+    @pytest.mark.freq
     def test_freq_dftb3(self):
 
         parameter_config = deepcopy(parameters)
@@ -191,6 +197,7 @@ class TestFreq:
         assert np.allclose(mode_1["frequency"], -1175.1, atol=1e-1)
         assert np.allclose(mode_1["intensity"], 118.7, atol=1e-1)
 
+    @pytest.mark.freq
     def test_freq_fermi(self):
 
         parameter_config = deepcopy(parameters)
@@ -218,6 +225,7 @@ class TestFreq:
         assert np.allclose(mode_1["frequency"], -1178.9, atol=1e-1)
         assert np.allclose(mode_1["intensity"], 112.0, atol=1e-1)
 
+    @pytest.mark.freq
     def test_freq_charge(self):
 
         parameter_config = deepcopy(parameters)

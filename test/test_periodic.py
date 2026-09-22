@@ -1,5 +1,5 @@
 from copy import deepcopy
-
+import pytest
 import numpy as np
 from scipy.optimize import minimize
 
@@ -110,6 +110,7 @@ class TestPeriodic:
 
         assert energy["energy"] == -3.47292185
 
+    @pytest.mark.optim
     def test_periodic_graph_optAtoms(self):
 
         cell = np.array(
@@ -150,6 +151,7 @@ class TestPeriodic:
 
         assert energy["energy"] == -3.47255046
 
+    @pytest.mark.optim
     def test_periodic_graph_optCell(self):
 
         cell = np.array(

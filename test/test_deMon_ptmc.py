@@ -1,5 +1,6 @@
 import copy
 
+import pytest
 import numpy as np
 from ase.atoms import Atoms
 
@@ -36,6 +37,7 @@ WORKDIR = ".run/ptmc/"
 
 
 class TestPTMC:
+    @pytest.mark.mc
     def test_ptmc(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -85,6 +87,7 @@ class TestPTMC:
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 0.1
 
+    @pytest.mark.mc
     def test_ptmc_exchangeNO(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -137,6 +140,7 @@ class TestPTMC:
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 0.1
 
+    @pytest.mark.mc
     def test_ptmc_exchangeSE(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -189,6 +193,7 @@ class TestPTMC:
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 0.1
 
+    @pytest.mark.mc
     def test_ptmc_linear(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -259,6 +264,7 @@ class TestPTMC:
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 0.1
 
+    @pytest.mark.mc
     def test_mc(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -288,6 +294,7 @@ class TestPTMC:
         assert ptmc["nb_temp"] == 1
         assert ptmc["exchange"]["each_step"] == 10
 
+    @pytest.mark.mc
     def test_ptmc_initx(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -336,6 +343,7 @@ class TestPTMC:
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 0.1
 
+    @pytest.mark.mc
     def test_ptmc_initq(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -384,6 +392,7 @@ class TestPTMC:
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 0.1
 
+    @pytest.mark.mc
     def test_ptmc_rescale(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -432,6 +441,7 @@ class TestPTMC:
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 0.1
 
+    @pytest.mark.mc
     def test_ptmc_spercent(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -480,6 +490,7 @@ class TestPTMC:
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 0.2
 
+    @pytest.mark.mc
     def test_ptmc_out(self):
 
         copy_parameters = copy.deepcopy(parameters)

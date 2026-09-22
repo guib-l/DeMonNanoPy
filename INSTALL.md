@@ -32,6 +32,28 @@ exposed as `deMonPy.__version__`.
 Build metadata is defined in `pyproject.toml` using `setuptools` (the version is
 derived from `deMonPy.__version__`).
 
+## Tests
+
+Run the testing commande `pytest` with options:
+
+| keyword          | Description         | 
+|------------------|---------------------|
+| `--all`         | Beta keywords, use carfully | 
+| `--forces`       | Gradient tests | 
+| `--optim`        | Test about optimization of geometry | 
+| `--dynamics`     | Dynamics calculation test | 
+| `--references`   | Comparison with external references calculations | 
+| `--optional`     | Optionnal test (some) | 
+| `--freq`         | Test for frequencies analysis | 
+| `--beta`         | Beta keywords, use carfully | 
+| `--3OB=`         | 3OB parameters directory for some QMMM tests | 
+
+
+To get all clean test output, try:
+
+```bash
+pytest -vv --tb=short --color=yes --all
+```
 
 
 

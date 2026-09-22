@@ -1,5 +1,5 @@
 import copy
-
+import pytest
 import numpy as np
 
 import deMonPy
@@ -79,6 +79,7 @@ class TestPAH:
             reference = float(ref[i].split()[2])
             assert np.allclose(results["energy"]["energy"], reference, atol=1e-5)
 
+    @pytest.mark.optim
     def _test_coronene_opt(self):
 
         images, ref = read_XYZ("test/data_test/coronene-neutral.mol")

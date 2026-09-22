@@ -139,6 +139,7 @@ class TestDFTB_Rg:
 
         assert np.allclose(results["energy"]["energy"], -19.51939925, atol=1e-7)
 
+    @pytest.mark.optim
     def test_argon_opt(self):
 
         parameter_config = deepcopy(parameters)
@@ -170,6 +171,7 @@ class TestDFTB_Rg:
 
         assert np.allclose(results["energy"]["energy"], -19.53597981, atol=1e-7)
 
+    @pytest.mark.dynamics
     def test_argon_md(self):
 
         parameter_config = deepcopy(parameters)
@@ -480,6 +482,7 @@ class TestDFTB_Rg:
 
         assert np.allclose(results["energy"]["energy"], -22.7625355, atol=1e-7)
 
+    @pytest.mark.freq
     def test_argon_freq(self):
 
         parameter_config = deepcopy(parameters)
@@ -817,6 +820,7 @@ class TestDFTB_Rg:
         dipole = results["tensors"]["dipole_norm"]
         assert np.allclose(dipole, 0.10091401, 1e-5)
 
+    @pytest.mark.dynamics
     def test_argon_mdyn(self):
 
         parameter_config = deepcopy(parameters)
@@ -864,6 +868,7 @@ class TestDFTB_Rg:
 
         assert np.sum((tote - (pote + kine))[1:]) <= 1e-5
 
+    @pytest.mark.dynamics
     def test_argon_mdyn_constraint(self):
 
         parameter_config = deepcopy(parameters)
@@ -919,6 +924,7 @@ class TestDFTB_Rg:
             atol=1e-5,
         )
 
+    @pytest.mark.mc
     def test_argon_ptmc(self):
 
         parameter_config = deepcopy(parameters)
@@ -971,6 +977,7 @@ class TestDFTB_Rg:
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 100.0
 
+    @pytest.mark.mc
     def test_argon_ptmc_rigid(self):
 
         parameter_config = deepcopy(parameters)

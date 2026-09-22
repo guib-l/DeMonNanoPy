@@ -1,5 +1,5 @@
 import copy
-
+import pytest
 import ase
 
 # import configs
@@ -74,6 +74,7 @@ WORKDIR = ".run/water_pyren/"
 
 
 class TestWaterPyrene:
+    @pytest.mark.optim
     def test_pyrene_wmull(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -102,6 +103,7 @@ class TestWaterPyrene:
 
         assert np.allclose(results["energy"]["energy"], -31.34507905, atol=1e-7)
 
+    @pytest.mark.optim
     def test_water_pyrene_wmull(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -130,6 +132,7 @@ class TestWaterPyrene:
 
         assert np.allclose(results["energy"]["energy"], -35.40543335, atol=1e-7)
 
+    @pytest.mark.optim
     def test_water_pyrene_wmull_charged(self):
 
         copy_parameters = copy.deepcopy(parameters)

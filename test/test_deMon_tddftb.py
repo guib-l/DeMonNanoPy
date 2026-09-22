@@ -1,5 +1,6 @@
 import os
 import shutil
+import pytest
 from copy import deepcopy
 
 import numpy as np
@@ -62,6 +63,7 @@ class TestTDDFTB:
         assert "triplet" in results.keys()
         assert "singlet" in results.keys()
 
+    @pytest.mark.beta
     def test_tddftb_dftb3(self):
 
         parameter_config = deepcopy(parameters)
@@ -159,6 +161,7 @@ class TestTDDFTB:
         assert "triplet" in results.keys()
         assert "singlet" in results.keys()
 
+    @pytest.mark.dynamics
     def test_tddftb_mdlresp(self):
 
         parameter_config = deepcopy(parameters)

@@ -156,6 +156,16 @@ class read_output(IOread):
         "DFTB Fermi energy level": "fermi_energy",
         "DFTB third order Coulomb energy": "3d_coulomb_energy",
     }
+    _criteria_mm = {
+        "TOTAL ENERGY                =":"qmmm-energy",
+        "VAN DER WAALS ENERGY":"qmmm-VdW_energy",
+        "ELECTROSTATIC CHARGE ENERGY":"qmmm-electrostatic_energy",
+        "UREY BRADLEY ENERGY":"qmmm-UB_energy",
+        "IMPROPER TORSION ENERGY":"qmmm-improper_torsion_energy",
+        "TORSION ANGLE ENERGY":"qmmm-torsion_angle_energy",
+        "BOND ANGLE ENERGY":"qmmm-bond_angle_energy",
+        "BOND ENERGY":"qmmm-bond_energy",
+    }
 
     def __init__(
         self,
@@ -322,17 +332,11 @@ class read_output(IOread):
         _criteria_energy_str_bis = self._criteria_energy_str
 
         if "mm" in self.flags:
-            _criteria_mm = {
-                "TOTAL ENERGY                =":"energy",
-                "VAN DER WAALS ENERGY":"VdW_energy",
-                "ELECTROSTATIC CHARGE ENERGY":"electrostatic_energy",
-                "UREY BRADLEY ENERGY":"UB_energy",
-                "IMPROPER TORSION ENERGY":"improper_torsion_energy",
-                "TORSION ANGLE ENERGY":"torsion_angle_energy",
-                "BOND ANGLE ENERGY":"bond_angle_energy",
-                "BOND ENERGY":"bond_energy",
-            }
-            _criteria_energy_str_bis = _criteria_mm
+            _criteria_energy_str_bis = self._criteria_mm
+
+        if "qmmm" in self.flags:
+            _criteria_energy_str_bis = self._criteria_energy_str
+            _criteria_energy_str_bis.update(self._criteria_mm)
 
         if self.is_inside(criteria, line):
             label = _criteria_energy_str_bis[criteria]

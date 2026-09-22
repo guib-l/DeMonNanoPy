@@ -392,6 +392,7 @@ class deMonNano(BasicCalculation):
 
         # Parameters
         self._wi._write_dftb()
+        self._wi._write_rttddftb()
         self._wi._write_basis()
         self._wi._write_charge()
         self._wi._write_bondparam_wmull(symbols)
@@ -404,7 +405,6 @@ class deMonNano(BasicCalculation):
         self._wi._write_tddftb()
         self._wi._write_mm(symbols=symbols)
         self._wi._write_qmmm(symbols=symbols)
-        self._wi._write_rttddftb()
         self._wi._write_cutsys()
         self._wi._write_dipole()
         self._wi._write_rg()
