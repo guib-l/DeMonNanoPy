@@ -2,6 +2,7 @@
 .env/
 .prompt/
 basis/
+private/
 data/
 archive/
 global.json

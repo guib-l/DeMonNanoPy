@@ -18,7 +18,11 @@ class _dyn(modules):
         self.context.parameters["DEMON_MODULE"]["ACTIVE"]["MD"].update({"MDYNAMICS":{}})
         params = self.context.parameters["DEMON_MODULE"]["ACTIVE"]["MD"]["MDYNAMICS"]
         params["READ"] = {"VELOCITIES": list(velocities)} if velocities is not None else False
-        params["RANDOM"] = temp
+        if velocities is None:
+            if temp == 0.0:
+                params["ZERO"] = True
+            else:
+                params["RANDOM"] = temp
         params["WALL"] = wall
 
     def update_mdstep(self, max=100, out=1):
