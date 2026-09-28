@@ -240,7 +240,7 @@ class TestDftbQMMM:
         
         assert results["energy"]["qmmm-energy"] == -0.010737445
 
-
+    @pytest.mark.beta
     @pytest.mark.optim
     def test_mm_cluster_opt(self):
 
@@ -441,6 +441,7 @@ class TestDftbQMMM:
             }
         )
 
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
         shutil.copy2("test/data_test/FFDS", f"{WORKDIR}/FFDS")
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
@@ -1027,7 +1028,7 @@ class TestDftbQMMM:
     # =========================================================================
 
 
-    def test_qmmm_ref1(self,parameters_3ob):
+    def test_qmmm_water_cluster(self,parameters_3ob):
 
         from pathlib import Path
 
@@ -1036,7 +1037,7 @@ class TestDftbQMMM:
         DEMON_BASIS = parameters_3ob 
 
         table = []
-        with open("test/data_test/mb1") as fd:
+        with open("test/data_test/qmmm/mb1") as fd:
             
             for line in fd.readlines():
                 table.append(list(map(float,line.split())))
@@ -1083,7 +1084,7 @@ class TestDftbQMMM:
         results = mod.results
         assert results["energy"]["qmmm-energy"] == -4.047883710
 
-    def test_qmmm_ref2(self, parameters_3ob):
+    def test_qmmm_water_mol(self, parameters_3ob):
 
         from pathlib import Path
 
@@ -1092,7 +1093,7 @@ class TestDftbQMMM:
         DEMON_BASIS = parameters_3ob
 
         table = []
-        with open("test/data_test/mb2") as fd:
+        with open("test/data_test/qmmm/mb2") as fd:
             
             for line in fd.readlines():
                 table.append(list(map(float,line.split())))
@@ -1128,7 +1129,6 @@ class TestDftbQMMM:
                 },
             }
         )
-        symbols = [symb[elm] for elm in table[:,0]]
 
         shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
         shutil.copy2("test/data_test/FFDS", f"{WORKDIR}/FFDS")
@@ -1141,7 +1141,7 @@ class TestDftbQMMM:
 
 
     @pytest.mark.optim
-    def test_qmmm_ref3(self, parameters_3ob):
+    def test_qmmm_water_tot(self, parameters_3ob):
 
         from pathlib import Path
 
@@ -1150,7 +1150,7 @@ class TestDftbQMMM:
         DEMON_BASIS = parameters_3ob
 
         table = []
-        with open("test/data_test/mb3") as fd:
+        with open("test/data_test/qmmm/mb3") as fd:
             
             for line in fd.readlines():
                 table.append(list(map(float,line.split())))
@@ -1205,6 +1205,398 @@ class TestDftbQMMM:
 
         results = mod.results
         assert results["energy"]["energy"] == -8.14600091
+
+
+
+
+    @pytest.mark.optim
+    def test_qmmm_pentane_tot (self, parameters_3ob):
+
+        from pathlib import Path
+
+        if not Path(parameters_3ob).is_dir():
+            pytest.skip(f"Folder {parameters_3ob} didn't exists.")
+        DEMON_BASIS = parameters_3ob
+
+        table = []
+        with open("test/data_test/qmmm/mb5") as fd:
+            
+            for line in fd.readlines():
+                table.append(list(map(float,line.split())))
+        table = np.array(table)
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "BASIS": {"PTYPE": "3OB", "SKFILE": DEMON_BASIS},
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "THIRD":True,
+                            "GCOR":4
+                        },
+                        "QMMM":{
+                            "COUPLING":"ELECTROSTATIC",
+                            "CHR":"FF",
+                            "CHARGES":table[:,3],
+                            "TYPEMM":[80,81,85,85,85,85,81,85,85,
+                                      85,81,85,80,85,85,85,85]
+                                + [63,64,64]*205,
+                            "QM":"1-17",
+                            "MM":"18-632",
+                            "FORCEFIELD":{
+                                "FF":"OPLS-AA"
+                            }
+                        }
+                    },
+                },
+            }
+        )
+        copy_parameters.update(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {
+                        "OPT": {"MAX": 5000, "TRAJECTORY": True},
+                    },
+                }
+            }
+        )
+        symbols = ["C","C","H","H","H","H","C","H","H",
+                   "H","C","H","C","H","H","H","H"] + \
+            ([["O","H","H"] * 205])[0]
+
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+        shutil.copy2("test/data_test/FFDS", f"{WORKDIR}/FFDS")
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=symbols, positions=table[:,:3])
+
+        results = mod.results
+        assert np.allclose(results["energy"]["energy"],-17.00410305,atol=1e-7)
+
+
+    @pytest.mark.optim
+    def test_qmmm_glycine_mol (self, parameters_3ob):
+
+        from pathlib import Path
+
+        if not Path(parameters_3ob).is_dir():
+            pytest.skip(f"Folder {parameters_3ob} didn't exists.")
+        DEMON_BASIS = parameters_3ob
+
+        table = []
+        with open("test/data_test/qmmm/mb9") as fd:
+            
+            for line in fd.readlines():
+                table.append(list(map(float,line.split())))
+        table = np.array(table)
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "BASIS": {"PTYPE": "3OB", "SKFILE": DEMON_BASIS},
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "THIRD":True,
+                            "GCOR":4
+                        },
+                        "QMMM":{
+                            "COUPLING":"ELECTROSTATIC",
+                            "CHR":"INPUT",
+                            "CHARGES":table[:,3],
+                            "TYPEMM":[784,784,782,783,780,780,781,64,785,785],
+                            "QM":"1-10",
+                            "MM":"",
+                            "FORCEFIELD":{
+                                "FF":"OPLS-AA"
+                            }
+                        }
+                    },
+                },
+            }
+        )
+        symbols = ["O","O","C","N","H","H","C","H","H","H",]
+
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+        shutil.copy2("test/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=symbols, positions=table[:,:3])
+
+        results = mod.results
+        assert np.allclose(results["energy"]["energy"],-14.32460884,atol=1e-7)
+
+
+
+
+    @pytest.mark.optim
+    def test_qmmm_glycine_tot (self, parameters_3ob):
+
+        from pathlib import Path
+
+        if not Path(parameters_3ob).is_dir():
+            pytest.skip(f"Folder {parameters_3ob} didn't exists.")
+        DEMON_BASIS = parameters_3ob
+
+        table = []
+        with open("test/data_test/qmmm/mb6") as fd:
+            
+            for line in fd.readlines():
+                table.append(list(map(float,line.split())))
+        table = np.array(table)
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "BASIS": {"PTYPE": "3OB", "SKFILE": DEMON_BASIS},
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "THIRD":True,
+                            "GCOR":4.0
+                        },
+                        "QMMM":{
+                            "COUPLING":"ELECTROSTATIC",
+                            "CHR":"FF",
+                            "CHARGES":table[:,3],
+                            "TYPEMM":[784,784,782,783,780,780,781,64,785,785]
+                                + [63,64,64]*210,
+                            "QM":"1-10",
+                            "MM":"11-640",
+                            "FORCEFIELD":{
+                                "FF":"OPLS-AA"
+                            }
+                        }
+                    },
+                },
+            }
+        )
+        copy_parameters.update(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {
+                        "OPT": {"MAX": 5000, "TRAJECTORY": True},
+                    },
+                }
+            }
+        )
+        symbols = ["O","O","C","N","H","H","C","H","H","H",] + \
+            ([["O","H","H"] * 210])[0]
+
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+        shutil.copy2("test/data_test/FFDS", f"{WORKDIR}/FFDS")
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=symbols, positions=table[:,:3])
+
+        results = mod.results
+        assert np.allclose(results["energy"]["energy"],-18.39795588,atol=1e-7)
+
+
+
+
+
+    @pytest.mark.optim
+    def test_qmmm_amoniac_mol (self, parameters_3ob):
+
+        from pathlib import Path
+
+        if not Path(parameters_3ob).is_dir():
+            pytest.skip(f"Folder {parameters_3ob} didn't exists.")
+        DEMON_BASIS = parameters_3ob
+
+        table = []
+        with open("test/data_test/qmmm/mb10") as fd:
+            
+            for line in fd.readlines():
+                table.append(list(map(float,line.split())))
+        table = np.array(table)
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "BASIS": {"PTYPE": "3OB", "SKFILE": DEMON_BASIS},
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "THIRD":True,
+                            "GCOR":4.0
+                        },
+                        "QMMM":{
+                            "COUPLING":"ELECTROSTATIC",
+                            "CHR":"FF",
+                            "CHARGES":table[:,3],
+                            "TYPEMM":[78,79,79,79],
+                            "QM":"1-4",
+                            "MM":"",
+                            "FORCEFIELD":{
+                                "FF":"OPLS-AA"
+                            }
+                        }
+                    },
+                },
+            }
+        )
+        copy_parameters.update(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {
+                        "OPT": {"MAX": 5000, "TRAJECTORY": True},
+                    },
+                }
+            }
+        )
+        symbols = ["N","H","H","H",] 
+
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+        shutil.copy2("test/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=symbols, positions=table[:,:3])
+
+        results = mod.results
+        assert np.allclose(results["energy"]["energy"],-3.52962761,atol=1e-7)
+
+    @pytest.mark.optim
+    def test_qmmm_amoniac_cluster (self, parameters_3ob):
+
+        from pathlib import Path
+
+        if not Path(parameters_3ob).is_dir():
+            pytest.skip(f"Folder {parameters_3ob} didn't exists.")
+        DEMON_BASIS = parameters_3ob
+
+        table = []
+        with open("test/data_test/qmmm/mb11") as fd:
+            
+            for line in fd.readlines():
+                table.append(list(map(float,line.split())))
+        table = np.array(table)
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "BASIS": {"PTYPE": "3OB", "SKFILE": DEMON_BASIS},
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "THIRD":True,
+                            "GCOR":4.0
+                        },
+                        "QMMM":{
+                            "COUPLING":"ELECTROSTATIC",
+                            "CHR":"FF",
+                            "CHARGES":table[:,3],
+                            "TYPEMM":[63,64,64]*215,
+                            "QM":"",
+                            "MM":"1-645",
+                            "FORCEFIELD":{
+                                "FF":"OPLS-AA"
+                            }
+                        }
+                    },
+                },
+            }
+        )
+        copy_parameters.update(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {
+                        "OPT": {"MAX": 5000, "TRAJECTORY": True},
+                    },
+                }
+            }
+        )
+        symbols = ([["O","H","H"] * 215])[0]
+
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+        shutil.copy2("test/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=symbols, positions=table[:,:3])
+
+        results = mod.results
+        assert np.allclose(results["energy"]["qmmm-energy"],-4.124882596,atol=1e-7)
+
+    @pytest.mark.optim
+    def test_qmmm_amoniac_tot (self, parameters_3ob):
+
+        from pathlib import Path
+
+        if not Path(parameters_3ob).is_dir():
+            pytest.skip(f"Folder {parameters_3ob} didn't exists.")
+        DEMON_BASIS = parameters_3ob
+
+        table = []
+        with open("test/data_test/qmmm/mb7") as fd:
+            
+            for line in fd.readlines():
+                table.append(list(map(float,line.split())))
+        table = np.array(table)
+
+        copy_parameters = copy.deepcopy(parameters)
+        copy_parameters.update(
+            {
+                "BASIS": {"PTYPE": "3OB", "SKFILE": DEMON_BASIS},
+                "DEMON_PARAMETERS": {
+                    "ACTIVE": {
+                        "DFTB": {
+                            "SCC": True,
+                            "THIRD":True,
+                            "GCOR":4
+                        },
+                        "QMMM":{
+                            "COUPLING":"ELECTROSTATIC",
+                            "CHR":"FF",
+                            "CHARGES":table[:,3],
+                            "TYPEMM":[78,79,79,79] + [63,64,64]*215,
+                            "QM":"1-4",
+                            "MM":"5-649",
+                            "FORCEFIELD":{
+                                "FF":"OPLS-AA"
+                            }
+                        }
+                    },
+                },
+            }
+        )
+        copy_parameters.update(
+            {
+                "DEMON_MODULE": {
+                    "ACTIVE": {
+                        "OPT": {"MAX": 5000, "TRAJECTORY": True},
+                    },
+                }
+            }
+        )
+        symbols = ["N","H","H","H",] + ([["O","H","H"] * 215])[0]
+
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+        shutil.copy2("test/data_test/FFDS", f"{WORKDIR}/FFDS")
+        mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+
+        mod.calculate(symbols=symbols, positions=table[:,:3])
+
+        results = mod.results
+        assert np.allclose(results["energy"]["energy"],-7.66898768,atol=1e-7)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     def test_qmmm_rtdtdftb(self):
@@ -1278,7 +1670,7 @@ class TestDftbQMMM:
     def test_qmmm_rtdtdftb_md(self):
 
         table = []
-        with open("test/data_test/mb4") as fd:
+        with open("test/data_test/qmmm/mb4") as fd:
             
             for line in fd.readlines():
                 table.append(list(map(float,line.split())))
@@ -1356,6 +1748,14 @@ class TestDftbQMMM:
 
         results = mod.results
         assert np.allclose(results["energy"]["energy"],0.0,atol=1e-7)
+
+
+
+
+
+
+
+
 
 
 

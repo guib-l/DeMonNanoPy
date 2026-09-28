@@ -38,7 +38,7 @@ Run the testing commande `pytest` with options:
 
 | keyword          | Description         | 
 |------------------|---------------------|
-| `--all`         | Beta keywords, use carfully | 
+| `--all`          | Perform all tests | 
 | `--forces`       | Gradient tests | 
 | `--optim`        | Test about optimization of geometry | 
 | `--dynamics`     | Dynamics calculation test | 
