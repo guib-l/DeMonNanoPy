@@ -140,7 +140,7 @@ class DeMonNano(Calculator):
         need_forces = "forces" in properties
         demon_module = {}
         if need_forces:
-            demon_module = {"ACTIVE":{"OPT":{"SP":True}}}
+            demon_module = {"ACTIVE": {"OPT": {"SP": True}}}
 
         calc = deMonNano(
             execut=execut,
@@ -151,7 +151,7 @@ class DeMonNano(Calculator):
             properties=properties,
             basis=basis if isinstance(basis, dict) else {},
             DEMON_PARAMETERS=demon_parameters,
-            DEMON_MODULE=demon_module
+            DEMON_MODULE=demon_module,
         )
 
         calc.calculate(
@@ -168,7 +168,7 @@ class DeMonNano(Calculator):
 
         self.results["energy"] = energy_ev
         self.results["free_energy"] = energy_ev
-        
+
         # --- charges ---
         out_geom = raw.get("output_geometry", None)
         if out_geom is not None and hasattr(out_geom, "get_initial_charges"):

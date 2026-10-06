@@ -1,9 +1,10 @@
-import configs
+import os
+
 import numpy as np
 from ase.atoms import Atoms
 
 import deMonPy
-from deMonPy.deMonNano import Module_DeMonNano
+from deMonPy.ase_calculator import DeMonNano
 
 deMonPy.configure_from_file("global.json")
 
@@ -12,7 +13,7 @@ parameters = {
     "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
     "DEMON_PARAMETERS": {
         "ACTIVE": {
-            "DFTB": {"SCC": True},
+            "DFTB": {"SCC": True, "DISP": 2},
             "CHARGE": 0.0,
         },
     },
@@ -31,22 +32,41 @@ image = Atoms(
     ),
 )
 
-WORKDIR = ".run/opt/"
+WORKDIR = ".run/example-ase"
 
 
-def exemple_run_opt():
+def exemple_run_ase():
 
-    mod = Module_DeMonNano(
-        module="opt",
+    calc = DeMonNano(
+        omp_threads=1,
         title="CALCULATION DEMONANO",
-        workdir=WORKDIR,
+        directory=WORKDIR,
         **parameters,
     )
 
-    mod(image=image, max=10)
+    calc.calculate(atoms=image, properties=["energy", "forces"])
 
-    mod.print_results()
+    print(" RESULTS : ")
+    print(calc.results)
+    print()
+
+
+def exemple_run_bfgs():
+
+    from ase.optimize import BFGS
+
+    calc = DeMonNano(
+        omp_threads=1,
+        title="CALCULATION DEMONANO",
+        directory=WORKDIR,
+        **parameters,
+    )
+    image.calc = calc
+    opt = BFGS(image, trajectory=os.path.join(WORKDIR, "H2O.traj"))
+    opt.run(fmax=0.005)
 
 
 if __name__ == "__main__":
-    exemple_run_opt()
+    exemple_run_ase()
+
+    exemple_run_bfgs()

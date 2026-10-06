@@ -1,9 +1,9 @@
 import os
 import shutil
-import pytest
 from copy import deepcopy
 
 import numpy as np
+import pytest
 from ase.atoms import Atoms
 
 import deMonPy
@@ -73,9 +73,9 @@ class TestTDDFTB:
                 "TD-DFTB": True,
             }
         )
-        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
         dem.calculate(symbols=image.symbols, positions=image.positions)
 
         results = dem.results

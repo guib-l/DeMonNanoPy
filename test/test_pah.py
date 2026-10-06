@@ -1,6 +1,7 @@
 import copy
-import pytest
+
 import numpy as np
+import pytest
 
 import deMonPy
 from deMonPy.deMonNano import deMonNano

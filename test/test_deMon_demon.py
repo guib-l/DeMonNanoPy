@@ -1,14 +1,13 @@
+import os
 from copy import deepcopy
 
-import os
 import numpy as np
 import pytest
 from ase.atoms import Atoms
 
 import deMonPy
 from deMonPy.ase_calculator import DeMonNano
-from deMonPy.deMonNano import deMonNano
-from deMonPy.deMonNano import Module_DeMonNano
+from deMonPy.deMonNano import Module_DeMonNano, deMonNano
 
 deMonPy.configure_from_file("global.json")
 
@@ -66,7 +65,7 @@ class TestBasicUsage:
 
         mod(image=image, max=10)
 
-        assert np.allclose(mod.results["energy"]["energy"],-8.1488236, atol=1e-7)
+        assert np.allclose(mod.results["energy"]["energy"], -8.1488236, atol=1e-7)
 
     @pytest.mark.dynamics
     def test_module_md(self):
@@ -80,8 +79,7 @@ class TestBasicUsage:
 
         mod(image=image, temp=10)
 
-        assert np.allclose(len(mod.results["trajectory"]),11, atol=1e-1)
-
+        assert np.allclose(len(mod.results["trajectory"]), 11, atol=1e-1)
 
     @pytest.mark.mc
     def test_module_mc(self):
@@ -94,14 +92,8 @@ class TestBasicUsage:
         )
 
         # Run PTMC
-        mod(
-            method="mc",
-            image=image,
-            max=30,
-            temperature=30
-        )
-        assert np.allclose(mod.results["ptmc"]["nb_temp"],1, atol=1e-1)
-
+        mod(method="mc", image=image, max=30, temperature=30)
+        assert np.allclose(mod.results["ptmc"]["nb_temp"], 1, atol=1e-1)
 
     @pytest.mark.forces
     def test_module_ase_sp(self):
@@ -113,15 +105,16 @@ class TestBasicUsage:
             **parameters,
         )
 
-        calc.calculate(atoms=image,properties=["energy","forces"])
-        
-        assert np.allclose(calc.results["energy"],-219.3808842460711, atol=1e-7)
+        calc.calculate(atoms=image, properties=["energy", "forces"])
+
+        assert np.allclose(calc.results["energy"], -219.3808842460711, atol=1e-7)
 
     @pytest.mark.dynamics
     def test_module_ase_bfgs(self):
 
         from ase.optimize import BFGS
-        trajfile = os.path.join(WORKDIR,'H2O.traj')
+
+        trajfile = os.path.join(WORKDIR, "H2O.traj")
 
         calc = DeMonNano(
             omp_threads=1,
@@ -134,17 +127,3 @@ class TestBasicUsage:
         opt.run(fmax=0.05)
 
         assert os.path.exists(trajfile)
-
-
-
-
-
-
-
-
-
-
-
-
-
-

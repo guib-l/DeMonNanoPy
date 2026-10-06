@@ -1,9 +1,10 @@
 import copy
-import pytest
+
 import ase
 
 # import configs
 import numpy as np
+import pytest
 from ase.atoms import Atoms
 
 import deMonPy

@@ -45,6 +45,8 @@ def configure_from_file(path="global.json"):
     Args:
         path: Path to the JSON configuration file.
     """
+    if not os.path.exists(path):
+        raise FileExistsError(f"File globals.json didn't exists at {os.path.abspath(path)}")
     with open(path) as f:
         config = json.load(f)
 

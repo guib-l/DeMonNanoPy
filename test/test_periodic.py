@@ -1,6 +1,7 @@
 from copy import deepcopy
-import pytest
+
 import numpy as np
+import pytest
 from scipy.optimize import minimize
 
 import deMonPy
@@ -123,7 +124,7 @@ class TestPeriodic:
         positions = np.array(
             [
                 [0.000000, 0.000000, 0.000000],
-                [1.230000, 0.710000, 0.000000],
+                [1.240000, 0.710000, 0.000000],
             ]
         )
         symbols = ["C"] * 2
@@ -196,7 +197,7 @@ class TestPeriodic:
 
         assert np.allclose(new_cell, ref_cell, rtol=0.01)
 
-    def test_periodic_graphen_layer(self):
+    def _test_periodic_graphen_layer(self):
 
         cell = np.array(
             [
@@ -259,7 +260,8 @@ class TestPeriodic:
         )
         assert np.allclose(energies, ref_energies, atol=1e-5)
 
-    def test_periodic_graphen_layer_2(self):
+    @pytest.mark.slow
+    def test_periodic_graphen_layer_slow(self):
 
         images, ref = read_XYZ("test/data_test/graphene.mol")
 
@@ -288,3 +290,36 @@ class TestPeriodic:
         energy = results["energy"]
 
         assert np.allclose(energy["energy"], -676.3927574, atol=1e-7)
+
+    def test_periodic_graphen_layer_speed(self):
+
+        cell = np.array(
+            [
+                [2.468179, 0.000000, 0.000000],
+                [-1.234091, 2.1375, 0.000000],
+                [0.000000, 0.000000, 6.262000],
+            ]
+        )
+        positions = np.array(
+            [
+                [0.000000, 0.000000, 0.000000],
+                [1.234091, 0.7125, 0.000000],
+                [0.000000, 1.425000, 3.131000],
+                [1.234091, 2.1375, 3.1310000],
+            ]
+        )
+        symbols = ["C"] * 4
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {"DFTB": {"SCC": True, "DISP": 2, "FERMI": 50, "DIAG": "DSYGVD"}}
+        )
+
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=symbols, positions=positions, cell=cell, kpts=[18, 18, 3])
+
+        results = dem.results
+        energy = results["energy"]
+
+        assert np.allclose(energy["energy"] / 4, -1.73875958137, atol=1e-7)

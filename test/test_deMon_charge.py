@@ -86,7 +86,6 @@ class TestCharges:
         assert energy["coulomb_energy"] == 0.05453568
         assert energy["repulsive_energy"] == 0.15678992
 
-
     @pytest.mark.forces
     def test_wmull_grad(self):
 

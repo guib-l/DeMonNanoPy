@@ -1,4 +1,3 @@
-import configs
 import numpy as np
 from ase.atoms import Atoms
 
@@ -32,7 +31,7 @@ image = Atoms(
     ),
 )
 
-WORKDIR = ".run/md/"
+WORKDIR = ".run/example-md/"
 
 
 def exemple_run_md():
@@ -92,11 +91,8 @@ def exemple_run_restart_md():
 
 
 if __name__ == "__main__":
-
     exemple_run_md()
 
     exemple_run_md_velocities()
 
     exemple_run_restart_md()
-
-

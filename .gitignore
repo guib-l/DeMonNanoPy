@@ -8,8 +8,14 @@ archive/
 global.json
 slurm-*
 submit.sh
-TODO.md
 optimized.xyz
+
+
+# Figures
+figures/
+*.png
+*.jpg
+*.jpeg
 
 # Basis
 Au-bremen/

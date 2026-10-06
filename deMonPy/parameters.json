@@ -53,6 +53,16 @@
                 "ALPHARG": 11.07,  
                 "FILENAME": null
             },
+            "RTTDDFTB":{
+                "COLL":10,
+                "PROJPT":true,
+                "QPROJ":1.0,
+                "FCOLL":1.0,
+                "MPROJ":1.0,
+                "PDIST":7.6,
+                "POS-PROJ":[-0.897913, -0.137568, -0.418123],
+                "B-PARAM":[0.0,0.0,0.0]
+            },
             "QMMM":{
                 "COUPLING":"ELECTROSTATIC",
                 "CHR":"FF",

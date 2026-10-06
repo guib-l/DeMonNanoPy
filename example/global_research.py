@@ -1,17 +1,14 @@
-import sys
-
-import configs
-import numpy as np
 import copy
-from ase.atoms import Atoms
-
 import os
+import sys
 from os.path import isfile, join
+
+import numpy as np
+from ase.atoms import Atoms
 
 import deMonPy
 from deMonPy.deMonNano import Module_DeMonNano
-from deMonPy.molden import read_XYZ,write_XYZ,progressbar
-
+from deMonPy.molden import progressbar, read_XYZ, write_XYZ
 
 deMonPy.configure_from_file("global.json")
 
@@ -78,8 +75,7 @@ image = Atoms(
 )
 
 
-
-WORKDIR = ".run/ptmc/"
+WORKDIR = ".run/example-ptmc/"
 
 
 def exemple_run_ptmc(max=1000):
@@ -126,7 +122,6 @@ def exemple_run_ptmc(max=1000):
     )
 
 
-
 def exemple_run_mc():
 
     parameter_config = copy.deepcopy(parameters)
@@ -153,27 +148,23 @@ def exemple_run_mc():
     )
 
     # Run PTMC
-    mod(
-        method="mc",
-        image=image,
-        max=30,
-        temperature=30
-    )
+    mod(method="mc", image=image, max=30, temperature=30)
 
 
-
-def select_strutures(directory, without=["deMon.mol","deMon.keep.mol"]):
+def select_strutures(directory, without=["deMon.mol", "deMon.keep.mol"]):
 
     import random
-    method = lambda tot: random.sample(range(tot),k=2)
 
-    if isinstance(directory,list):
+    def method(tot):
+        return random.sample(range(tot), k=2)
+
+    if isinstance(directory, list):
         files = directory
     elif os.path.isdir(directory):
         files = [f for f in os.listdir(directory) if isfile(join(directory, f))]
         files = [f for f in files if f.endswith(".xyz") or f.endswith(".mol")]
     else:
-        files = directory if isinstance(directory,list) else [directory]
+        files = directory if isinstance(directory, list) else [directory]
 
     picked_structures = []
 
@@ -181,8 +172,8 @@ def select_strutures(directory, without=["deMon.mol","deMon.keep.mol"]):
         if f in without:
             continue
         try:
-            img,info = read_XYZ(join(directory, f), is_charges=False)
-        except Exception as e:
+            img, info = read_XYZ(join(directory, f), is_charges=False)
+        except Exception:
             continue
 
         if img is None or len(img) <= 1:
@@ -190,7 +181,7 @@ def select_strutures(directory, without=["deMon.mol","deMon.keep.mol"]):
 
         index = method(len(img))
         picked_structures += [img[i] for i in index]
-        
+
     return picked_structures
 
 
@@ -225,22 +216,18 @@ def exemple_run_opt(image):
     return mod.results
 
 
-
 if __name__ == "__main__":
-
     # ====================================================
     # Monte Carlo optimization
     exemple_run_mc()
     print(" \u2705 MC DABCO-Argon : Done")
 
-    img,info = read_XYZ(join(".run/ptmc", "deMon.01.mol"), is_charges=False)
+    img, info = read_XYZ(join(".run/ptmc", "deMon.01.mol"), is_charges=False)
     energy = [float(_l.split()[2]) for _l in info]
     index = np.argmin(energy)
 
     print(" The lowest isomer found : ")
-    print(" Isomer :", img[index], " at ",energy[index], " Ha.")
-    
-
+    print(" Isomer :", img[index], " at ", energy[index], " Ha.")
 
     # ====================================================
     # Global optimization with PTMC
@@ -248,22 +235,18 @@ if __name__ == "__main__":
     exemple_run_ptmc(200)
     print(" \u2705 PTMC DABCO-Argon : Done")
 
-    try:
+    if os.path.exists("example/optimized.xyz"):
         os.rmdir("example/optimized.xyz")
-    except:
-        pass
 
-    for img in progressbar(select_strutures(".run/ptmc"), 
-                           size=40,
-                           prefix=" \u23F3 Otimization : "):
-
+    for img in progressbar(select_strutures(".run/ptmc"), size=40, prefix=" \u23f3 Otimization : "):
         res = exemple_run_opt(img)
 
-        write_XYZ("example/optimized.xyz", 
-                  intent="a", 
-                  images=[res["output_geometry"]],
-                  energy=[res["energy"]["energy"]])
+        write_XYZ(
+            "example/optimized.xyz",
+            intent="a",
+            images=[res["output_geometry"]],
+            energy=[res["energy"]["energy"]],
+        )
     print(" \u2705 OPT DABCO-Argon : Done")
-    
 
     sys.exit()

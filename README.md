@@ -74,18 +74,18 @@ DeMonNanoPy expects nested dictionaries. A minimal configuration looks like this
 
 ```python
 parameters = {
-	"DEMON_EXECUTABLE": "~/Documents/dev_deMon/deMon.x",
-	"BASIS": {
-		"PTYPE": "BIO",
-		"SKFILE": "../basis",
-	},
-	"DEMON_PARAMETERS": {
-		"ACTIVE": {
-			"DFTB": {
-				"SCC": True,
-			},
-		},
-	},
+    "DEMON_EXECUTABLE": "~/Documents/dev_deMon/deMon.x",
+    "BASIS": {
+        "PTYPE": "BIO",
+        "SKFILE": "../basis",
+    },
+    "DEMON_PARAMETERS": {
+        "ACTIVE": {
+            "DFTB": {
+                "SCC": True,
+            },
+        },
+    },
 }
 ```
 
@@ -109,41 +109,43 @@ from deMonPy.deMonNano import deMonNano
 
 
 parameters = {
-	"DEMON_EXECUTABLE": "~/Documents/dev_deMon/deMon.x",
-	"BASIS": {
-		"PTYPE": "BIO",
-		"SKFILE": "../basis",
-	},
-	"DEMON_PARAMETERS": {
-		"ACTIVE": {
-			"DFTB": {
-				"SCC": True,
-			},
-		},
-	},
+    "DEMON_EXECUTABLE": "~/Documents/dev_deMon/deMon.x",
+    "BASIS": {
+        "PTYPE": "BIO",
+        "SKFILE": "../basis",
+    },
+    "DEMON_PARAMETERS": {
+        "ACTIVE": {
+            "DFTB": {
+                "SCC": True,
+            },
+        },
+    },
 }
 
 image = Atoms(
-	["O", "H", "H", "O", "H", "H"],
-	positions=np.array([
-		[1.2478, -0.5185, 3.4049],
-		[1.5946, -1.4204, 3.3886],
-		[0.9008, -0.3341, 2.5062],
-		[3.2478, -0.4185, 3.4049],
-		[3.5946, -1.5204, 3.3886],
-		[2.9008, -0.3341, 2.6062],
-	]),
+    ["O", "H", "H", "O", "H", "H"],
+    positions=np.array(
+        [
+            [1.2478, -0.5185, 3.4049],
+            [1.5946, -1.4204, 3.3886],
+            [0.9008, -0.3341, 2.5062],
+            [3.2478, -0.4185, 3.4049],
+            [3.5946, -1.5204, 3.3886],
+            [2.9008, -0.3341, 2.6062],
+        ]
+    ),
 )
 
 calculator = deMonNano(
-	title="CALCULATION DEMONANO",
-	workdir=".run/",
-	**parameters,
+    title="CALCULATION DEMONANO",
+    workdir=".run/",
+    **parameters,
 )
 
 calculator.calculate(
-	symbols=image.symbols,
-	positions=image.positions,
+    symbols=image.symbols,
+    positions=image.positions,
 )
 
 print(calculator.results)
@@ -167,37 +169,39 @@ from deMonPy.deMonNano import Module_DeMonNano
 
 
 parameters = {
-	"DEMON_EXECUTABLE": "~/Documents/dev_deMon/deMon.x",
-	"BASIS": {
-		"PTYPE": "BIO",
-		"SKFILE": "../basis",
-	},
-	"DEMON_PARAMETERS": {
-		"ACTIVE": {
-			"DFTB": {
-				"SCC": True,
-			},
-		},
-	},
+    "DEMON_EXECUTABLE": "~/Documents/dev_deMon/deMon.x",
+    "BASIS": {
+        "PTYPE": "BIO",
+        "SKFILE": "../basis",
+    },
+    "DEMON_PARAMETERS": {
+        "ACTIVE": {
+            "DFTB": {
+                "SCC": True,
+            },
+        },
+    },
 }
 
 image = Atoms(
-	["O", "H", "H", "O", "H", "H"],
-	positions=np.array([
-		[1.2478, -0.5185, 3.4049],
-		[1.5946, -1.4204, 3.3886],
-		[0.9008, -0.3341, 2.5062],
-		[3.2478, -0.4185, 3.4049],
-		[3.5946, -1.5204, 3.3886],
-		[2.9008, -0.3341, 2.6062],
-	]),
+    ["O", "H", "H", "O", "H", "H"],
+    positions=np.array(
+        [
+            [1.2478, -0.5185, 3.4049],
+            [1.5946, -1.4204, 3.3886],
+            [0.9008, -0.3341, 2.5062],
+            [3.2478, -0.4185, 3.4049],
+            [3.5946, -1.5204, 3.3886],
+            [2.9008, -0.3341, 2.6062],
+        ]
+    ),
 )
 
 mod = Module_DeMonNano(
-	module="opt",
-	title="CALCULATION DEMONANO",
-	workdir=".run/",
-	**parameters,
+    module="opt",
+    title="CALCULATION DEMONANO",
+    workdir=".run/",
+    **parameters,
 )
 
 mod(image=image, max=10)
@@ -227,8 +231,8 @@ atoms.calc = DeMonNano(
     parameters={"DFTB": {"SCC": True}},
 )
 
-energy = atoms.get_potential_energy()   # eV
-forces = atoms.get_forces()             # eV / Angstrom
+energy = atoms.get_potential_energy()  # eV
+forces = atoms.get_forces()  # eV / Angstrom
 ```
 
 When forces are requested, the calculator enables the `PRINT GRAD` directive
@@ -270,8 +274,10 @@ pip install -e ".[dev]"
 Please, run the following commande with options:
 
 ```bash
-pytest -vv --tb=short --color=yes --all
+pytest -vv --tb=short --color=yes --all --write-output
 ```
+
+All input and output are available in directory `.run/`
 
 
 

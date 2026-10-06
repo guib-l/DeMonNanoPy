@@ -125,11 +125,7 @@ class TestComparison:
                 "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
-                        "DFTB": {
-                            "SCC": True,
-                            "TOL": 1e-10,
-                            "FHUB": True
-                        },
+                        "DFTB": {"SCC": True, "TOL": 1e-10, "FHUB": True},
                     },
                 },
             }
@@ -151,11 +147,7 @@ class TestComparison:
                 "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
-                        "DFTB": {
-                            "SCC": True,
-                            "TOL": 1e-10,
-                            "FHUB": True
-                        },
+                        "DFTB": {"SCC": True, "TOL": 1e-10, "FHUB": True},
                     },
                 },
             }
@@ -177,11 +169,7 @@ class TestComparison:
                 "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
-                        "DFTB": {
-                            "SCC": True,
-                            "TOL": 1e-10,
-                            "FHUB": True
-                        },
+                        "DFTB": {"SCC": True, "TOL": 1e-10, "FHUB": True},
                     },
                 },
             }
@@ -204,11 +192,7 @@ class TestComparison:
                 "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
                 "DEMON_PARAMETERS": {
                     "ACTIVE": {
-                        "DFTB": {
-                            "SCC": True, 
-                            "TOL": 1e-10, 
-                            "DISP": 2,
-                            "FHUB": True},
+                        "DFTB": {"SCC": True, "TOL": 1e-10, "DISP": 2, "FHUB": True},
                     },
                 },
             }

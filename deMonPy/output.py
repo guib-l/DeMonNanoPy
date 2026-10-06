@@ -157,14 +157,14 @@ class read_output(IOread):
         "DFTB third order Coulomb energy": "3d_coulomb_energy",
     }
     _criteria_mm = {
-        "TOTAL ENERGY                =":"qmmm-energy",
-        "VAN DER WAALS ENERGY":"qmmm-VdW_energy",
-        "ELECTROSTATIC CHARGE ENERGY":"qmmm-electrostatic_energy",
-        "UREY BRADLEY ENERGY":"qmmm-UB_energy",
-        "IMPROPER TORSION ENERGY":"qmmm-improper_torsion_energy",
-        "TORSION ANGLE ENERGY":"qmmm-torsion_angle_energy",
-        "BOND ANGLE ENERGY":"qmmm-bond_angle_energy",
-        "BOND ENERGY":"qmmm-bond_energy",
+        "TOTAL ENERGY                =": "qmmm-energy",
+        "VAN DER WAALS ENERGY": "qmmm-VdW_energy",
+        "ELECTROSTATIC CHARGE ENERGY": "qmmm-electrostatic_energy",
+        "UREY BRADLEY ENERGY": "qmmm-UB_energy",
+        "IMPROPER TORSION ENERGY": "qmmm-improper_torsion_energy",
+        "TORSION ANGLE ENERGY": "qmmm-torsion_angle_energy",
+        "BOND ANGLE ENERGY": "qmmm-bond_angle_energy",
+        "BOND ENERGY": "qmmm-bond_energy",
     }
 
     def __init__(
@@ -314,7 +314,6 @@ class read_output(IOread):
                 start_search = True
         self.complet_results["energy"].update(_state)
 
-
     def get_energies(self, line, criteria="DFTB total energy", start_search=False):
         """Extract energy terms from a single output line.
 
@@ -328,7 +327,7 @@ class read_output(IOread):
         """
 
         _energy = {}
-        
+
         _criteria_energy_str_bis = self._criteria_energy_str
 
         if "mm" in self.flags:
@@ -970,7 +969,7 @@ class read_output(IOread):
         if "doforces" in self.flags:
             forces = []
             filename = os.path.join(self.workdir, "forces.out")
-            with open(filename) as fd:
+            with open(filename, "r") as fd:
                 for i, line in enumerate(fd.readlines()):
                     if i == 0:
                         continue

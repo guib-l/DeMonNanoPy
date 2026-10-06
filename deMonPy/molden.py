@@ -22,112 +22,121 @@ def convert_float(val, safe=False):
 
 def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=True):
     info = []
-    lines = fileobj.readlines()
-    if lines[0] == "\n":
-        lines = lines[1:]
-
     images = []
 
+    lines = fileobj.readlines()
+    if lines and lines[0] == "\n":
+        lines = lines[1:]
+
     nbmol = 0
-    periodic = False
+    i = 0
+    nlines = len(lines)
 
-    while len(lines) > 0:
-        symbols = []
-        positions, charges, veloc = [], [], []
-        natoms = int(lines.pop(0))
-        comment = lines[0]
+    while i < nlines:
+        natoms = int(lines[i])
+        i += 1
 
-        if not velocities:
-            info.append(comment)
-            lines.pop(0)  # Comment line; ignored
-        else:
-            comment = lines.pop(0)  # Comment line; ignored
-            # print(comment.split()[2:])
-
-            _values = list(map(float, comment.split()[2:]))
-            # print(_values)
-            info.append([*_values[:4]])
-
-        nread = natoms
-        while nread > 0:
-            if len(lines[0].split()) == 1:
-                break
-            line = lines.pop(0)
-
-            if is_charges:
-                try:
-                    symbol, x, y, z, c = line.split()[:5]
-                except ValueError:
-                    symbol, x, y, z = line.split()[:4]
-                    c = 0.0
-                symbol = symbol.lower().capitalize()
-                symbols.append(symbol)
-                positions.append([float(x), float(y), float(z)])
-                charges.append(float(c))
-                if velocities:
-                    vx, vy, vz = line.split()[5:8]
-                    veloc.append([float(vx), float(vy), float(vz)])
-            else:
-                symbol, x, y, z = line.split()[:4]
-                symbol = symbol.lower().capitalize()
-                symbols.append(symbol)
-                positions.append([float(x), float(y), float(z)])
-                charges.append(0.00)
-
-            nread -= 1
-
-        true_atoms = np.array(symbols) != "Xx"
-        _positions = np.array(positions)[true_atoms]
-        _symbols = np.array(symbols)[true_atoms]
-        charges = np.array(charges)[true_atoms]
+        comment = lines[i]
+        i += 1
 
         if velocities:
-            veloc = np.array(veloc)[true_atoms]
-
-        lattice = (np.array(positions)[np.array(symbols) == "Xx"])[:-1]
-
-        if len(lattice) > 0:
-            periodic = True
-            cell = np.zeros((3, 3))
-            positions = _positions
-            symbols = _symbols
-
-            print("[WARNING] : Not implemented reading cell in molden files.", file=sys.stdout)
+            info.append([float(x) for x in comment.split()[2:6]])
         else:
+            info.append(comment)
+
+        symbols = []
+        positions = []
+        charges = []
+        veloc = [] if velocities else None
+
+        for _ in range(natoms):
+            line = lines[i]
+
+            if len(line.split()) == 1:
+                break
+
+            i += 1
+            fields = line.split()
+
+            symbols.append(fields[0].capitalize())
+            positions.append(
+                [
+                    float(fields[1]),
+                    float(fields[2]),
+                    float(fields[3]),
+                ]
+            )
+
+            if is_charges:
+                charges.append(float(fields[4]) if len(fields) > 4 else 0.0)
+
+                if velocities:
+                    veloc.append(
+                        [
+                            float(fields[5]),
+                            float(fields[6]),
+                            float(fields[7]),
+                        ]
+                    )
+            else:
+                charges.append(0.0)
+
+        mask = [symbol != "Xx" for symbol in symbols]
+        has_xx = not all(mask)
+
+        if has_xx:
+            periodic = True
+
+            # xx_positions = [
+            #    pos for pos, is_real in zip(positions, mask)
+            #    if not is_real
+            # ]
+
+            # lattice = xx_positions[:-1]
+            cell = np.zeros((3, 3))
+            periodic = True
+        else:
+            # lattice = None
             cell = None
             periodic = False
-            lattice = None
 
-        if nread == 0:
-            if ase and ase_obj:
-                img = ase.Atoms(
-                    symbols,
-                    positions=positions,
-                    charges=charges,
-                    velocities=np.array(veloc) / ase.units.fs if velocities else None,
-                    cell=cell,
-                    pbc=periodic,
-                )
-            elif np:
-                # No ASE available: keep raw velocities (cannot convert to
-                # ASE internal units without ``ase.units.fs``).
-                img = {
-                    "symbols": np.array(symbols),
-                    "positions": np.array(positions),
-                    "charges": np.array(charges),
-                    "velocities": np.array(veloc) if velocities else None,
-                    "cell": cell,
-                    "pbc": periodic,
-                }
-            else:
-                img = {
-                    "symbols": symbols,
-                    "positions": positions,
-                    "charges": charges,
-                    "velocities": veloc if velocities else None,
-                    "cell": cell,
-                    "pbc": periodic,
-                }
+        # Filter Xx atoms
+        symbols = [s for s, keep_atom in zip(symbols, mask) if keep_atom]
+        positions = [p for p, keep_atom in zip(positions, mask) if keep_atom]
+        charges = [c for c, keep_atom in zip(charges, mask) if keep_atom]
+
+        if velocities:
+            veloc = [v for v, keep_atom in zip(veloc, mask) if keep_atom]
+
+        if ase and ase_obj:
+            img = ase.Atoms(
+                symbols,
+                positions=positions,
+                charges=charges,
+                velocities=(np.asarray(veloc) / ase.units.fs if velocities else None),
+                cell=cell,
+                pbc=periodic,
+            )
+
+        elif np:
+            img = {
+                "symbols": np.asarray(symbols),
+                "positions": np.asarray(positions),
+                "charges": np.asarray(charges),
+                "velocities": (np.asarray(veloc) if velocities else None),
+                "cell": cell,
+                "pbc": periodic,
+            }
+
+        else:
+            img = {
+                "symbols": symbols,
+                "positions": positions,
+                "charges": charges,
+                "velocities": veloc if velocities else None,
+                "cell": cell,
+                "pbc": periodic,
+            }
 
         nbmol += 1
 
@@ -135,7 +144,7 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=T
             images.append(img)
 
     # print(" \u2705 Loaded {} elements from XYZ file.".format(nbmol,))
-    return images, np.array(info)
+    return images, np.asarray(info)
 
 
 def read_XYZ(filename, **kwargs):
@@ -144,7 +153,9 @@ def read_XYZ(filename, **kwargs):
     return temp
 
 
-def write_xyz_ext(fileobj, images, charges=None, energy=None, speed=None, comment='', fmt='%22.15f'):
+def write_xyz_ext(
+    fileobj, images, charges=None, energy=None, speed=None, comment="", fmt="%22.15f"
+):
     """
     Write XYZ file with additional information.
     Parameters
@@ -162,50 +173,59 @@ def write_xyz_ext(fileobj, images, charges=None, energy=None, speed=None, commen
     fmt : str, optional
         Format string for the coordinates. Default is '%22.15f'.
     """
-    
+
     comment = comment.rstrip()
 
-    if '\n' in comment:
-        raise ValueError('Comment line should not have line breaks.')
-    
+    if "\n" in comment:
+        raise ValueError("Comment line should not have line breaks.")
+
     nImg = len(images)
     if charges is None:
-        charges = [None,] * nImg
+        charges = [
+            None,
+        ] * nImg
     if energy is None:
-        energy = [None,] * nImg
+        energy = [
+            None,
+        ] * nImg
 
-    for atoms,charge,energie in zip(images,charges,energy):
+    for atoms, charge, energie in zip(images, charges, energy):
         natoms = len(atoms)
-    
+
         if charge is None:
-            charge = [0.,] * natoms
+            charge = [
+                0.0,
+            ] * natoms
 
-        fileobj.write('%s \n'%natoms)
-        fileobj.write('energy (Ha) : %s | %s\n' % (energie, comment))
+        fileobj.write("%s \n" % natoms)
+        fileobj.write("energy (Ha) : %s | %s\n" % (energie, comment))
         for s, (x, y, z), c in zip(atoms.symbols, atoms.positions, charge):
-            fileobj.write('%-2s %s %s %s %s\n' % (s, fmt % x, fmt % y, fmt % z, fmt % c ))
+            fileobj.write("%-2s %s %s %s %s\n" % (s, fmt % x, fmt % y, fmt % z, fmt % c))
 
 
-def write_XYZ(filename, images, intent='w',**kwargs):
-    if not isinstance(images,list):
+def write_XYZ(filename, images, intent="w", **kwargs):
+    if not isinstance(images, list):
         images = [images]
-    with open(filename,intent) as fd:
-        write_xyz_ext(fd, images,**kwargs)
+    with open(filename, intent) as fd:
+        write_xyz_ext(fd, images, **kwargs)
     return None
 
 
-
-
 # *************************** \
-def progressbar(it, prefix="", size=80, out=sys.stdout): # Python3.3+
+def progressbar(it, prefix="", size=80, out=sys.stdout):  # Python3.3+
     count = len(it)
+
     def show(j):
-        x = int(size*j/count)
-        print("{}[{}{}] {}/{}".format(prefix, u'█'*x, "."*(size-x), j, count), 
-                end='\r', file=out, flush=True)
+        x = int(size * j / count)
+        print(
+            "{}[{}{}] {}/{}".format(prefix, "█" * x, "." * (size - x), j, count),
+            end="\r",
+            file=out,
+            flush=True,
+        )
+
     show(0)
     for i, item in enumerate(it):
         yield item
-        show(i+1)
+        show(i + 1)
     print("\n", flush=True, file=out)
-

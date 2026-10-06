@@ -1,4 +1,5 @@
 import copy
+import shutil
 
 # import configs
 import numpy as np
@@ -718,7 +719,6 @@ class TestDftb:
 
     @pytest.mark.beta
     def test_scc_dftb3(self):
-        import shutil
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
@@ -746,7 +746,6 @@ class TestDftb:
     @pytest.mark.beta
     @pytest.mark.forces
     def test_dftb3_grad(self):
-        import shutil
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(
@@ -777,7 +776,6 @@ class TestDftb:
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters_bis)
 
         shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
-
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
         results = mod.results
@@ -785,6 +783,7 @@ class TestDftb:
         assert np.allclose(results["energy"]["energy"], -8.08604681, atol=1e-7)
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
         grad = compute_numgrad(
             symbols=image.symbols, positions=image.positions, calculator=dem, delta=0.001
         )
@@ -957,6 +956,7 @@ class TestDftb:
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
         results = mod.results
@@ -991,6 +991,7 @@ class TestDftb:
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
+        shutil.copy2("test/data_test/3ord_param", f"{WORKDIR}/3ord_param")
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
         results = mod.results

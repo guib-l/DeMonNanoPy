@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # Import standard de python3
+import copy
 import os
 
 import numpy as np
@@ -57,7 +58,7 @@ def _parse_range_string(range_string: str) -> list[int]:
     Returns:
         list[int]: Expanded integer values.
     """
-    if range_string=="":
+    if range_string == "":
         return []
     if not range_string:
         return []
@@ -295,7 +296,7 @@ class write_input:
         self.io_lines["MDSTEP"] = self.handler_writen(params.get("MDSTEP"))
 
         self.io_lines["TIMESTEP"] = [str(params.get("TIMESTEP"))]
-        
+
         if "MDCONSTRAINTS" in params.keys():
             self.io_lines["MDCONSTRAINTS"] = self._write_constraint(params.get("MDCONSTRAINTS"))
 
@@ -349,6 +350,7 @@ class write_input:
                 params.update({"CM3POT": False})
                 params.update({"CM3INTER": True})
 
+        # params = dict(sorted(params.items(), key=lambda x: x[0]))
         self.io_lines["DFTB"] = self.handler_writen(params, bind_str="=")
 
     @assert_flags("paths")
@@ -383,8 +385,17 @@ class write_input:
 
         if params is None:
             params = self.parameters["RTTDDFTB"]
+        _params = copy.copy(params)
 
-            self.io_lines["RTTDDFTB"] = self.handler_writen(params, bind_str="=")
+        position = _params.pop("POS-PROJ", None)
+        bmax = _params.pop("B-PARAM", None)
+
+        self.io_lines["RTTDDFTB"] = self.handler_writen(_params, bind_str="=")
+
+        if position is not None:
+            self.io_lines["RTTDDFTB"].append(f"\n{position[0]} {position[1]} {position[2]}")
+        if bmax is not None:
+            self.io_lines["RTTDDFTB"].append(f"\n{bmax[0]} {bmax[1]} {bmax[2]}")
 
     @assert_flags("rg")
     def _write_rg(self, params=None):
@@ -470,7 +481,7 @@ class write_input:
                 "",
             ] * len(symbols)
 
-        #if "qmmm" in self.flags:
+        # if "qmmm" in self.flags:
         #    raise NotImplementedError("Flags QMMM set True")
 
         if "rg" in self.flags:
@@ -659,18 +670,6 @@ class write_input:
 
         self.io_lines["CUTSYS"].append(txt)
 
-    @assert_flags("rttddftb")
-    def _write_rttddftb(self, params=None):
-        """Write TD-DFTB response options.
-
-        Args:
-            params: TD-DFTB parameter value or block.
-        """
-        if params is None:
-            params = self.parameters["RTTDDFTB"]
-
-        self.io_lines["RTTDDFTB"] = self.handler_writen(params)
-
     @assert_flags("td-dftb")
     def _write_tddftb(self, params=None):
         """Write TD-DFTB response options.
@@ -732,22 +731,19 @@ class write_input:
         typemm = _params.pop("TYPEMM")
         forcefield = _params.pop("FORCEFIELD")
 
-        self.io_lines["QMMM"] += self.handler_writen(_params,bind_str='=')
-        self.io_lines["FORCEFIELD"] = self.handler_writen(forcefield,bind_str='=')
+        self.io_lines["QMMM"] += self.handler_writen(_params, bind_str="=")
+        self.io_lines["FORCEFIELD"] = self.handler_writen(forcefield, bind_str="=")
 
         self.complement = [
             "",
         ] * int(len(symbols))
         for idx in range(len(symbols)):
-
-            self.complement[idx] = \
-                f"Q=0.0 QMMM=MM TYPEMM={typemm[symbols[idx]]}"
-
+            self.complement[idx] = f"Q=0.0 QMMM=MM TYPEMM={typemm[symbols[idx]]}"
 
     @assert_flags("qmmm")
     def _write_qmmm(self, params=None, symbols=None):
         """Write QM/MM configuration and atom partitioning.
-        
+
         Args:
             params: QM/MM parameter block.
         """
@@ -764,18 +760,18 @@ class write_input:
             self.io_lines["QMMM"] = ["QM"]
         else:
             self.io_lines["QMMM"] = ["QM/MM"]
-            
+
         qm = _parse_range_string(txt_qm)
         mm = _parse_range_string(txt_mm)
 
-        typemm = np.zeros(len(qm)+len(mm))
+        typemm = np.zeros(len(qm) + len(mm))
         _typemm = _params.pop("TYPEMM")
-        if isinstance(_typemm,dict):
+        if isinstance(_typemm, dict):
             assert symbols is not None, "Not available symbols"
             for idx in qm:
-                typemm[idx-1] = int(_typemm[symbols[idx-1]])
+                typemm[idx - 1] = int(_typemm[symbols[idx - 1]])
             for idx in mm:
-                typemm[idx-1] = int(_typemm[symbols[idx-1]])
+                typemm[idx - 1] = int(_typemm[symbols[idx - 1]])
         else:
             typemm = _typemm
 
@@ -783,9 +779,8 @@ class write_input:
 
         charges = _params.pop("CHARGES")
 
-        self.io_lines["QMMM"] += self.handler_writen(_params,bind_str='=')
-        self.io_lines["FORCEFIELD"] = self.handler_writen(forcefield,bind_str='=')
-
+        self.io_lines["QMMM"] += self.handler_writen(_params, bind_str="=")
+        self.io_lines["FORCEFIELD"] = self.handler_writen(forcefield, bind_str="=")
 
         self.complement = [
             "",
@@ -795,13 +790,11 @@ class write_input:
             charges = np.zeros(sum(qm + mm))
 
         for idx in qm:
-            self.complement[idx-1] = \
-                f"QMMM=QM Q={charges[idx-1]}  TYPEMM={int(typemm[idx-1])}"
+            self.complement[idx - 1] = (
+                f"QMMM=QM Q={charges[idx - 1]}  TYPEMM={int(typemm[idx - 1])}"
+            )
         for idx in mm:
-            self.complement[idx-1] = \
-                f"QMMM=MM Q={charges[idx-1]} TYPEMM={int(typemm[idx-1])}"
-
-
+            self.complement[idx - 1] = f"QMMM=MM Q={charges[idx - 1]} TYPEMM={int(typemm[idx - 1])}"
 
     @assert_flags("print")
     def _write_debug(self, params=None):

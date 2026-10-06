@@ -178,6 +178,7 @@ class deMonNano(BasicCalculation):
         properties=None,
         basis=None,
         ase_obj=True,
+        clean_repository=True,
         **parameters,
     ):
         """Initialise a deMonNano calculator.
@@ -202,6 +203,7 @@ class deMonNano(BasicCalculation):
                 ``DEMON_WORKDIR``, ``DEMON_PARAMETERS`` and
                 ``DEMON_MODULE``.
         """
+
         if properties is None:
             properties = ["energy"]
         if basis is None:
@@ -242,14 +244,22 @@ class deMonNano(BasicCalculation):
             ase_obj=ase_obj,
         )
 
+        if clean_repository:
+            self.clean_workdir()
+
     _ARTIFACT_PATTERNS = (
         "deMon.inp",
         "deMon.out",
         "deMon.mol",
         "deMon.coef",
+        "deMon.quat",
+        "deMon.dip",
         "deMon.rst",
+        "deMon.*.quat",
         "deMon.*.mol",
         "*.log",
+        "FFDS",
+        "3ord_param",
     )
 
     def clean_workdir(self):
@@ -262,14 +272,11 @@ class deMonNano(BasicCalculation):
         from pathlib import Path
 
         wd = Path(self.workdir).expanduser().resolve()
-        forbidden = {Path.home().resolve(), Path(wd.anchor).resolve()}
-        if wd in forbidden:
-            raise RuntimeError(f"Refusing to clean workdir {wd}")
 
         for pattern in self._ARTIFACT_PATTERNS:
             for f in wd.glob(pattern):
                 if f.is_file():
-                    f.unlink()
+                    os.remove(f)
 
     def reset(self):
         """Clear stored states, results and active flags.
@@ -333,7 +340,6 @@ class deMonNano(BasicCalculation):
         index=0,
         read_charges=False,
         extract_debug=False,
-        clean_repository=True,
         **kwargs,
     ):
         """Run a full single-point (or flagged) calculation.
@@ -354,8 +360,7 @@ class deMonNano(BasicCalculation):
                 snapshot.  Defaults to ``0``.
             **kwargs: Reserved for future calculation options.
         """
-
-        self.write_input(symbols, positions, cell=cell, kpts=kpts, clean=clean_repository)
+        self.write_input(symbols, positions, cell=cell, kpts=kpts)
 
         self.execute(ignore_fails=False)
 
@@ -371,7 +376,7 @@ class deMonNano(BasicCalculation):
             },
         )
 
-    def write_input(self, symbols, geometry, cell=None, kpts=None, clean=True):
+    def write_input(self, symbols, geometry, cell=None, kpts=None):
         """Assemble and write the ``deMon.inp`` file.
 
         Every parameter and module section guarded by
@@ -386,9 +391,6 @@ class deMonNano(BasicCalculation):
             geometry: Array-like of shape ``(N, 3)`` with Cartesian
                 coordinates written to the ``GEOMETRY`` section.
         """
-
-        if clean:
-            self.clean_workdir()
 
         # Parameters
         self._wi._write_dftb()

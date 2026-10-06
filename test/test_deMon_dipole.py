@@ -68,7 +68,7 @@ class TestFreq:
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
             {
                 "DIPOLE": {
-                    "OUTFILE": False,
+                    "OUTFILE": True,
                 },
                 "WMULL": {
                     "BONDPARAMS": {

@@ -1,41 +1,36 @@
-import numpy as np
-import os,sys
+import os
 import shutil
-import pytest
 from pathlib import Path
 
-
+import numpy as np
+import pytest
 
 
 def pytest_addoption(parser):
-    parser.addoption(
-        "--optional", action="store_true", default=False, help="run optional tests"
-    )
-    parser.addoption(
-        "--beta", action="store_true", default=False, help="run beta-features tests"
-    )
+    parser.addoption("--optional", action="store_true", default=False, help="run optional tests")
+    parser.addoption("--beta", action="store_true", default=False, help="run beta-features tests")
     parser.addoption(
         "--references", action="store_true", default=False, help="run references-features tests"
     )
     parser.addoption(
         "--forces", action="store_true", default=False, help="run forces-features tests"
     )
-    parser.addoption(
-        "--optim", action="store_true", default=False, help="run optim-features tests"
-    )
+    parser.addoption("--optim", action="store_true", default=False, help="run optim-features tests")
     parser.addoption(
         "--dynamics", action="store_true", default=False, help="run dynamics-features tests"
     )
-    parser.addoption(
-        "--freq", action="store_true", default=False, help="run freq-features tests"
-    )
-    parser.addoption(
-        "--mc", action="store_true", default=False, help="run mc-features tests"
-    )
-    parser.addoption(
-        "--3OB", action="store", default=None, help="3OB parameters required"
-    )
+    parser.addoption("--freq", action="store_true", default=False, help="run freq-features tests")
+    parser.addoption("--slow", action="store_true", default=False, help="run slow tests")
+    parser.addoption("--mc", action="store_true", default=False, help="run mc-features tests")
+    parser.addoption("--3OB", action="store", default=None, help="3OB parameters required")
     parser.addoption("--all", action="store_true")
+
+    parser.addoption(
+        "--write-output",
+        action="store_true",
+        default=False,
+        help="write all input/output files",
+    )
 
 
 @pytest.fixture
@@ -46,7 +41,6 @@ def parameters_3ob(request):
         pytest.skip("No 3OB parameters provided with --3OB")
 
     return chemin
-
 
 
 def pytest_collection_modifyitems(config, items):
@@ -60,7 +54,6 @@ def pytest_collection_modifyitems(config, items):
         config.option.optim = True
         config.option.mc = True
         config.option.freq = True
-
 
     if not config.getoption("--optional"):
         skip_optional = pytest.mark.skip(reason="need --run-optional option")
@@ -110,6 +103,12 @@ def pytest_collection_modifyitems(config, items):
             if "freq" in item.keywords:
                 item.add_marker(skip_optional)
 
+    if not config.getoption("--slow"):
+        skip_optional = pytest.mark.skip(reason="need --slow option")
+        for item in items:
+            if "slow" in item.keywords:
+                item.add_marker(skip_optional)
+
 
 BOHR = 0.529177210544
 
@@ -143,15 +142,25 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
 
-    if report.when == "call" and report.failed:
-        
-        workdir = getattr(item.module, "WORKDIR", None)
+    if report.when != "call":
+        return
 
-        source = Path(workdir)
-        destination = Path(os.path.join(workdir, f"failed_{item.name}"))
+    if not item.config.getoption("--write-output"):
+        return
 
-        destination.mkdir(exist_ok=True)
+    workdir = getattr(item.module, "WORKDIR", None)
+    if not workdir:
+        return
 
-        for fichier in source.iterdir():
-            if fichier.is_file():
-                shutil.copy2(fichier, destination / fichier.name)
+    source = Path(workdir)
+    status = "failed" if report.failed else "passed"
+    destination = source / f"{status}_{item.name}"
+
+    if destination.exists():
+        shutil.rmtree(destination)
+
+    os.makedirs(destination, exist_ok=True)
+
+    for fichier in source.iterdir():
+        if fichier.is_file():
+            shutil.copy2(fichier, destination / fichier.name)
