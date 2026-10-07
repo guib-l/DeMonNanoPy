@@ -44,7 +44,7 @@ def example_argon_cluster():
             "RG": {"COUPLING": "ARGON", "ALPHARG": 11.07, "FILENAME": None},
         }
     )
-    images, ref = read_XYZ("example/data/argon-test.mol")
+    images, ref = read_XYZ("example/data_test/argon-test.mol")
 
     size, energies = [], []
     for i, image in enumerate(images):
