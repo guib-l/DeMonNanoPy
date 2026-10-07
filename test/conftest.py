@@ -158,7 +158,7 @@ def pytest_runtest_makereport(item, call):
     if destination.exists():
         shutil.rmtree(destination)
 
-    status_bis = "failed" if status=="passed" else "passed"
+    status_bis = "failed" if status == "passed" else "passed"
     destination_bis = source / f"{status_bis}_{item.name}"
     if destination_bis.exists():
         shutil.rmtree(destination_bis)

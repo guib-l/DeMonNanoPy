@@ -227,10 +227,10 @@ class TestMDbasic:
         )
 
         thermalize_momenta(
-            atoms=image, 
-            temperature_K=482, 
-            exact_temperature=True, 
-            rng=np.random.RandomState(314159262)
+            atoms=image,
+            temperature_K=482,
+            exact_temperature=True,
+            rng=np.random.RandomState(314159262),
         )
         velocities = image.get_velocities() * ase.units.fs
 
@@ -283,15 +283,13 @@ class TestMDbasic:
     def test_md_wall_cart(self):
 
         import ase
-        from ase.md.velocitydistribution import (
-            thermalize_momenta
-        )
+        from ase.md.velocitydistribution import thermalize_momenta
 
         thermalize_momenta(
-            atoms=image, 
-            temperature_K=482, 
-            exact_temperature=True, 
-            rng=np.random.RandomState(314159262)
+            atoms=image,
+            temperature_K=482,
+            exact_temperature=True,
+            rng=np.random.RandomState(314159262),
         )
         image.get_velocities() * ase.units.fs
 

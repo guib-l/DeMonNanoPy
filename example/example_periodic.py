@@ -51,7 +51,7 @@ def _save(fig, filename):
 
 def exemple_run_kpt():
 
-    print("="*40)
+    print("=" * 40)
     print(" K-points vs energy definiton")
 
     cell = np.array(
@@ -92,7 +92,7 @@ def exemple_run_kpt():
 
 def scan_graphite_D2():
 
-    print("="*40)
+    print("=" * 40)
     print(" SCAN of energy along z-axis : graphite-D2")
 
     cell = np.array(
@@ -147,7 +147,7 @@ def scan_graphite_D2():
 
 def scan_graphite_D1():
 
-    print("="*40)
+    print("=" * 40)
     print(" SCAN of energy along z-axis : graphite-D1")
 
     cell = np.array(
@@ -201,7 +201,7 @@ def scan_graphite_D1():
 
 def example_periodic_graphene():
 
-    print("="*40)
+    print("=" * 40)
     print(" Example single-point graphene")
 
     cell = np.array(
@@ -230,7 +230,7 @@ def example_periodic_graphene():
 
 
 def example_opt_graphene_D2():
-    print("="*40)
+    print("=" * 40)
     print(" Optimization Cell/Positions for graphene-D2")
 
     from scipy.optimize import minimize
@@ -290,7 +290,7 @@ def example_opt_graphene_D2():
 
 
 def example_opt_graphene_D1():
-    print("="*40)
+    print("=" * 40)
     print(" Optimization Cell/Positions for graphene-D1")
 
     from scipy.optimize import minimize
@@ -351,7 +351,6 @@ def example_opt_graphene_D1():
 
 
 if __name__ == "__main__":
-    
     exemple_run_kpt()
 
     example_periodic_graphene()

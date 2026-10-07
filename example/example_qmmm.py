@@ -661,11 +661,10 @@ if __name__ == "__main__":
     import sys
 
     try:
-        parameters_3ob = str(sys.argv[1]) 
-    except:
+        parameters_3ob = str(sys.argv[1])
+    except IndexError:
         txt = "Please, run `python3 example/example_qmmm.py <3OB-basis directory>`."
-        raise FileNotFoundError(f"Parameters not found.\n {txt}")
-        
+        raise FileNotFoundError(f"\n > Parameters not found.\n > {txt}\n")
 
     example_qmmm_amoniac(parameters_3ob)
     example_qmmm_water(parameters_3ob)

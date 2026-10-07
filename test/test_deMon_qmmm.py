@@ -177,7 +177,7 @@ class TestDftbQMMM:
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
         results = mod.results
-        charges = results["output_geometry"].get_initial_charges()
+        # charges = results["output_geometry"].get_initial_charges()
 
         assert np.allclose(results["energy"]["qmmm-energy"], 0.268095513, atol=1e-7)
 
@@ -601,7 +601,7 @@ class TestDftbQMMM:
         mod.calculate(symbols=image.symbols, positions=image.positions)
 
         results = mod.results
-        charges = results["output_geometry"].get_initial_charges()
+        # charges = results["output_geometry"].get_initial_charges()
 
         assert np.allclose(results["energy"]["energy"], -3.81264238, atol=1e-7)
 

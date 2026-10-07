@@ -433,7 +433,7 @@ class read_output(IOread):
                 sl = line.split()
                 num = int(sl[2])
                 sub = float(sl[4])
-                wgh,chrg_mulliken,chrg_cm3 = [],[],[]
+                wgh, chrg_mulliken, chrg_cm3 = [], [], []
                 state = {f"state {num}": {"energy": sub}}
 
             if self.is_inside("weight of conf", line) and state_search:
@@ -448,7 +448,7 @@ class read_output(IOread):
                 sl = line.split()
                 chrg = chrg_mulliken
                 label = "charges_mulliken"
-                if len(chrg_mulliken)==len(wgh):
+                if len(chrg_mulliken) == len(wgh):
                     chrg = chrg_cm3
                     label = "charges_cm3"
                 try:
@@ -457,8 +457,6 @@ class read_output(IOread):
                     chrg.append(None)
 
                 state[f"state {num}"].update({label: chrg})
-
-
 
             self.complet_results["states"].update(state)
 
@@ -469,9 +467,13 @@ class read_output(IOread):
             if len(self.complet_results["states"].keys()) > 0:
                 self.complet_results.pop("energy")
 
-                idx = np.argmin([state["energy"] \
-                            for k, state in self.complet_results["states"].items()]) + 1
-                
+                idx = (
+                    np.argmin(
+                        [state["energy"] for k, state in self.complet_results["states"].items()]
+                    )
+                    + 1
+                )
+
                 energies = self.complet_results["states"][f"state {idx}"]["energy"]
                 self.complet_results["energy"] = {"energy": energies}
 
@@ -481,7 +483,6 @@ class read_output(IOread):
                 if "charges_cm3" in self.complet_results["states"][f"state {idx}"]:
                     charges = self.complet_results["states"][f"state {idx}"]["charges_cm3"]
                     self.complet_results["charges"].update({"charges cm3": charges})
-
 
     @assert_flags("td-dftb")
     def read_tddftb(self):

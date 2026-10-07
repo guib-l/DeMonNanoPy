@@ -19,7 +19,7 @@ parameters = {
                 "SCC": True,
                 "DISP": 2,
                 "MAX": 1000,
-                #"TOL": 1e-5,
+                # "TOL": 1e-5,
             },
             "CM3": {"BONDPARAMS": {"C H": 0.098, "O H": 0.13, "O C": 0.0}},
         },
@@ -169,7 +169,7 @@ class TestWaterBenzen:
         results = mod.results
 
         modes = [mod["frequency"] for mod in results["frequency"]]
-        
+
         assert np.allclose(modes[10], 657 + 4, atol=1.0)
         assert np.allclose(modes[31], 3012 - 34, atol=1.0)
         assert np.allclose(modes[32], 3012 - 33, atol=1.0)

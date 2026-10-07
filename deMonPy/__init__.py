@@ -51,7 +51,7 @@ def configure_from_file(path="global.json"):
         config = json.load(f)
 
     basis_str = os.path.abspath(config.get("DEMON_BASIS"))
-    #if len(basis_str) > 40:
+    # if len(basis_str) > 40:
     #    basis_str = os.path.relpath(basis_str)
 
     configure(

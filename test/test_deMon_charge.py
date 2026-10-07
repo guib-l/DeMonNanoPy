@@ -38,7 +38,6 @@ image = Atoms(
 WORKDIR = ".run/charges/"
 
 
-
 class TestCharges:
     def test_charged(self):
 

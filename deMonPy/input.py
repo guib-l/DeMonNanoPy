@@ -548,9 +548,10 @@ class write_input:
     def _write_bondparams(self, symbols, params):
 
         self.io_lines["BONDPARAM"] = []
+
         try:
             _bondparams = params["BONDPARAMS"].items()
-        except:
+        except KeyError:
             _bondparams = params["BONDPARAM"].items()
 
         for key, item in _bondparams:

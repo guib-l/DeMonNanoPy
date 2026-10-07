@@ -113,7 +113,6 @@ def exemple_run_cluster_pyrene():
 
 
 def exemple_run_pyrene():
-    import os,sys
     print(" =======================================")
 
     for elm in range(1, 8):
@@ -149,12 +148,11 @@ def exemple_run_pyrene():
         energy = results["energy"]
 
         charges = results["charges"]["charges cm3"]
-        for i,chrg in enumerate(charges):
+        for i, chrg in enumerate(charges):
             print(f"  - Charge (CM3) n°{i} : {chrg}")
 
         print(f" Structure with {elm} pyrenes")
         print(f" > Energy totale     : {energy['energy']}")
-
 
 
 if __name__ == "__main__":
