@@ -4,6 +4,9 @@ import ase
 import matplotlib.pyplot as plt
 import numpy as np
 
+import ase 
+from ase import Atoms
+
 import deMonPy
 from deMonPy.deMonNano import deMonNano
 from deMonPy.molden import progressbar, read_XYZ
@@ -23,6 +26,35 @@ base_parameters = {
 
 WORKDIR = ".run/examples-ci/"
 
+positions = np.array(
+    [
+        [0.713108 ,0.000000, 0.000000 ],
+        [-0.713108, 0.000000, 0.000000],
+        [1.427512 ,1.232835, 0.000000 ],
+        [-1.427512, 1.232835, 0.000000],
+        [-1.427512, -1.232835, 0.00000],
+        [1.427512 ,-1.232835, 0.000000],
+        [2.831510 ,1.208118, 0.000000 ],
+        [-2.831510, 1.208118, 0.000000],
+        [-2.831510, -1.208118, 0.00000],
+        [2.831510 ,-1.208118, 0.000000],
+        [0.680302 ,2.459268 ,0.000000 ],
+        [-0.680302, 2.459268 ,0.0000000],
+        [-0.680302, -2.459268, 0.00000],
+        [0.680302 ,-2.459268, 0.0000000],
+        [3.520334 ,0.000000 ,0.000000 ],
+        [-3.520334, 0.000000, 0.000000],
+        [4.622312 ,0.000000 ,0.000000 ],
+        [-4.622312, 0.000000 ,0.000000],
+        [-3.392693, 2.156285 ,0.000000],
+        [-3.392693, -2.156285, 0.000000],
+        [3.392693 ,-2.156285 ,0.0000008],
+        [3.392693 ,2.156285 ,0.000000 ],
+        [1.230247 ,3.414570 ,0.000000 ],
+        [-1.230247, -3.41457, 0.00000],
+        [1.230247 ,-3.414570, 0.000000],
+        [-1.230247, 3.414570, 0.000000],
+    ])
 
 def _save(fig, filename):
     fig.tight_layout()
@@ -33,7 +65,10 @@ def _save(fig, filename):
 
 def exemple_ci_pyrene():
 
-    images, _ = read_XYZ("./example/data_test/pyrene-2_cation.xyz")
+    atoms = Atoms( ["C"] * 16 + ["H"] * 10, positions=positions)
+    tmp_atoms = atoms.copy()
+    tmp_atoms.positions[:,2] = 3.4
+    images = [atoms + tmp_atoms]
 
     parameter_config = copy.deepcopy(base_parameters)
     parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
