@@ -218,7 +218,7 @@ def exemple_exci_pyrene_rot(distance=3.2):
 
     fig, ax = plt.subplots(figsize=(6.5, 6.5))
 
-    lowest = np.min((excci)[:, -1])
+    lowest = np.min((excci)[:, 0])
 
     for ig in range(len(excci)):
         ax.plot(angle, (excci[ig] - lowest) * ase.units.Hartree, color="black")
