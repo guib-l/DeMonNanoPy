@@ -217,18 +217,20 @@ class TestMDbasic:
         assert diff < 0.1, "Starting temperature of RAN parameters is not tacken into account"
 
         traj[0].get_velocities()
-        # print( traj[0].get_angular_momentum( ) )
 
     @pytest.mark.dynamics
     def test_md_velocity(self):
 
         import ase
         from ase.md.velocitydistribution import (
-            MaxwellBoltzmannDistribution,
+            thermalize_momenta,
         )
 
-        MaxwellBoltzmannDistribution(
-            atoms=image, temperature_K=482, force_temp=True, rng=np.random.RandomState(314159262)
+        thermalize_momenta(
+            atoms=image, 
+            temperature_K=482, 
+            exact_temperature=True, 
+            rng=np.random.RandomState(314159262)
         )
         velocities = image.get_velocities() * ase.units.fs
 
@@ -282,11 +284,14 @@ class TestMDbasic:
 
         import ase
         from ase.md.velocitydistribution import (
-            MaxwellBoltzmannDistribution,
+            thermalize_momenta
         )
 
-        MaxwellBoltzmannDistribution(
-            atoms=image, temperature_K=482, force_temp=True, rng=np.random.RandomState(314159262)
+        thermalize_momenta(
+            atoms=image, 
+            temperature_K=482, 
+            exact_temperature=True, 
+            rng=np.random.RandomState(314159262)
         )
         image.get_velocities() * ase.units.fs
 

@@ -433,7 +433,7 @@ class read_output(IOread):
                 sl = line.split()
                 num = int(sl[2])
                 sub = float(sl[4])
-                wgh = []
+                wgh,chrg_mulliken,chrg_cm3 = [],[],[]
                 state = {f"state {num}": {"energy": sub}}
 
             if self.is_inside("weight of conf", line) and state_search:
@@ -444,16 +444,44 @@ class read_output(IOread):
                     wgh.append(None)
                 state[f"state {num}"].update({"weight": wgh})
 
+            if self.is_inside("molecule", line) and state_search:
+                sl = line.split()
+                chrg = chrg_mulliken
+                label = "charges_mulliken"
+                if len(chrg_mulliken)==len(wgh):
+                    chrg = chrg_cm3
+                    label = "charges_cm3"
+                try:
+                    chrg.append(float(sl[3]))
+                except (ValueError, IndexError):
+                    chrg.append(None)
+
+                state[f"state {num}"].update({label: chrg})
+
+
+
             self.complet_results["states"].update(state)
 
         self.complet_results[f"configuration_{count}"] = _conf
+        self.complet_results["charges"] = {}
 
         if "states" in self.complet_results.keys():
             if len(self.complet_results["states"].keys()) > 0:
                 self.complet_results.pop("energy")
 
-                energies = [state["energy"] for k, state in self.complet_results["states"].items()]
-                self.complet_results["energy"] = {"energy": min(energies)}
+                idx = np.argmin([state["energy"] \
+                            for k, state in self.complet_results["states"].items()]) + 1
+                
+                energies = self.complet_results["states"][f"state {idx}"]["energy"]
+                self.complet_results["energy"] = {"energy": energies}
+
+                charges = self.complet_results["states"][f"state {idx}"]["charges_mulliken"]
+                self.complet_results["charges"].update({"charges mulliken": charges})
+
+                if "charges_cm3" in self.complet_results["states"][f"state {idx}"]:
+                    charges = self.complet_results["states"][f"state {idx}"]["charges_cm3"]
+                    self.complet_results["charges"].update({"charges cm3": charges})
+
 
     @assert_flags("td-dftb")
     def read_tddftb(self):

@@ -148,7 +148,7 @@ class TestRTDFTB:
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters["BASIS"] = {"PTYPE": "", "SKFILE": ""}
         copy_parameters["DEMON_PARAMETERS"]["ACTIVE"].update(
-            {"DFTB": {"SCC": True}, "RTTDDFTB": {"KICK": 0.003, "KICKAXIS": 1}}
+            {"DFTB": {"SCC": True}, "RTTDDFTB": {"KICK": 0.003, "KICKAXIS": 1, "EXP":10}}
         )
         copy_parameters["DEMON_MODULE"] = {"ACTIVE": {}}
         copy_parameters["DEMON_MODULE"]["ACTIVE"].update(

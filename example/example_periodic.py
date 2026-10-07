@@ -51,6 +51,9 @@ def _save(fig, filename):
 
 def exemple_run_kpt():
 
+    print("="*40)
+    print(" K-points vs energy definiton")
+
     cell = np.array(
         [
             [2.460000, 0.000000, 0.000000],
@@ -80,15 +83,17 @@ def exemple_run_kpt():
     fig, ax = plt.subplots(figsize=(6.5, 6.5))
     energy = np.array(energies)
 
-    ax.plot(range(1, 25), (energy - energy[-1]), color="black", marker="s")
+    ax.plot(range(1, 25), np.abs(energy - energy[-1]), color="black", marker="s")
 
     ax.set_xlabel("K-points")
-    ax.set_ylabel(r"$\Delta$ Energy (eV)")
-
+    ax.set_ylabel(r"|$\Delta$ Energy| (eV)")
     _save(fig, "./energy-vs-kpts.png")
 
 
-def example_graphene_D2():
+def scan_graphite_D2():
+
+    print("="*40)
+    print(" SCAN of energy along z-axis : graphite-D2")
 
     cell = np.array(
         [
@@ -115,7 +120,6 @@ def example_graphene_D2():
     distance, energy = [], []
 
     base = 6.24
-    print(" SCAN of energy along z-axis ")
 
     for i in range(0, 7):
         new_cell = cell.copy()
@@ -141,7 +145,10 @@ def example_graphene_D2():
     _save(fig, "./graphene-D2.png")
 
 
-def example_graphene_D1():
+def scan_graphite_D1():
+
+    print("="*40)
+    print(" SCAN of energy along z-axis : graphite-D1")
 
     cell = np.array(
         [
@@ -168,8 +175,6 @@ def example_graphene_D1():
     distance, energy = [], []
 
     base = 6.74
-    print(" SCAN of energy along z-axis ")
-
     for i in range(0, 7):
         new_cell = cell.copy()
         new_positions = positions.copy()
@@ -194,7 +199,11 @@ def example_graphene_D1():
     _save(fig, "./graphene-D1.png")
 
 
-def example_periodic_graphite():
+def example_periodic_graphene():
+
+    print("="*40)
+    print(" Example single-point graphene")
+
     cell = np.array(
         [
             [2.460000, 0.000000, 0.000000],
@@ -220,7 +229,10 @@ def example_periodic_graphite():
     print(f" > Energy total : {results['energy']['energy']}")
 
 
-def example_opt_graphite_D2():
+def example_opt_graphene_D2():
+    print("="*40)
+    print(" Optimization Cell/Positions for graphene-D2")
+
     from scipy.optimize import minimize
 
     cell = np.array(
@@ -277,9 +289,11 @@ def example_opt_graphite_D2():
     print(f" > Distance minimal C-C (graphene with DISP=2) : {distance_min_CC}")
 
 
-def example_opt_graphite_D1():
+def example_opt_graphene_D1():
+    print("="*40)
+    print(" Optimization Cell/Positions for graphene-D1")
+
     from scipy.optimize import minimize
-    
 
     cell = np.array(
         [
@@ -340,13 +354,12 @@ if __name__ == "__main__":
     
     exemple_run_kpt()
 
-    example_graphene_D1()
+    example_periodic_graphene()
 
-    example_graphene_D2()
+    example_opt_graphene_D1()
 
+    example_opt_graphene_D2()
 
-    example_periodic_graphite()
+    scan_graphite_D1()
 
-    example_opt_graphite_D1()
-
-    example_opt_graphite_D2()
+    scan_graphite_D2()

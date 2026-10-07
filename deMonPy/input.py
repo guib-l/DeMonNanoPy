@@ -346,11 +346,10 @@ class write_input:
         if "cm3" in self.flags:
             params.update({"CM3POT": True})
 
-            if "cm3inter" in self.flags:
-                params.update({"CM3POT": False})
-                params.update({"CM3INTER": True})
+        if "cm3inter" in self.flags:
+            params.update({"CM3POT": False})
+            params.update({"CM3INTER": True})
 
-        # params = dict(sorted(params.items(), key=lambda x: x[0]))
         self.io_lines["DFTB"] = self.handler_writen(params, bind_str="=")
 
     @assert_flags("paths")
@@ -548,15 +547,20 @@ class write_input:
 
     def _write_bondparams(self, symbols, params):
 
-        self.io_lines["BONDPARAMS"] = []
-        for key, item in params["BONDPARAMS"].items():
+        self.io_lines["BONDPARAM"] = []
+        try:
+            _bondparams = params["BONDPARAMS"].items()
+        except:
+            _bondparams = params["BONDPARAM"].items()
+
+        for key, item in _bondparams:
             elmts = key.split()
 
             if "molecules" in self.flags:
-                self.io_lines["BONDPARAMS"].append(f"\n{str(key)} {float(item)}")
+                self.io_lines["BONDPARAM"].append(f"\n{str(key)} {float(item)}")
             else:
                 if np.all([True if np.all(elm in symbols) else False for elm in elmts]):
-                    self.io_lines["BONDPARAMS"].append(f"\n{str(key)} {float(item)}")
+                    self.io_lines["BONDPARAM"].append(f"\n{str(key)} {float(item)}")
 
     @assert_flags("wmull")
     def _write_bondparam_wmull(self, symbols, params=None):
@@ -567,7 +571,7 @@ class write_input:
             params: Bond parameter block.
         """
         if params is None:
-            params = self.parameters["WMULL"]
+            params = self.parameters.get("WMULL", None)
 
         self._write_bondparams(symbols, params)
 
