@@ -182,6 +182,7 @@ class TestDftbQMMM:
         assert np.allclose(results["energy"]["qmmm-energy"], 0.268095513, atol=1e-7)
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+        shutil.copy2("test/data_test/FFDS", f"{WORKDIR}/FFDS")
         grad = compute_numgrad(
             symbols=image.symbols,
             positions=image.positions,
@@ -605,6 +606,7 @@ class TestDftbQMMM:
         assert np.allclose(results["energy"]["energy"], -3.81264238, atol=1e-7)
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+        shutil.copy2("test/data_test/FFDS", f"{WORKDIR}/FFDS")
         grad = compute_numgrad(
             symbols=image.symbols, positions=image.positions, calculator=dem, delta=0.001
         )
