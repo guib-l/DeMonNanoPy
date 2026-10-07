@@ -116,7 +116,7 @@ def exemple_run_pyrene():
 
     print(" =======================================")
 
-    for elm in range(1, 7):
+    for elm in range(1, 8):
         parameter_config = copy.deepcopy(base_parameters)
         parameter_config.update({"BASIS": {"PTYPE": "MAT", "SKFILE": deMonPy.DEMON_BASIS}})
         parameter_config["DEMON_PARAMETERS"]["ACTIVE"]["DFTB"].update({"DISP": 2})
@@ -139,14 +139,19 @@ def exemple_run_pyrene():
         )
 
         images, _ = read_XYZ(f"./example/data_test/pyrenes/{elm}.mol")
-        pyrene = images[-1]
+        pyrene = images[0]
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
-        dem.calculate(symbols=pyrene.symbols, positions=pyrene.positions)
+        dem.calculate(symbols=pyrene.symbols, positions=pyrene.positions, read_charges=True)
 
         results = dem.results
         energy = results["energy"]
+
+        charges = results["output_geometry"].get_initial_charges().reshape((elm,26))
+        elm_charges = np.sum(charges,axis=1)
+        for chrg in elm_charges:
+            print(f"  - Charge n°{elm} : {chrg}")
 
         print(f" Structure with {elm} pyrenes")
         print(f" > Energy totale     : {energy['energy']}")
