@@ -98,7 +98,7 @@ def exemple_ci_pyrene():
         pyrenes.positions[26:, 2] = r_
         dist.append(r_)
 
-        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **base_parameters)
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **base_parameters2)
         dem.calculate(symbols=pyrenes.symbols, positions=pyrenes.positions)
         energy = dem.results["energy"]
         trace.append(energy["energy"])
