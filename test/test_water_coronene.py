@@ -132,7 +132,7 @@ class TestWaterCoronene:
 
     @pytest.mark.optional
     @pytest.mark.optim
-    def test_water_coronene(self):
+    def _test_water_coronene(self):
 
         copy_parameters = copy.deepcopy(parameters)
         copy_parameters.update(

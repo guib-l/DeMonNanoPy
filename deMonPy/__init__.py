@@ -50,6 +50,10 @@ def configure_from_file(path="global.json"):
     with open(path) as f:
         config = json.load(f)
 
+    #print()
+    #print(os.path.abspath(config.get("DEMON_BASIS")))
+    #if 
+
     configure(
         executable=os.path.abspath(config.get("DEMON_EXECUTABLE")),
         basis=os.path.abspath(config.get("DEMON_BASIS")),

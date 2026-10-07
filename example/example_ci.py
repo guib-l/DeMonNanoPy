@@ -33,7 +33,7 @@ def _save(fig, filename):
 
 def exemple_ci_pyrene():
 
-    images, _ = read_XYZ("./example/data/pyrene-2_cation.xyz")
+    images, _ = read_XYZ("./example/data_test/pyrene-2_cation.xyz")
 
     parameter_config = copy.deepcopy(base_parameters)
     parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
@@ -78,7 +78,7 @@ def exemple_ci_pyrene():
 
 def exemple_exci_pyrene():
 
-    images, _ = read_XYZ("./example/data/pyrene-2.xyz")
+    images, _ = read_XYZ("./example/data_test/pyrene-2.xyz")
 
     parameter_config = copy.deepcopy(base_parameters)
     parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
@@ -129,7 +129,7 @@ def exemple_exci_pyrene():
 
 def exemple_exci_pyrene_rot(distance=3.2):
 
-    images, _ = read_XYZ("./example/data/pyrene-2.xyz")
+    images, _ = read_XYZ("./example/data_test/pyrene-2.xyz")
 
     parameter_config = copy.deepcopy(base_parameters)
     parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(

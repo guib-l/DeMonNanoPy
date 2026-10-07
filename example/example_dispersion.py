@@ -85,7 +85,7 @@ def exemple_run_dispersion():
 
 def exemple_run_cluster_pyrene():
 
-    images, _ = read_XYZ("./example/data/pyrene-2_cation.xyz")
+    images, _ = read_XYZ("./example/data_test/pyrene-2_cation.xyz")
     pyrenes = images[-1]
 
     parameter_config = copy.deepcopy(base_parameters)
@@ -138,7 +138,7 @@ def exemple_run_pyrene():
             }
         )
 
-        images, _ = read_XYZ(f"./example/data/pyrenes/{elm}.mol")
+        images, _ = read_XYZ(f"./example/data_test/pyrenes/{elm}.mol")
         pyrene = images[-1]
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)

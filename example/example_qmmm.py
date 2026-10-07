@@ -78,8 +78,8 @@ def example_qmmm_amoniac(parameters_3ob):
 
     mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-    shutil.copy2("example/data/3ord_param", f"{WORKDIR}/3ord_param")
-    shutil.copy2("example/data/FFDS-OPLS", f"{WORKDIR}/FFDS")
+    shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+    shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
     mod.calculate(symbols=symbols, positions=table[:, :3])
 
@@ -124,8 +124,8 @@ def example_qmmm_amoniac(parameters_3ob):
     ]
     mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-    shutil.copy2("example/data/3ord_param", f"{WORKDIR}/3ord_param")
-    shutil.copy2("example/data/FFDS-OPLS", f"{WORKDIR}/FFDS")
+    shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+    shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
     mod.calculate(symbols=symbols, positions=table[:4, :3])
     results = mod.results
@@ -155,8 +155,8 @@ def example_qmmm_amoniac(parameters_3ob):
     symbols = ([["O", "H", "H"] * 215])[0]
     mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-    shutil.copy2("example/data/3ord_param", f"{WORKDIR}/3ord_param")
-    shutil.copy2("example/data/FFDS-OPLS", f"{WORKDIR}/FFDS")
+    shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+    shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
     mod.calculate(symbols=symbols, positions=opt_pos[4:])
     results = mod.results
@@ -228,8 +228,8 @@ def example_qmmm_glycine(parameters_3ob):
 
     mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-    shutil.copy2("example/data/3ord_param", f"{WORKDIR}/3ord_param")
-    shutil.copy2("example/data/FFDS-OPLS", f"{WORKDIR}/FFDS")
+    shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+    shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
     mod.calculate(symbols=symbols, positions=table[:, :3])
 
@@ -280,8 +280,8 @@ def example_qmmm_glycine(parameters_3ob):
     ]
     mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-    shutil.copy2("example/data/3ord_param", f"{WORKDIR}/3ord_param")
-    shutil.copy2("example/data/FFDS-OPLS", f"{WORKDIR}/FFDS")
+    shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+    shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
     mod.calculate(symbols=symbols, positions=table[:4, :3])
     results = mod.results
@@ -311,8 +311,8 @@ def example_qmmm_glycine(parameters_3ob):
     symbols = ([["O", "H", "H"] * 210])[0]
     mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-    shutil.copy2("example/data/3ord_param", f"{WORKDIR}/3ord_param")
-    shutil.copy2("example/data/FFDS-OPLS", f"{WORKDIR}/FFDS")
+    shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+    shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
     mod.calculate(symbols=symbols, positions=opt_pos[4:])
     results = mod.results
@@ -409,8 +409,8 @@ def example_qmmm_pentane(parameters_3ob):
 
     mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-    shutil.copy2("example/data/3ord_param", f"{WORKDIR}/3ord_param")
-    shutil.copy2("example/data/FFDS-OPLS", f"{WORKDIR}/FFDS")
+    shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+    shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
     mod.calculate(symbols=symbols, positions=table[:, :3])
 
@@ -468,8 +468,8 @@ def example_qmmm_pentane(parameters_3ob):
     symbols = ["C", "C", "H", "H", "H", "H", "C", "H", "H", "H", "C", "H", "C", "H", "H", "H", "H"]
     mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-    shutil.copy2("example/data/3ord_param", f"{WORKDIR}/3ord_param")
-    shutil.copy2("example/data/FFDS-OPLS", f"{WORKDIR}/FFDS")
+    shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+    shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
     mod.calculate(symbols=symbols, positions=table[:4, :3])
     results = mod.results
@@ -499,8 +499,8 @@ def example_qmmm_pentane(parameters_3ob):
     symbols = ([["O", "H", "H"] * 205])[0]
     mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-    shutil.copy2("example/data/3ord_param", f"{WORKDIR}/3ord_param")
-    shutil.copy2("example/data/FFDS-OPLS", f"{WORKDIR}/FFDS")
+    shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+    shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
     mod.calculate(symbols=symbols, positions=opt_pos[4:])
     results = mod.results
@@ -567,8 +567,8 @@ def example_qmmm_water(parameters_3ob):
 
     mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-    shutil.copy2("example/data/3ord_param", f"{WORKDIR}/3ord_param")
-    shutil.copy2("example/data/FFDS-OPLS", f"{WORKDIR}/FFDS")
+    shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+    shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
     mod.calculate(symbols=symbols, positions=table[:, :3])
 
@@ -607,8 +607,8 @@ def example_qmmm_water(parameters_3ob):
 
     mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-    shutil.copy2("example/data/3ord_param", f"{WORKDIR}/3ord_param")
-    shutil.copy2("example/data/FFDS-OPLS", f"{WORKDIR}/FFDS")
+    shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+    shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
     mod.calculate(symbols=symbols, positions=table[:, :3])
     results = mod.results
@@ -645,8 +645,8 @@ def example_qmmm_water(parameters_3ob):
 
     mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-    shutil.copy2("example/data/3ord_param", f"{WORKDIR}/3ord_param")
-    shutil.copy2("example/data/FFDS-OPLS", f"{WORKDIR}/FFDS")
+    shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
+    shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
     mod.calculate(symbols=symbols, positions=opt_pos[3:])
     results = mod.results

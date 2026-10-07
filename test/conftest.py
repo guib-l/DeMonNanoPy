@@ -153,13 +153,19 @@ def pytest_runtest_makereport(item, call):
         return
 
     source = Path(workdir)
+
+    
     status = "failed" if report.failed else "passed"
     destination = source / f"{status}_{item.name}"
-
     if destination.exists():
         shutil.rmtree(destination)
 
-    os.makedirs(destination, exist_ok=True)
+    status_bis = "failed" if status=="passed" else "passed"
+    destination_bis = source / f"{status_bis}_{item.name}"
+    if destination_bis.exists():
+        shutil.rmtree(destination_bis)
+
+    os.makedirs(destination, exist_ok=False)
 
     for fichier in source.iterdir():
         if fichier.is_file():

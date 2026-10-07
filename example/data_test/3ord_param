@@ -1,0 +1,21 @@
+ C  -0.1492
+ H  -0.1857
+ N  -0.1535
+ O  -0.1575
+
+# Please consult the documentation available on dftb.org to ensure 
+# that they are used correctly and consistently with the recommended 
+# DFTB methodology.
+
+# These values are provided for testing purposes only and are not 
+# guaranteed to provide reliable or physically meaningful results. 
+# Their performance may depend strongly on the system and computational 
+# conditions. Therefore, they should be used with caution and should 
+# not be considered as validated parameter sets. If these values are 
+# used in your work, please cite the following references:
+
+# [1] J. Chem. Theory Comput., 2013, 9, 338-354.
+# [2] J. Chem. Theory Comput., 2014, 10, 1518–1537.
+# [3] J. Phys. Chem. B, 2015, 119, 1062–1082.
+# [4] J. Chem. Theory Comput., 2015, 11, 332–342.
+
