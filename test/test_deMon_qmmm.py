@@ -885,8 +885,8 @@ class TestDftbQMMM:
             }
         )
 
-        shutil.copy2("test/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
+        shutil.copy2("test/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
         mod.calculate(symbols=image.symbols, positions=image.positions, read_charges=True)
 
