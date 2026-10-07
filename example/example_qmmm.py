@@ -283,7 +283,7 @@ def example_qmmm_glycine(parameters_3ob):
     shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
     shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
-    mod.calculate(symbols=symbols, positions=table[:4, :3])
+    mod.calculate(symbols=symbols, positions=table[:10, :3])
     results = mod.results
     molecule_energy = results["energy"]["energy"]
 
@@ -314,7 +314,7 @@ def example_qmmm_glycine(parameters_3ob):
     shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
     shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
-    mod.calculate(symbols=symbols, positions=opt_pos[4:])
+    mod.calculate(symbols=symbols, positions=opt_pos[10:])
     results = mod.results
     water_energy = results["energy"]["qmmm-energy"]
     value = total_energy - molecule_energy - water_energy
@@ -471,7 +471,7 @@ def example_qmmm_pentane(parameters_3ob):
     shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
     shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
-    mod.calculate(symbols=symbols, positions=table[:4, :3])
+    mod.calculate(symbols=symbols, positions=table[:17, :3])
     results = mod.results
     molecule_energy = results["energy"]["energy"]
 
@@ -502,7 +502,7 @@ def example_qmmm_pentane(parameters_3ob):
     shutil.copy2("example/data_test/3ord_param", f"{WORKDIR}/3ord_param")
     shutil.copy2("example/data_test/FFDS-OPLS", f"{WORKDIR}/FFDS")
 
-    mod.calculate(symbols=symbols, positions=opt_pos[4:])
+    mod.calculate(symbols=symbols, positions=opt_pos[17:])
     results = mod.results
     water_energy = results["energy"]["qmmm-energy"]
     value = total_energy - molecule_energy - water_energy

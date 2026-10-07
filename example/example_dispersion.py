@@ -113,7 +113,7 @@ def exemple_run_cluster_pyrene():
 
 
 def exemple_run_pyrene():
-
+    import os,sys
     print(" =======================================")
 
     for elm in range(1, 8):
@@ -148,13 +148,21 @@ def exemple_run_pyrene():
         results = dem.results
         energy = results["energy"]
 
+        dem.print_results()
+        with open(os.path.join(WORKDIR,"deMon.out"),'r') as fd:
+            for line in fd.readlines():
+                pass
+
         charges = results["output_geometry"].get_initial_charges().reshape((elm,26))
         elm_charges = np.sum(charges,axis=1)
-        for chrg in elm_charges:
-            print(f"  - Charge n°{elm} : {chrg}")
+        for i,chrg in enumerate(elm_charges):
+            print(f"  - Charge n°{i} : {chrg}")
 
         print(f" Structure with {elm} pyrenes")
         print(f" > Energy totale     : {energy['energy']}")
+
+        if elm==2:
+            sys.exit()
 
 
 if __name__ == "__main__":

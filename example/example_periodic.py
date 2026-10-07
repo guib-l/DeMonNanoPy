@@ -279,6 +279,7 @@ def example_opt_graphite_D2():
 
 def example_opt_graphite_D1():
     from scipy.optimize import minimize
+    
 
     cell = np.array(
         [
@@ -336,11 +337,13 @@ def example_opt_graphite_D1():
 
 
 if __name__ == "__main__":
+    
+    exemple_run_kpt()
+
     example_graphene_D1()
 
     example_graphene_D2()
 
-    exemple_run_kpt()
 
     example_periodic_graphite()
 
