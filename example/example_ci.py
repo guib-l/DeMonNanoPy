@@ -38,6 +38,9 @@ def exemple_ci_pyrene():
     parameter_config = copy.deepcopy(base_parameters)
     parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
         {
+            "CM3": {
+                "BONDPARAMS": {"C H": 0.10},
+            },
             "CI": {
                 "SIZECI": 2,
             },

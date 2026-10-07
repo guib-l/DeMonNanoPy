@@ -54,8 +54,6 @@ def configure_from_file(path="global.json"):
     #if len(basis_str) > 40:
     #    basis_str = os.path.relpath(basis_str)
 
-    #print(basis_str)
-
     configure(
         executable=os.path.abspath(config.get("DEMON_EXECUTABLE")),
         basis=basis_str,
