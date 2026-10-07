@@ -82,13 +82,21 @@ def exemple_ci_pyrene():
             "CUTSYS": {"FRAGMENT": [26, 26]},
         }
     )
+    base_parameters2 = copy.deepcopy(base_parameters)
+    base_parameters2["DEMON_PARAMETERS"]["ACTIVE"].update(
+        {
+            "CM3": {
+                "BONDPARAMS": {"C H": 0.10},
+            },
+        }
+    )
 
     dist, trace, ci = [], [], []
 
-    for r_ in progressbar(np.linspace(0.75, 3.0, 65), size=40, prefix=" \u23f3 Calculation : "):
+    for r_ in progressbar(np.linspace(2.8, 14, 65), size=40, prefix=" \u23f3 Calculation : "):
         pyrenes = images[-1].copy()
-        pyrenes.positions[26:, 2] *= r_
-        dist.append((pyrenes.positions[26, 2] * r_) - pyrenes.positions[0, 2])
+        pyrenes.positions[26:, 2] = r_
+        dist.append(r_)
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **base_parameters)
         dem.calculate(symbols=pyrenes.symbols, positions=pyrenes.positions)
