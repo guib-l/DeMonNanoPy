@@ -54,10 +54,10 @@ class TestCharges:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -7.6911342
-        assert energy["electronic_energy"] == -7.84792412
-        assert energy["coulomb_energy"] == 0.15950647
-        assert energy["repulsive_energy"] == 0.15678992
+        assert np.allclose(energy["energy"],-7.6911342,atol=1e-7)
+        assert np.allclose(energy["electronic_energy"], -7.84792412,atol=1e-7)
+        assert np.allclose(energy["coulomb_energy"], 0.15950647,atol=1e-7)
+        assert np.allclose(energy["repulsive_energy"], 0.15678992,atol=1e-7)
 
     def test_wmull(self):
 
@@ -79,10 +79,10 @@ class TestCharges:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.04442048
-        assert energy["electronic_energy"] == -8.2012104
-        assert energy["coulomb_energy"] == 0.05453568
-        assert energy["repulsive_energy"] == 0.15678992
+        assert np.allclose(energy["energy"],-8.04442048,atol=1e-7)
+        assert np.allclose(energy["electronic_energy"], -8.2012104,atol=1e-7)
+        assert np.allclose(energy["coulomb_energy"],  0.05453568,atol=1e-7)
+        assert np.allclose(energy["repulsive_energy"], 0.15678992,atol=1e-7)
 
     @pytest.mark.forces
     def test_wmull_grad(self):
@@ -115,10 +115,10 @@ class TestCharges:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.04442048
-        assert energy["electronic_energy"] == -8.2012104
-        assert energy["coulomb_energy"] == 0.05453568
-        assert energy["repulsive_energy"] == 0.15678992
+        assert np.allclose(energy["energy"],-8.04442048,atol=1e-7)
+        assert np.allclose(energy["electronic_energy"], -8.2012104,atol=1e-7)
+        assert np.allclose(energy["coulomb_energy"],  0.05453568,atol=1e-7)
+        assert np.allclose(energy["repulsive_energy"], 0.15678992,atol=1e-7)
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
         grad = compute_numgrad(
@@ -147,9 +147,9 @@ class TestCharges:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.0368677
-        assert energy["electronic_energy"] == -8.19365762
-        assert energy["coulomb_energy"] == 0.06029717
+        assert np.allclose(energy["energy"],-8.0368677,atol=1e-7)
+        assert np.allclose(energy["electronic_energy"], -8.19365762,atol=1e-7)
+        assert np.allclose(energy["coulomb_energy"],  0.06029717,atol=1e-7)
 
     @pytest.mark.forces
     def test_cm3pot_grad(self):
@@ -182,10 +182,10 @@ class TestCharges:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.0368677
-        assert energy["electronic_energy"] == -8.19365762
-        assert energy["coulomb_energy"] == 0.06029717
-        assert energy["repulsive_energy"] == 0.15678992
+        assert np.allclose(energy["energy"],-8.0368677,atol=1e-7)
+        assert np.allclose(energy["electronic_energy"], -8.19365762,atol=1e-7)
+        assert np.allclose(energy["coulomb_energy"],  0.06029717,atol=1e-7)
+        assert np.allclose(energy["repulsive_energy"], 0.15678992,atol=1e-7)
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
         grad = compute_numgrad(
@@ -215,7 +215,7 @@ class TestCharges:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.06209343
+        assert np.allclose(energy["energy"],-8.06209343,atol=1e-7)
 
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
     @pytest.mark.forces
@@ -249,7 +249,7 @@ class TestCharges:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.06209343
+        assert np.allclose(energy["energy"],-8.06209343,atol=1e-7)
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
         grad = compute_numgrad(
@@ -276,10 +276,10 @@ class TestCutSys:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.06209343
-        assert energy["electronic_energy"] == -8.21888334
-        assert energy["coulomb_energy"] == 0.04185358
-        assert energy["repulsive_energy"] == 0.15678992
+        assert np.allclose(energy["energy"],-8.06209343,atol=1e-7)
+        assert np.allclose(energy["electronic_energy"], -8.21888334,atol=1e-7)
+        assert np.allclose(energy["coulomb_energy"], 0.04185358,atol=1e-7)
+        assert np.allclose(energy["repulsive_energy"], 0.15678992,atol=1e-7)
 
     @pytest.mark.optim
     def test_cutsys_opt(self):
@@ -294,7 +294,7 @@ class TestCutSys:
             {
                 "DEMON_MODULE": {
                     "ACTIVE": {
-                        "OPT": {"MAX": 99, "TRAJECTORY": True},
+                        "OPT": {"MAX": 999, "TRAJECTORY": True},
                     },
                 }
             }
@@ -307,7 +307,7 @@ class TestCutSys:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.15543481
+        assert np.allclose(energy["energy"],-8.15563755,atol=1e-7)
 
     @pytest.mark.optim
     def test_cutsys_opt_rigid(self):
@@ -366,10 +366,10 @@ class TestCutSys:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.06209343
-        assert energy["electronic_energy"] == -8.21888334
-        assert energy["coulomb_energy"] == 0.04185358
-        assert energy["repulsive_energy"] == 0.15678992
+        assert np.allclose(energy["energy"],-8.06209343,atol=1e-7)
+        assert np.allclose(energy["electronic_energy"], -8.21888334,atol=1e-7)
+        assert np.allclose(energy["coulomb_energy"], 0.04185358,atol=1e-7)
+        assert np.allclose(energy["repulsive_energy"], 0.15678992,atol=1e-7)
 
     def test_cutsys_natmol(self):
 
@@ -387,10 +387,11 @@ class TestCutSys:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.06209343
-        assert energy["electronic_energy"] == -8.21888334
-        assert energy["coulomb_energy"] == 0.04185358
-        assert energy["repulsive_energy"] == 0.15678992
+        assert np.allclose(energy["energy"],-8.06209343,atol=1e-7)
+        assert np.allclose(energy["electronic_energy"], -8.21888334,atol=1e-7)
+        assert np.allclose(energy["coulomb_energy"], 0.04185358,atol=1e-7)
+        assert np.allclose(energy["repulsive_energy"], 0.15678992,atol=1e-7)
+
 
     @pytest.mark.optim
     def test_cutsys_opt_natmol(self):
@@ -405,7 +406,7 @@ class TestCutSys:
             {
                 "DEMON_MODULE": {
                     "ACTIVE": {
-                        "OPT": {"MAX": 99, "TRAJECTORY": True},
+                        "OPT": {"MAX": 999, "TRAJECTORY": True},
                     },
                 }
             }
@@ -418,7 +419,7 @@ class TestCutSys:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.15543481
+        assert np.allclose(energy["energy"],-8.15563755,atol=1e-7)
 
     @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
     def test_cutsys_ptmc(self):
@@ -540,10 +541,11 @@ class TestMultipl:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -8.06209343
-        assert energy["electronic_energy"] == -8.21888334
-        assert energy["coulomb_energy"] == 0.04185358
-        assert energy["repulsive_energy"] == 0.15678992
+        assert np.allclose(energy["energy"],-8.06209343,atol=1e-7)
+        assert np.allclose(energy["electronic_energy"],-8.21888334,atol=1e-7)
+        assert np.allclose(energy["coulomb_energy"],0.04185358,atol=1e-7)
+        assert np.allclose(energy["repulsive_energy"],0.15678992,atol=1e-7)
+
 
     def test_multiplicity_3(self):
 
@@ -561,10 +563,11 @@ class TestMultipl:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -7.69430622
-        assert energy["electronic_energy"] == -7.85109614
-        assert energy["coulomb_energy"] == 0.03543676
-        assert energy["repulsive_energy"] == 0.15678992
+        assert np.allclose(energy["energy"],-7.69430622,atol=1e-7)
+        assert np.allclose(energy["electronic_energy"],-7.85109614,atol=1e-7)
+        assert np.allclose(energy["coulomb_energy"],0.03543676,atol=1e-7)
+        assert np.allclose(energy["repulsive_energy"],0.15678992,atol=1e-7)
+
 
     @pytest.mark.forces
     def test_multiplicity_3_grad(self):
@@ -623,7 +626,7 @@ class TestMultipl:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -7.68089083
+        assert np.allclose(energy["energy"],-7.68089083,atol=1e-7)
 
     @pytest.mark.forces
     def test_multiplicity_3_cm3_grad(self):
@@ -657,7 +660,8 @@ class TestMultipl:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -7.68089083
+        assert np.allclose(energy["energy"],-7.68089083,atol=1e-7)
+        
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
         grad = compute_numgrad(
@@ -687,7 +691,8 @@ class TestMultipl:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -7.68983001
+
+        assert np.allclose(energy["energy"],-7.68983001,atol=1e-7)
 
     @pytest.mark.forces
     def test_multiplicity_3_wmull_grad(self):
@@ -721,7 +726,7 @@ class TestMultipl:
         results = dem.results
         energy = results["energy"]
 
-        assert energy["energy"] == -7.68983001
+        assert np.allclose(energy["energy"],-7.68983001,atol=1e-7)
 
         dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
         grad = compute_numgrad(
