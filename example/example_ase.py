@@ -32,10 +32,11 @@ image = Atoms(
     ),
 )
 
-WORKDIR = ".run/example-ase"
 
 
 def exemple_run_ase():
+
+    WORKDIR = ".run/example-ase"
 
     calc = DeMonNano(
         omp_threads=1,
@@ -52,6 +53,8 @@ def exemple_run_ase():
 
 
 def exemple_run_bfgs():
+
+    WORKDIR = ".run/example-bfgs"
 
     from ase.optimize import BFGS
 

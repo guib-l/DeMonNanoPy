@@ -216,6 +216,7 @@ class deMonNano(BasicCalculation):
         _prefix = self.parameters.pop("PREFIX", prefix)
         _workdir = self.parameters.pop("DEMON_WORKDIR", workdir)
 
+
         BasicCalculation.__init__(self, _execut, _workdir, _prefix, omp_threads=omp_threads)
 
         # Start running directory
@@ -231,9 +232,19 @@ class deMonNano(BasicCalculation):
         self.flags = set()
 
         # Build parameters
-        self.basis = self.parameters.pop("BASIS", basis or deMonPy.DEMON_BASIS)
+        _basis = self.parameters.pop("BASIS", basis)
+        if isinstance(_basis,str):
+            self.basis = {
+                "PTYPE":_basis,
+                "SKFILE":deMonPy.DEMON_BASIS
+            }
+        elif isinstance(_basis,dict) and basis is None:
+            self.basis = self.parameters.pop("BASIS")
+        else:
+            self.basis = _basis
 
-        self._wi = write_input(BASIS=self.basis, **self.parameters)
+
+        self._wi = write_input( BASIS=self.basis, **self.parameters) #
         self.flags = self._wi.flags
 
         self._wo = read_output(
