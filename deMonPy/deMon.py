@@ -2,11 +2,21 @@
 import os,sys
 import copy
 import deMonPy
-from deMonPy.basic import BasicCalculation
+from deMonPy.basic import Common
+from deMonPy.encoder import AseEncoder
+from deMonPy.exceptions import ConfigError, ExecuteFailed
+from deMonPy.demon.input import write_input
+from deMonPy.demon.output import read_output
 
 
+# ============================================================================= 
+#
+# MAIN object for deMon
+#
+# =============================================================================
 
-class deMon(BasicCalculation):
+
+class deMon(Common):
     """High-level calculator that builds input, runs deMon and parses output.
 
     A single :meth:`calculate` call writes the ``deMon.inp`` file, executes
@@ -43,46 +53,25 @@ class deMon(BasicCalculation):
         **parameters,
     ):
 
-        if properties is None:
-            properties = ["energy"]
-        if basis is None:
-            basis = {}
-
-        self.parameters = copy.deepcopy(parameters)
-        self._ase_obj = ase_obj
-
-        _execut = self.parameters.pop("DEMON_EXECUTABLE", execut or deMonPy.DEMON_EXECUTABLE)
-        _prefix = self.parameters.pop("PREFIX", prefix)
-        _workdir = self.parameters.pop("DEMON_WORKDIR", workdir)
-
-        BasicCalculation.__init__(self, _execut, _workdir, _prefix, omp_threads=omp_threads)
-
-        # Start running directory
-        self.title = title
-        self.workdir = self.parameters.pop("WORKDIR", workdir)
-
-        self.set_workdir()
-
-        # Initialize
-        self.state = {}
-        self.results = {}
-
-        self.flags = set()
+        
+        Common.__init__(self, 
+                        execut,
+                        workdir,
+                        omp_threads,
+                        prefix,
+                        title,
+                        properties,
+                        basis,
+                        ase_obj,
+                        clean_repository,
+                        **parameters,
+                    )
 
 
     _ARTIFACT_PATTERNS = (
         "deMon.inp",
         "deMon.out",
-        "deMon.mol",
-        "deMon.coef",
-        "deMon.quat",
-        "deMon.dip",
-        "deMon.rst",
-        "deMon.*.quat",
-        "deMon.*.mol",
-        "*.log",
-        "FFDS",
-        "3ord_param",
+        "deMon.mol"
     )
 
     def clean_workdir(self):
@@ -137,9 +126,6 @@ class deMon(BasicCalculation):
             basis = {}
 
         self.parameters = parameters.copy()
-
-        # Build parameters
-        # self.basis = parameters.pop("BASIS", basis or deMonPy.DEMON_BASIS)
 
         self._wi = write_input(BASIS=self.basis, **parameters)
         self.flags = self._wi.flags

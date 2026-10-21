@@ -1,0 +1,12 @@
+
+
+
+
+
+class write_input:
+
+    ...
+
+
+
+

@@ -29,16 +29,22 @@ import sys
 from copy import deepcopy
 
 import deMonPy
-from deMonPy.basic import BasicCalculation
+from deMonPy.basic import Common
 from deMonPy.encoder import AseEncoder
 from deMonPy.exceptions import ConfigError, ExecuteFailed
 from deMonPy.demonnano.input import write_input
 from deMonPy.demonnano.output import read_output
-from deMonPy.profile import Process
 
 
 
-class deMonNano(BasicCalculation):
+
+# ============================================================================= 
+#
+# MAIN object for deMonNano
+#
+# =============================================================================
+
+class deMonNano(Common):
     """High-level calculator that builds input, runs deMonNano and parses output.
 
     A single :meth:`calculate` call writes the ``deMon.inp`` file, executes
@@ -97,33 +103,19 @@ class deMonNano(BasicCalculation):
                 ``DEMON_MODULE``.
         """
 
-        if properties is None:
-            properties = ["energy"]
-        if basis is None:
-            basis = {}
-
-        self.parameters = deepcopy(parameters)
-        self._ase_obj = ase_obj
-
-        _execut = self.parameters.pop("DEMON_EXECUTABLE", execut or deMonPy.DEMON_EXECUTABLE)
-        _prefix = self.parameters.pop("PREFIX", prefix)
-        _workdir = self.parameters.pop("DEMON_WORKDIR", workdir)
-
-
-        BasicCalculation.__init__(self, _execut, _workdir, _prefix, omp_threads=omp_threads)
-
-        # Start running directory
-        self.title = title
-        self.workdir = self.parameters.pop("WORKDIR", workdir)
-
-        self.set_workdir()
-
-        # Initialize
-        self.state = {}
-        self.results = {}
-
-        self.flags = set()
-
+        Common.__init__(self, 
+                        execut,
+                        workdir,
+                        omp_threads,
+                        prefix,
+                        title,
+                        properties,
+                        basis,
+                        ase_obj,
+                        clean_repository,
+                        **parameters,
+                    )
+        
         # Build parameters
         _basis = self.parameters.pop("BASIS", basis)
         if isinstance(_basis,str):
@@ -132,7 +124,7 @@ class deMonNano(BasicCalculation):
                 "SKFILE":deMonPy.DEMON_BASIS
             }
         elif isinstance(_basis,dict) and basis is None:
-            self.basis = self.parameters.pop("BASIS")
+            self.basis = self.parameters.pop("BASIS", _basis)
         else:
             self.basis = _basis
 
@@ -166,34 +158,7 @@ class deMonNano(BasicCalculation):
         "3ord_param",
     )
 
-    def clean_workdir(self):
-        """Remove known deMonNano artefacts from the working directory.
 
-        Only files matching :attr:`_ARTIFACT_PATTERNS` are deleted.
-        Sub-directories and unrelated files are preserved.  Refuses to
-        operate on filesystem roots or the user's home directory.
-        """
-        from pathlib import Path
-
-        wd = Path(self.workdir).expanduser().resolve()
-
-        for pattern in self._ARTIFACT_PATTERNS:
-            for f in wd.glob(pattern):
-                if f.is_file():
-                    os.remove(f)
-
-    def reset(self):
-        """Clear stored states, results and active flags.
-
-        After calling this method :attr:`results` and :attr:`state` are
-        emptied and :attr:`flags` is cleared.  A subsequent
-        :meth:`update` or :meth:`calculate` call is required before
-        the calculator can produce new results.
-        """
-        self.state = {}
-        self.results = {}
-
-        self.flags = set()
 
     def update(self, properties=None, basis=None, **parameters):
         """Rebuild the input writer and output reader with new parameters.
@@ -378,57 +343,13 @@ class deMonNano(BasicCalculation):
         self._wo.read_errors()
         self.results = self._wo.complet_results
 
-    def print_results(self, files=sys.stdout):
-        """Pretty-print parsed results as indented JSON.
 
-        The output is encoded with :class:`~deMonPy.encoder.AseEncoder`
-        so that NumPy arrays and ASE objects are serialisable.
 
-        Args:
-            files: Writable text stream that receives the JSON output.
-                Defaults to :data:`sys.stdout`.
-        """
-        import json
-
-        print(
-            json.dumps(
-                self._wo.complet_results,
-                indent=4,
-                ensure_ascii=True,
-                cls=AseEncoder,
-            ),
-            file=files,
-        )
-
-    def has_errors(self):
-        """Return ``True`` if the last calculation recorded any error.
-
-        Returns:
-            bool: True when ``results["errors"]`` is non-empty.
-        """
-        return bool(self.results.get("errors"))
-
-    def raise_on_errors(self):
-        """Raise :class:`ExecuteFailed` when errors were recorded.
-
-        Useful right after :meth:`calculate` to convert silently-parsed
-        deMonNano errors into a Python exception.
-
-        Raises:
-            ExecuteFailed: If at least one entry is present in
-                ``results["errors"]``.
-        """
-        errs = self.results.get("errors") or []
-        if not errs:
-            return
-        formatted = []
-        for e in errs:
-            if isinstance(e, dict):
-                formatted.append(f"[{e.get('kind', '?')}] {e.get('message', '')}")
-            else:
-                formatted.append(str(e))
-        raise ExecuteFailed("Calculation reported errors:\n  " + "\n  ".join(formatted))
-
+# ============================================================================= 
+#
+# MODULE of the use easy of deMonNano
+#
+# =============================================================================
 
 class Module_DeMonNano(deMonNano):
     """Calculator extended with pluggable high-level workflow modules.
@@ -569,54 +490,3 @@ class Module_DeMonNano(deMonNano):
 
         self.build = module(context=self, **params)
         self.is_build = True
-
-    def reset(self):
-        """Clear the built module instance and the parent calculator state.
-
-        In addition to clearing :attr:`build` and setting
-        :attr:`is_build` to ``False``, this calls
-        :meth:`deMonNano.reset` so that :attr:`results`, :attr:`state`
-        and :attr:`flags` are emptied as well.  A new :meth:`initialize`
-        (or an implicit one through :meth:`__call__`) is required before
-        the calculator can dispatch work again.
-        """
-        super().reset()
-        self.is_build = False
-        self.build = None
-
-    def __call__(self, method=None, **kwds):
-        """Dispatch a call to the active module.
-
-        If the module has not been initialised yet, :meth:`initialize`
-        is called automatically.
-
-        When *method* is ``None`` the module's own ``__call__`` (i.e.
-        its :meth:`~deMonPy.modules.module.modules.forward` entry
-        point) is invoked.  Otherwise the named method is looked up on
-        the module instance.
-
-        Args:
-            method: Optional name of a specific method to invoke on the
-                module.  When ``None`` (default) the module's
-                ``__call__`` is used.
-            **kwds: Keyword arguments forwarded to the module method.
-
-        Returns:
-            The value returned by the module method.
-
-        Raises:
-            NotImplementedError: If *method* is given but does not exist
-                on the built module.
-        """
-        if not self.is_build:
-            self.initialize()
-
-        if method is None:
-            return self.build.__call__(**kwds)
-
-        elif hasattr(self.build, method):
-            func = getattr(self.build, method)
-            return func(**kwds)
-
-        else:
-            raise NotImplementedError(f"Method {method} is unknow in module {self.build.__name__}")
