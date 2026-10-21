@@ -74,34 +74,6 @@ class deMon(Common):
         "deMon.mol"
     )
 
-    def clean_workdir(self):
-        """Remove known deMonNano artefacts from the working directory.
-
-        Only files matching :attr:`_ARTIFACT_PATTERNS` are deleted.
-        Sub-directories and unrelated files are preserved.  Refuses to
-        operate on filesystem roots or the user's home directory.
-        """
-        from pathlib import Path
-
-        wd = Path(self.workdir).expanduser().resolve()
-
-        for pattern in self._ARTIFACT_PATTERNS:
-            for f in wd.glob(pattern):
-                if f.is_file():
-                    os.remove(f)
-
-    def reset(self):
-        """Clear stored states, results and active flags.
-
-        After calling this method :attr:`results` and :attr:`state` are
-        emptied and :attr:`flags` is cleared.  A subsequent
-        :meth:`update` or :meth:`calculate` call is required before
-        the calculator can produce new results.
-        """
-        self.state = {}
-        self.results = {}
-
-        self.flags = set()
 
     def update(self, properties=None, basis=None, **parameters):
         """Rebuild the input writer and output reader with new parameters.
@@ -190,58 +162,6 @@ class deMon(Common):
 
     def parse_output(self,):
         ...
-
-
-    def print_results(self, files=sys.stdout):
-        """Pretty-print parsed results as indented JSON.
-
-        The output is encoded with :class:`~deMonPy.encoder.AseEncoder`
-        so that NumPy arrays and ASE objects are serialisable.
-
-        Args:
-            files: Writable text stream that receives the JSON output.
-                Defaults to :data:`sys.stdout`.
-        """
-        import json
-
-        print(
-            json.dumps(
-                self._wo.complet_results,
-                indent=4,
-                ensure_ascii=True,
-                cls=AseEncoder,
-            ),
-            file=files,
-        )
-
-    def has_errors(self):
-        """Return ``True`` if the last calculation recorded any error.
-
-        Returns:
-            bool: True when ``results["errors"]`` is non-empty.
-        """
-        return bool(self.results.get("errors"))
-
-    def raise_on_errors(self):
-        """Raise :class:`ExecuteFailed` when errors were recorded.
-
-        Useful right after :meth:`calculate` to convert silently-parsed
-        deMonNano errors into a Python exception.
-
-        Raises:
-            ExecuteFailed: If at least one entry is present in
-                ``results["errors"]``.
-        """
-        errs = self.results.get("errors") or []
-        if not errs:
-            return
-        formatted = []
-        for e in errs:
-            if isinstance(e, dict):
-                formatted.append(f"[{e.get('kind', '?')}] {e.get('message', '')}")
-            else:
-                formatted.append(str(e))
-        raise ExecuteFailed("Calculation reported errors:\n  " + "\n  ".join(formatted))
 
 
 
