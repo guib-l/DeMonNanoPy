@@ -1,3 +1,12 @@
+#!/usr/bin/env python3
+# Import standard de python3
+import copy
+import os
+
+import numpy as np
+
+from deMonPy.exceptions import ConfigError
+from deMonPy.profile import assert_flags, exclude_flags
 
 
 
@@ -54,5 +63,46 @@ class write_input:
                 out += f" {v:{fmt}}"
         return out
 
+    # =========================================================================
+    # =========== PARAMETERS --------------------------------------------------
+    # =========================================================================
+
+    @assert_flags("geometry")
+    def _write_geometry(self):
+        ...
+
+    
+
+
+
+
+    # =========================================================================
+    # =========== WRITABLE ----------------------------------------------------
+    # =========================================================================
+
+    def write(self, filename="deMon.inp", workdir=""):
+        """Write the assembled input file to disk.
+
+        Args:
+            filename: Output input file name.
+            workdir: Directory where the file is written.
+        """
+
+        if "paths" in self.flags:
+            with open(os.path.join(workdir, "deMon.pth.inp"), "w") as fd:
+                fd.write(self.file_path_check)
+
+        path = os.path.join(workdir, filename)
+
+        with open(path, "w") as fd:
+            geom = self.io_lines.pop("GEOMETRY")
+            for key, item in self.io_lines.items():
+                fd.write(key)
+
+                for elm in item:
+                    fd.write(f" {elm}")
+                fd.write("\n")
+
+            fd.write(geom[-1])
 
 

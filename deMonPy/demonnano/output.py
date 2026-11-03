@@ -614,24 +614,19 @@ class read_output(IOread):
     def read_pbc(
         self,
     ):
-
         text = "\n".join(self.lines)
 
-        kpoints_total = {}
         energyK = []
         lines = text.splitlines()
-        n_dims = self.complet_results["properties"]["matrix_dim"]
-
-        count, limit = False, 0
+        nband = self.complet_results["properties"]["matrix_dim"]
+        
+        count, nkpt, limit = False, 0, 0
         for i, line in enumerate(lines):
+
             if "kpoint number" in line:
-                label = int(line.split()[-1])
-                kpoints_total[f"kpt_{label}"] = list(map(float, lines[i - 2].split()))[1:]
                 count = True
-                if energyK != []:
-                    kpoints_total[f"kpts_{label}"] = energyK
-                energyK = []
-                limit = i + n_dims * 2
+                limit = i + nband * 2
+                nkpt += 1
 
             if count and i <= limit:
                 li = line.split()
@@ -639,6 +634,14 @@ class read_output(IOread):
                     energyK.append([float(li[0]), float(li[1])])
                 except (ValueError, IndexError):
                     pass
+        
+        energyK = np.array(energyK)
+        energyK = np.reshape(energyK, (nkpt, nband, 2))
+        eigenv = energyK[:,:,:1].reshape((nkpt,nband))
+        
+        self.complet_results["k-points"] = energyK
+        self.complet_results["eigenvalues"] = eigenv
+
 
     @assert_flags("print")
     def read_print(self):
