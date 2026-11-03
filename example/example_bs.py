@@ -32,7 +32,7 @@ parameters = {
 
 
 
-def exemple_run_kpt():
+def exemple_run_bs():
 
     WORKDIR = ".run/example-bs"
 
@@ -60,17 +60,14 @@ def exemple_run_kpt():
 
     dem.calculate(symbols=symbols, positions=positions, cell=cell, kpts=kpts)
     results = dem.results
+
     print(results["energy"])
     print(results["eigenvalues"])
-    eig = results["eigenvalues"]
-
-    for i in range(8):
-        plt.plot(eig[:,i])
-    plt.show()
-
+    
 
 if __name__ == "__main__":
-    exemple_run_kpt()
+
+    exemple_run_bs()
 
 
 

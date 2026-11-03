@@ -1,3 +1,12 @@
 {
-    
+    "DEMON_EXECUTABLE":"",
+    "WORKDIR":"",
+    "DEMON_PARAMETERS":{
+        "ACTIVE":{},
+        "DISABLE":{}
+    },
+    "DEMON_MODULE":{
+        "ACTIVE":{},
+        "DISABLE":{}
+    }
 }
