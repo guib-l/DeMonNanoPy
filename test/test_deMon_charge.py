@@ -194,7 +194,7 @@ class TestCharges:
 
         assert np.allclose(results["forces"], grad, atol=1e-5)
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     def test_cm3inter(self):
 
         parameter_config = deepcopy(parameters)
@@ -217,7 +217,7 @@ class TestCharges:
 
         assert np.allclose(energy["energy"],-8.06209343,atol=1e-7)
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.forces
     def test_cm3inter_grad(self):
 
@@ -421,7 +421,7 @@ class TestCutSys:
 
         assert np.allclose(energy["energy"],-8.15563755,atol=1e-7)
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     def test_cutsys_ptmc(self):
 
         parameter_config = deepcopy(parameters)
@@ -465,7 +465,7 @@ class TestCutSys:
         assert ptmc["exchange"]["each_step"] == 10
         assert ptmc["exchange"]["swap_probability"] == 100
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     def test_cutsys_ptmc_rigid(self):
 
         image = Atoms(

@@ -62,7 +62,7 @@ class TestFreq:
         assert np.allclose(mode_1["frequency"], -1178.9, atol=1e-1)
         assert np.allclose(mode_1["intensity"], 112.0, atol=1e-1)
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.freq
     def test_limited_freq(self):
 
@@ -140,7 +140,7 @@ class TestFreq:
         assert np.allclose(mode_1["frequency"], -1178.9, atol=1e-1)
         assert np.allclose(mode_1["intensity"], 112.0, atol=1e-1)
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.freq
     def test_freq_ldep(self):
 

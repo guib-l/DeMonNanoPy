@@ -169,7 +169,7 @@ class TestMDbasic:
         traj[0].get_velocities()
         # print( traj[0].get_angular_momentum( ) )
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.dynamics
     def test_md_start_ran(self):
 
@@ -278,7 +278,7 @@ class TestMDbasic:
 
         traj[0].get_velocities()
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.dynamics
     def test_md_wall_cart(self):
 

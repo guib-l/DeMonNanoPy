@@ -37,7 +37,7 @@ WORKDIR = ".run/carpar/"
 
 
 class TestCarPar:
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     def test_md_parallel(self):
         # TODO: to implement
 

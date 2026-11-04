@@ -523,7 +523,7 @@ class TestDftbQMMM:
 
         assert results["energy"]["energy"] == -4.08200347
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     def test_qmmm_ff_ldep(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -799,7 +799,7 @@ class TestDftbQMMM:
         assert "triplet" in results.keys()
         assert "singlet" in results.keys()
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     def test_qmmm_ff_ci(self):
 
         copy_parameters = copy.deepcopy(parameters)

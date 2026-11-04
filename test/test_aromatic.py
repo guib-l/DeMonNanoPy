@@ -348,7 +348,7 @@ class TestAromatic:
         assert np.allclose(results["energy"]["energy"], -45.94947883, atol=1e-7)
         assert np.allclose(results["energy"]["london_energy"], -0.01330096, atol=1e-7)
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.optim
     @pytest.mark.optional
     def test_coronene_cm3(self):

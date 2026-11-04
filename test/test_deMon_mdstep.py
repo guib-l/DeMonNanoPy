@@ -179,7 +179,7 @@ class TestMDstep:
         diff = np.abs(temperature[0] - 300)
         assert diff < 0.1, "Starting temperature is not tacken into account"
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.dynamics
     def test_md_tsimStep(self):
         # TODO: get the number of lines in outputs

@@ -572,7 +572,7 @@ class TestDFTBCI:
 
         assert np.allclose(energy["energy"], -7.5846698, atol=1e-7)
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.forces
     def test_ci_ldep_grad(self):
 
@@ -912,7 +912,7 @@ class TestDFTBCI:
 
         assert np.allclose(energy["energy"], -7.64172767, atol=1e-7)
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.forces
     def test_ci_cm3_grad(self):
 
@@ -986,7 +986,7 @@ class TestDFTBCI:
 
         assert np.allclose(energy["energy"], -7.64834302, atol=1e-7)
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.forces
     def test_ci_wmull_grad(self):
 

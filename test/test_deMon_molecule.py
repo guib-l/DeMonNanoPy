@@ -272,7 +272,7 @@ class TestMolecule:
         assert np.allclose(mode_1["frequency"], -587.7, atol=1e-1)
         assert np.allclose(mode_1["intensity"], 9.5, atol=1e-1)
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.beta
     def test_molecule_ci(self):
         import shutil

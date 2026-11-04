@@ -679,7 +679,7 @@ class TestDFTB_Rg:
 
         assert np.allclose(energy["energy"], -19.28123631, atol=1e-7)
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.forces
     def test_argon_wmull_grad(self):
 

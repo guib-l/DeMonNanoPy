@@ -23,6 +23,12 @@ def pytest_addoption(parser):
     parser.addoption("--slow", action="store_true", default=False, help="run slow tests")
     parser.addoption("--mc", action="store_true", default=False, help="run mc-features tests")
     parser.addoption("--3OB", action="store", default=None, help="3OB parameters required")
+    parser.addoption(
+        "--tofix",
+        action="store_true",
+        default=False,
+        help="run known non-critical failing tests (NOT CRITICAL -> TO FIX) as xfail",
+    )
     parser.addoption("--all", action="store_true")
 
     parser.addoption(
@@ -54,9 +60,19 @@ def pytest_collection_modifyitems(config, items):
         config.option.optim = True
         config.option.mc = True
         config.option.freq = True
+        config.option.tofix = True
+
+    if config.getoption("--tofix"):
+        # Run them, but a failure stays expected and does not break the run
+        mark_tofix = pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX", strict=False)
+    else:
+        mark_tofix = pytest.mark.skip(reason="NOT CRITICAL -> TO FIX (need --tofix option)")
+    for item in items:
+        if "tofix" in item.keywords:
+            item.add_marker(mark_tofix)
 
     if not config.getoption("--optional"):
-        skip_optional = pytest.mark.skip(reason="need --run-optional option")
+        skip_optional = pytest.mark.skip(reason="need --optional option")
         for item in items:
             if "optional" in item.keywords:
                 item.add_marker(skip_optional)

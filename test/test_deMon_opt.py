@@ -233,7 +233,7 @@ class TestOptimization:
         assert np.allclose(results["energy"]["energy"], -8.15497675, atol=1e-7)
         assert results["errors"][0]["message"] == "optimization not converged"
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.optim
     def test_opt_out(self):
 

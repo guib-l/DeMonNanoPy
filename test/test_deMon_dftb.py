@@ -417,7 +417,7 @@ class TestDftb:
         results = mod.results
         assert results["energy"]["energy"] == -8.06209343
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     def test_scc_simple_mixing(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -997,7 +997,7 @@ class TestDftb:
         results = mod.results
         assert results["energy"]["energy"] == -8.06658691
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     def test_scc_ldepMemo(self):
 
         copy_parameters = copy.deepcopy(parameters)
@@ -1139,7 +1139,7 @@ class TestDftb:
 
         assert np.allclose(results["forces"], grad, atol=1e-5)
 
-    @pytest.mark.xfail(reason="NOT CRITICAL -> TO FIX")
+    @pytest.mark.tofix
     @pytest.mark.forces
     def test_scc_ldep_grad(self):
 
