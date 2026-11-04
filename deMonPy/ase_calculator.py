@@ -45,15 +45,17 @@ _FORCE_CONV = Hartree / Bohr
 class DeMonNano(GetOutputsMixin, Calculator):
     """ASE calculator backed by the deMonNano DFTB engine.
 
-    Supported properties: ``energy``, ``free_energy``, ``forces``,
-    ``charges``.
+    Supported properties: ``energy``, ``free_energy``, ``forces``.
+
+    ``charges`` is not supported: deMonNano does not write the atomic
+    charges of a single point (only with ``PRINT DEBUG``).
 
     Attributes:
         implemented_properties: List of properties this calculator can
             provide.
     """
 
-    implemented_properties = ["energy", "free_energy", "forces", "charges"]
+    implemented_properties = ["energy", "free_energy", "forces"]
 
     default_parameters = {
         "execut": None,
@@ -195,13 +197,6 @@ class DeMonNano(GetOutputsMixin, Calculator):
 
         self.results["energy"] = energy_ev
         self.results["free_energy"] = energy_ev
-
-        # --- charges ---
-        out_geom = raw.get("output_geometry", None)
-        if out_geom is not None and hasattr(out_geom, "get_initial_charges"):
-            charges = out_geom.get_initial_charges()
-            if charges is not None:
-                self.results["charges"] = np.array(charges)
 
         # --- forces (Hartree/Bohr -> eV/Ang) ---
         if need_forces:

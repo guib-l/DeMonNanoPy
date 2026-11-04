@@ -1,7 +1,6 @@
-import os
-import sys
 
 import numpy as np
+
 
 class IOread(object):
     """Base helper providing low-level parsing utilities for output files."""

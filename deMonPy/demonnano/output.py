@@ -6,8 +6,8 @@ import re
 
 import numpy as np
 
-from deMonPy.ioread import IOread
 from deMonPy.exceptions import OutputParseError
+from deMonPy.ioread import IOread
 from deMonPy.molden import read_XYZ
 from deMonPy.profile import assert_flags, exclude_flags
 

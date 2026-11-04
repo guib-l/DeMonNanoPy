@@ -1,13 +1,7 @@
 
-import os,sys
-import copy
-import deMonPy
 from deMonPy.basic import Common
-from deMonPy.encoder import AseEncoder
-from deMonPy.exceptions import ConfigError, ExecuteFailed
 from deMonPy.demon.input import write_input
 from deMonPy.demon.output import read_output
-
 
 # ============================================================================= 
 #

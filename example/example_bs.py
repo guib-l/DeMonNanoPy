@@ -9,9 +9,6 @@ from ase.atoms import Atoms
 import deMonPy
 from deMonPy.ase_calculator import DeMonNano
 
-import ase
-
-
 deMonPy.configure_from_file("global.json")
 
 parameters = {

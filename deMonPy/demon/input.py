@@ -1,15 +1,8 @@
 #!/usr/bin/env python3
 # Import standard de python3
-import copy
 import os
 
-import numpy as np
-
-from deMonPy.exceptions import ConfigError
-from deMonPy.profile import assert_flags, exclude_flags
-
-
-
+from deMonPy.profile import assert_flags
 
 
 class write_input:

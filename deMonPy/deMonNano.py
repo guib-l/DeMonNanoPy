@@ -24,19 +24,13 @@ Typical usage::
     print(calc.results)
 """
 
-import os
-import sys
 from copy import deepcopy
 
 import deMonPy
 from deMonPy.basic import Common
-from deMonPy.encoder import AseEncoder
-from deMonPy.exceptions import ConfigError, ExecuteFailed
 from deMonPy.demonnano.input import write_input
 from deMonPy.demonnano.output import read_output
-
-
-
+from deMonPy.exceptions import ConfigError
 
 # ============================================================================= 
 #

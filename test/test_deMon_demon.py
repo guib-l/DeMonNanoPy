@@ -122,8 +122,11 @@ class TestBasicUsage:
             directory=WORKDIR,
             **parameters,
         )
-        image.calc = calc
-        opt = BFGS(image, trajectory=trajfile)
-        opt.run(fmax=0.05)
+        atoms = image.copy()  # keep the module-level image unchanged
+        atoms.calc = calc
+        opt = BFGS(atoms, trajectory=trajfile)
+        converged = opt.run(fmax=0.05)
 
         assert os.path.exists(trajfile)
+        assert converged
+        assert np.linalg.norm(atoms.get_forces(), axis=1).max() < 0.05

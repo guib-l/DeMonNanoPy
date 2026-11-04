@@ -1,6 +1,5 @@
 import os
 
-import copy
 import matplotlib.pyplot as plt
 import numpy as np
 from ase.atoms import Atoms

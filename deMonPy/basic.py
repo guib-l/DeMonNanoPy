@@ -24,15 +24,14 @@ Typical usage::
     print(calc.results)
 """
 
+import copy
 import os
 import sys
-import copy
-from copy import deepcopy
 
 import deMonPy
-from deMonPy.profile import Process
 from deMonPy.encoder import AseEncoder
-from deMonPy.exceptions import ConfigError, ExecuteFailed
+from deMonPy.exceptions import ExecuteFailed
+from deMonPy.profile import Process
 
 
 class BasicCalculation:
