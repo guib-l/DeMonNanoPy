@@ -59,6 +59,8 @@ class DeMonNano(GetOutputsMixin, Calculator):
         "execut": None,
         "basis": {},
         "omp_threads": 1,
+        "launcher": None,
+        "nprocs": None,
         "kpts": None,
         "prefix": "DEMON",
         "title": "CALCULATION DEMONANO",
@@ -91,6 +93,11 @@ class DeMonNano(GetOutputsMixin, Calculator):
                   ``DEMON_PARAMETERS > ACTIVE`` (e.g.
                   ``{"DFTB": {"SCC": True}}``).
                 * **omp_threads** -- OpenMP thread count (default ``1``).
+                * **launcher** -- command prefix such as
+                  ``"mpirun -np {nprocs}"``.  Falls back to
+                  :data:`deMonPy.DEMON_LAUNCHER`.
+                * **nprocs** -- number of processes for ``{nprocs}``.
+                  Falls back to :data:`deMonPy.DEMON_NPROCS`.
                 * **prefix** -- process manager prefix (default
                   ``"DEMON"``).
                 * **title** -- input-file title string.
@@ -154,6 +161,8 @@ class DeMonNano(GetOutputsMixin, Calculator):
             basis=basis if isinstance(basis, dict) else {},
             DEMON_PARAMETERS=demon_parameters,
             DEMON_MODULE=demon_module,
+            DEMON_LAUNCHER=self.parameters.get("launcher") or deMonPy.DEMON_LAUNCHER,
+            DEMON_NPROCS=self.parameters.get("nprocs") or deMonPy.DEMON_NPROCS,
         )
 
         # Periodic system: the PBC block must be present in DEMON_PARAMETERS

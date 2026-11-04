@@ -8,6 +8,10 @@ import numpy as np
 from deMonPy.exceptions import ConfigError
 from deMonPy.profile import assert_flags, exclude_flags
 
+# deMonNano reads each line of the basis block into a CHARACTER(72) buffer:
+# anything past this length is silently truncated.
+MAX_BASIS_LENGTH = 72
+
 _atoms_symbols_to_numbers = {
     "H": 1,
     "He": 2,
@@ -97,6 +101,7 @@ class write_input:
             "PARAM": BASIS,
             "GEOMETRY": [],
         }
+        self._check_basis(BASIS)
 
         # Update Parameters Flags
         params = parameters.get("DEMON_PARAMETERS", None)
@@ -443,6 +448,35 @@ class write_input:
         self.io_lines["PERIODIC"].append(txt)
 
         self.io_lines["PERIODIC"].append(f"\nBAND NK1={_kpts[0]} NK2={_kpts[1]} NK3={_kpts[2]}")
+
+    @staticmethod
+    def _check_basis(basis):
+        """Ensure every basis line fits in deMonNano's 72-character buffer.
+
+        Args:
+            basis: Basis definition (dict with ``PTYPE``/``SKFILE`` or list
+                of raw lines).
+
+        Raises:
+            ConfigError: If a line exceeds :data:`MAX_BASIS_LENGTH`.
+        """
+        if isinstance(basis, dict):
+            lines = [
+                ("PTYPE", "PTYPE=" + str(basis.get("PTYPE", ""))),
+                ("SKFILE", str(basis.get("SKFILE", "") or "")),
+            ]
+        elif isinstance(basis, (list, tuple)):
+            lines = [("BASIS", line) for item in basis for line in str(item).splitlines()]
+        else:
+            return
+
+        for key, line in lines:
+            if len(line) > MAX_BASIS_LENGTH:
+                raise ConfigError(
+                    f"BASIS {key} is {len(line)} characters long, but deMonNano "
+                    f"only reads the first {MAX_BASIS_LENGTH}: '{line}'. "
+                    "Use a shorter path (e.g. a symbolic link or a relative path)."
+                )
 
     def _write_basis(self):
         """Write basis and parameter file references."""

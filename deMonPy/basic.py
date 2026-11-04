@@ -53,21 +53,28 @@ class BasicCalculation:
     execut = ""
     workdir = None
 
-    def __init__(self, executable, workdir, prefix, omp_threads=1):
+    def __init__(self, executable, workdir, prefix, omp_threads=1, launcher=None, nprocs=1):
         """Initialise the calculation process wrapper.
 
         Args:
             executable: Path to the deMonNano executable.
             workdir: Working directory used for input and output files.
             prefix: Prefix used by the process manager.
-            omp_threads: Number of OpenMP threads to request.
+            omp_threads: Number of OpenMP threads to request
+                (exported as ``OMP_NUM_THREADS``; ``None`` leaves it unset).
                 Defaults to ``1``.
+            launcher: Optional command prefix (``mpirun``, ``srun``...),
+                see :class:`~deMonPy.profile.Process`.
+            nprocs: Number of processes substituted for ``{nprocs}`` in the
+                launcher.  Defaults to ``1``.
         """
         self.process = Process(
             executable=executable,
             workdir=workdir,
             prefix=prefix,
             omp_threads=omp_threads,
+            launcher=launcher,
+            nprocs=nprocs,
         )
         self.workdir = workdir
         self.state = {}
@@ -176,8 +183,18 @@ class Common(BasicCalculation):
         _execut = self.parameters.pop("DEMON_EXECUTABLE", execut or deMonPy.DEMON_EXECUTABLE)
         _prefix = self.parameters.pop("PREFIX", prefix)
         _workdir = self.parameters.pop("DEMON_WORKDIR", workdir)
+        _launcher = self.parameters.pop("DEMON_LAUNCHER", deMonPy.DEMON_LAUNCHER)
+        _nprocs = self.parameters.pop("DEMON_NPROCS", deMonPy.DEMON_NPROCS)
 
-        BasicCalculation.__init__(self, _execut, _workdir, _prefix, omp_threads=omp_threads)
+        BasicCalculation.__init__(
+            self,
+            _execut,
+            _workdir,
+            _prefix,
+            omp_threads=omp_threads,
+            launcher=_launcher,
+            nprocs=_nprocs,
+        )
 
         # Start running directory
         self.title = title

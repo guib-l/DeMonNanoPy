@@ -168,7 +168,7 @@ def example_dos():
     )
     atoms.get_potential_energy()
 
-    dos = DOS(atoms.calc, width=0.2)
+    dos = DOS(atoms.calc, width=0.5)
     energies = dos.get_energies()  # relative to the Fermi level
     weights = dos.get_dos()
 

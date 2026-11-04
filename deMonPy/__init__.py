@@ -23,20 +23,30 @@ available_modules = {
 DEMON_EXECUTABLE = None
 DEMON_BASIS = None
 DEMON_BASIS_EXT = None
+DEMON_LAUNCHER = None
+DEMON_NPROCS = 1
 
 
-def configure(executable=None, basis=None):
-    """Set global default values for executable and basis.
+def configure(executable=None, basis=None, launcher=None, nprocs=None):
+    """Set global default values for executable, basis and launcher.
 
     Args:
         executable: Path to the deMonNano executable.
         basis: Basis configuration dictionary.
+        launcher: Command prefix used to start the executable
+            (e.g. ``"mpirun -np {nprocs}"``), see
+            :class:`deMonPy.profile.Process`.
+        nprocs: Number of processes substituted for ``{nprocs}``.
     """
-    global DEMON_EXECUTABLE, DEMON_BASIS
+    global DEMON_EXECUTABLE, DEMON_BASIS, DEMON_LAUNCHER, DEMON_NPROCS
     if executable is not None:
         DEMON_EXECUTABLE = executable
     if basis is not None:
         DEMON_BASIS = basis
+    if launcher is not None:
+        DEMON_LAUNCHER = launcher
+    if nprocs is not None:
+        DEMON_NPROCS = nprocs
 
 
 def configure_from_file(path="global.json"):
@@ -57,4 +67,6 @@ def configure_from_file(path="global.json"):
     configure(
         executable=os.path.abspath(config.get("DEMON_EXECUTABLE")),
         basis=basis_str,
+        launcher=config.get("DEMON_LAUNCHER"),
+        nprocs=config.get("DEMON_NPROCS"),
     )
