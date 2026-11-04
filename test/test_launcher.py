@@ -41,6 +41,12 @@ def fake_mpi(tmp_path, monkeypatch):
     return exe, tmp_path
 
 
+@pytest.fixture
+def mpi_enabled(monkeypatch):
+    """Lift the nprocs > 1 lock to keep the multi-process path tested."""
+    monkeypatch.setattr(Process, "MPI_ENABLED", True)
+
+
 def _read_log(wd):
     return (wd / "launcher.log").read_text().splitlines()
 
@@ -52,7 +58,7 @@ def test_no_launcher_keeps_previous_behaviour():
     assert p.build_env()["OMP_NUM_THREADS"] == "4"
 
 
-def test_placeholders_and_exe_appended(fake_mpi):
+def test_placeholders_and_exe_appended(fake_mpi, mpi_enabled):
     p = Process(
         "deMon.x",
         omp_threads=4,
@@ -86,8 +92,8 @@ def test_omp_threads_none_not_exported(fake_mpi, monkeypatch):
         ({"launcher": "does-not-exist-xyz"}, "not found"),
         ({"launcher": 42}, "string or a list"),
         ({"launcher": ["mpirun", 1]}, "string or a list"),
-        ({"nprocs": 2}, "requires a launcher"),
-        ({"nprocs": 2, "launcher": "env"}, "requires a launcher"),
+        ({"nprocs": 2}, "MPI.*disabled"),
+        ({"nprocs": 2, "launcher": "env -u X {nprocs}"}, "MPI.*disabled"),
         ({"nprocs": 0}, "positive integer"),
         ({"omp_threads": 0}, "positive integer"),
         ({"omp_threads": None, "launcher": "env N={omp_threads}"}, "omp_threads is None"),
@@ -98,13 +104,35 @@ def test_invalid_configuration_raises(kwargs, match):
         Process("deMon.x", **kwargs)
 
 
+@pytest.mark.parametrize("kwargs", [{"nprocs": 2}, {"nprocs": 2, "launcher": "env"}])
+def test_nprocs_without_placeholder_raises_when_mpi_enabled(kwargs, mpi_enabled):
+    with pytest.raises(ConfigError, match="requires a launcher"):
+        Process("deMon.x", **kwargs)
+
+
+def test_mpi_disabled_by_default():
+    assert Process.MPI_ENABLED is False
+
+
 def test_empty_launcher_means_no_launcher():
     assert Process("deMon.x", launcher="").launcher is None
     assert Process("deMon.x", launcher=[]).launcher is None
 
 
 # ---------------------------------------------------------------- execution
-def test_execute_through_mpirun(fake_mpi):
+def test_execute_through_mpirun_single_process(fake_mpi):
+    exe, wd = fake_mpi
+    Process(
+        exe, workdir=wd, omp_threads=3,
+        launcher="mpirun -np {nprocs} --bind-to core",
+    ).execute()
+    argv, omp = _read_log(wd)
+    assert argv == f"-np 1 --bind-to core {exe.resolve()}"
+    assert omp == "3"
+    assert (wd / "ran.flag").exists()
+
+
+def test_execute_through_mpirun(fake_mpi, mpi_enabled):
     exe, wd = fake_mpi
     Process(
         exe, workdir=wd, omp_threads=3, nprocs=2,
@@ -124,7 +152,17 @@ def test_execute_failure_reports_command(fake_mpi):
 
 
 # --------------------------------------------------------------- plumbing
-def test_calculator_reads_launcher_parameters(fake_mpi):
+def test_calculator_rejects_nprocs_when_mpi_disabled(fake_mpi):
+    exe, wd = fake_mpi
+    with pytest.raises(ConfigError, match="MPI.*disabled"):
+        deMonNano(
+            execut=str(exe), workdir=str(wd),
+            basis={"PTYPE": "", "SKFILE": ""},
+            DEMON_LAUNCHER="mpirun -np {nprocs}", DEMON_NPROCS=2, **PARAMS,
+        )
+
+
+def test_calculator_reads_launcher_parameters(fake_mpi, mpi_enabled):
     exe, wd = fake_mpi
     calc = deMonNano(
         execut=str(exe),
@@ -140,7 +178,7 @@ def test_calculator_reads_launcher_parameters(fake_mpi):
     assert "DEMON_NPROCS" not in calc.parameters
 
 
-def test_calculator_uses_global_defaults(fake_mpi, monkeypatch):
+def test_calculator_uses_global_defaults(fake_mpi, monkeypatch, mpi_enabled):
     exe, wd = fake_mpi
     monkeypatch.setattr(deMonPy, "DEMON_LAUNCHER", "mpirun -np {nprocs}")
     monkeypatch.setattr(deMonPy, "DEMON_NPROCS", 2)

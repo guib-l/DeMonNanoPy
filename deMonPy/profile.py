@@ -34,6 +34,11 @@ class Process:
         launcher="srun -n {nprocs} -c {omp_threads} --cpu-bind=cores"
     """
 
+    # Multi-process runs (nprocs > 1) are disabled for now: deMonNano is
+    # OpenMP-only and N copies would share the same deMon.out.  Set to
+    # ``True`` to re-enable them once an MPI build is supported.
+    MPI_ENABLED = False
+
     def __init__(
         self,
         executable,
@@ -83,6 +88,11 @@ class Process:
         return self.launcher is not None and any(placeholder in t for t in self.launcher)
 
     def _check_consistency(self):
+        if self.nprocs > 1 and not self.MPI_ENABLED:
+            raise ConfigError(
+                f"nprocs={self.nprocs}: multi-process (MPI) runs are disabled, "
+                "only nprocs=1 is supported"
+            )
         if self.nprocs > 1 and not self._uses("{nprocs}"):
             raise ConfigError(
                 f"nprocs={self.nprocs} requires a launcher using '{{nprocs}}' "
