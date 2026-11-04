@@ -617,9 +617,10 @@ class read_output(IOread):
         text = "\n".join(self.lines)
 
         energyK = []
+        kcoords = []
         lines = text.splitlines()
         nband = self.complet_results["properties"]["matrix_dim"]
-        
+
         count, nkpt, limit = False, 0, 0
         for i, line in enumerate(lines):
 
@@ -627,6 +628,9 @@ class read_output(IOread):
                 count = True
                 limit = i + nband * 2
                 nkpt += 1
+                # Fractional coordinates are on the previous non-empty line
+                prev = [li for li in lines[max(0, i - 3):i] if li.strip()][-1]
+                kcoords.append([float(x) for x in prev.split()[1:4]])
 
             if count and i <= limit:
                 li = line.split()
@@ -641,6 +645,7 @@ class read_output(IOread):
         
         self.complet_results["k-points"] = energyK
         self.complet_results["eigenvalues"] = eigenv
+        self.complet_results["kpts_coords"] = np.array(kcoords)
 
 
     @assert_flags("print")

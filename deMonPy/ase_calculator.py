@@ -29,6 +29,7 @@ import os
 from copy import deepcopy
 
 import numpy as np
+from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import Calculator, all_changes
 from ase.units import Bohr, Hartree
 
@@ -41,7 +42,7 @@ from deMonPy.exceptions import OutputParseError
 _FORCE_CONV = Hartree / Bohr
 
 
-class DeMonNano(Calculator):
+class DeMonNano(GetOutputsMixin, Calculator):
     """ASE calculator backed by the deMonNano DFTB engine.
 
     Supported properties: ``energy``, ``free_energy``, ``forces``,
@@ -58,6 +59,7 @@ class DeMonNano(Calculator):
         "execut": None,
         "basis": {},
         "omp_threads": 1,
+        "kpts": None,
         "prefix": "DEMON",
         "title": "CALCULATION DEMONANO",
     }
@@ -154,9 +156,17 @@ class DeMonNano(Calculator):
             DEMON_MODULE=demon_module,
         )
 
+        # Periodic system: the PBC block must be present in DEMON_PARAMETERS
+        cell, kpts = None, None
+        if atoms.pbc.any():
+            cell = np.array(atoms.cell)
+            kpts = self.parameters.get("kpts")
+
         calc.calculate(
             symbols=list(atoms.symbols),
             positions=atoms.positions,
+            cell=cell,
+            kpts=kpts,
         )
 
         raw = calc.results
@@ -186,4 +196,35 @@ class DeMonNano(Calculator):
                     f"Forces are unavailable; check that the calculation "
                     f"completed and that the 'PRINT GRAD' directive was active."
                 )
-            self.results["forces"] = -forces
+            self.results["forces"] = -forces * _FORCE_CONV
+
+        # --- k-points / eigenvalues (Hartree -> eV), no spin ---
+        if "k-points" in raw:
+            eps_occ = raw["k-points"]  # (nkpts, nbands, [eigenvalue, occupation])
+            nkpts = eps_occ.shape[0]
+            self.results["eigenvalues"] = eps_occ[None, :, :, 0] * Hartree
+            self.results["occupations"] = eps_occ[None, :, :, 1]
+            kcoords = raw["kpts_coords"]
+            if kcoords.size == 0:
+                # Recent deMonNano does not print the k-point coordinates:
+                # rebuild the full grid (k1 outer loop, k3 inner loop, i/N)
+                grid = np.array(kpts if kpts is not None else demon_parameters["ACTIVE"]["PBC"]["KPTS"])
+                kcoords = np.indices(grid).reshape(3, -1).T / grid
+            if len(kcoords) != nkpts:
+                raise OutputParseError(
+                    f"{nkpts} k-points read in deMon.out but {len(kcoords)} k-point coordinates"
+                )
+            self.results["ibz_kpoints"] = kcoords
+            self.results["kpoint_weights"] = np.full(nkpts, 1.0 / nkpts)
+
+            fermi = energy_dict.get("fermi_energy")
+            if fermi is not None:
+                self.results["fermi_level"] = fermi * Hartree
+            else:
+                # Highest occupied eigenvalue over all k-points
+                occupied = eps_occ[:, :, 1] > 0
+                self.results["fermi_level"] = eps_occ[:, :, 0][occupied].max() * Hartree
+
+    def _outputmixin_get_results(self):
+        """Expose :attr:`results` to :class:`~ase.calculators.abc.GetOutputsMixin`."""
+        return self.results
