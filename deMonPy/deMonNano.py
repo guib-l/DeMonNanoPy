@@ -490,3 +490,40 @@ class Module_DeMonNano(deMonNano):
 
         self.build = module(context=self, **params)
         self.is_build = True
+        
+    def __call__(self, method=None, **kwds):
+        """Dispatch a call to the active module.
+
+        If the module has not been initialised yet, :meth:`initialize`
+        is called automatically.
+
+        When *method* is ``None`` the module's own ``__call__`` (i.e.
+        its :meth:`~deMonPy.modules.module.modules.forward` entry
+        point) is invoked.  Otherwise the named method is looked up on
+        the module instance.
+
+        Args:
+            method: Optional name of a specific method to invoke on the
+                module.  When ``None`` (default) the module's
+                ``__call__`` is used.
+            **kwds: Keyword arguments forwarded to the module method.
+
+        Returns:
+            The value returned by the module method.
+
+        Raises:
+            NotImplementedError: If *method* is given but does not exist
+                on the built module.
+        """
+        if not self.is_build:
+            self.initialize()
+
+        if method is None:
+            return self.build.__call__(**kwds)
+
+        elif hasattr(self.build, method):
+            func = getattr(self.build, method)
+            return func(**kwds)
+
+        else:
+            raise NotImplementedError(f"Method {method} is unknow in module {self.build.__name__}")

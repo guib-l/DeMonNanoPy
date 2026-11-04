@@ -222,7 +222,7 @@ if __name__ == "__main__":
     exemple_run_mc()
     print(" \u2705 MC DABCO-Argon : Done")
 
-    img, info = read_XYZ(join(".run/ptmc", "deMon.01.mol"), is_charges=False)
+    img, info = read_XYZ(join(WORKDIR, "deMon.01.mol"), is_charges=False)
     energy = [float(_l.split()[2]) for _l in info]
     index = np.argmin(energy)
 
@@ -232,13 +232,13 @@ if __name__ == "__main__":
     # ====================================================
     # Global optimization with PTMC
 
-    exemple_run_ptmc(200)
+    exemple_run_ptmc(2000)
     print(" \u2705 PTMC DABCO-Argon : Done")
 
     if os.path.exists("example/optimized.xyz"):
-        os.rmdir("example/optimized.xyz")
+        os.remove("example/optimized.xyz")
 
-    for img in progressbar(select_strutures(".run/ptmc"), size=40, prefix=" \u23f3 Otimization : "):
+    for img in progressbar(select_strutures(WORKDIR), size=40, prefix=" \u23f3 Otimization : "):
         res = exemple_run_opt(img)
 
         write_XYZ(

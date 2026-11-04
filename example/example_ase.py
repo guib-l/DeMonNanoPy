@@ -1,5 +1,6 @@
 import os
 
+import copy
 import numpy as np
 from ase.atoms import Atoms
 
@@ -13,7 +14,7 @@ parameters = {
     "BASIS": {"PTYPE": "BIO", "SKFILE": deMonPy.DEMON_BASIS},
     "DEMON_PARAMETERS": {
         "ACTIVE": {
-            "DFTB": {"SCC": True, "DISP": 2},
+            "DFTB": {"SCC": True, "DISP":2},
             "CHARGE": 0.0,
         },
     },
@@ -66,10 +67,25 @@ def exemple_run_bfgs():
     )
     image.calc = calc
     opt = BFGS(image, trajectory=os.path.join(WORKDIR, "H2O.traj"))
-    opt.run(fmax=0.005)
+    opt.run(fmax=0.01)
+
+
+def exemple_run_dynamics():
+    ...
+
+def exemple_run_neb():
+    ...
+
+def exemple_run_bassinHopping():
+    ...
+
 
 
 if __name__ == "__main__":
     exemple_run_ase()
 
     exemple_run_bfgs()
+
+    exemple_run_dynamics()
+
+    exemple_run_neb()
