@@ -30,7 +30,7 @@ from copy import deepcopy
 
 import numpy as np
 from ase.calculators.abc import GetOutputsMixin
-from ase.calculators.calculator import Calculator, all_changes
+from ase.calculators.calculator import Calculator, SCFError, all_changes
 from ase.units import Bohr, Hartree
 
 import deMonPy
@@ -179,6 +179,14 @@ class DeMonNano(GetOutputsMixin, Calculator):
         )
 
         raw = calc.results
+
+        # "ERROR :" lines of deMon.out (e.g. SCC loop over charges not converged)
+        errors = [err["line"] for err in raw.get("errors", []) if err["kind"] == "demon"]
+        if errors:
+            raise SCFError(
+                f"deMonNano failed in {os.path.join(workdir, 'deMon.out')}: "
+                + "; ".join(errors)
+            )
 
         # --- energy (Hartree -> eV) ---
         energy_dict = raw.get("energy", {})

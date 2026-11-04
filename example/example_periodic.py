@@ -25,19 +25,6 @@ parameters = {
         },
     },
 }
-image = Atoms(
-    ["O", "H", "H", "O", "H", "H"],
-    positions=np.array(
-        [
-            [1.2478, -0.5185, 3.4049],
-            [1.5946, -1.4204, 3.3886],
-            [0.9008, -0.3341, 2.5062],
-            [3.2478, -0.4185, 3.4049],
-            [3.5946, -1.5204, 3.3886],
-            [2.9008, -0.3341, 2.6062],
-        ]
-    ),
-)
 
 WORKDIR = ".run/examples-pbc/"
 
@@ -52,7 +39,7 @@ def _save(fig, filename):
 def exemple_run_kpt():
 
     print("=" * 40)
-    print(" K-points vs energy definiton")
+    print(" K-points vs energy definition")
 
     cell = np.array(
         [
@@ -68,7 +55,6 @@ def exemple_run_kpt():
         ]
     )
     symbols = ["C"] * 2
-    kpts = [10, 10, 1]
     parameter_config = copy.deepcopy(parameters)
     dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
     energies = []
@@ -86,40 +72,67 @@ def exemple_run_kpt():
     ax.plot(range(1, 25), np.abs(energy - energy[-1]), color="black", marker="s")
 
     ax.set_xlabel("K-points")
-    ax.set_ylabel(r"|$\Delta$ Energy| (eV)")
+    ax.set_ylabel(r"|$\Delta$ Energy| (Ha)")
     _save(fig, "./energy-vs-kpts.png")
 
 
-def scan_graphite_D2():
+# Graphite AB: cell, positions and starting c parameter for each dispersion model
+GRAPHITE = {
+    1: {
+        "cell": np.array(
+            [
+                [2.47558654, 0.000000, 0.000000],
+                [-1.23779327, 2.1439125, 0.000000],
+                [0.000000, 0.000000, 6.760000],
+            ]
+        ),
+        "positions": np.array(
+            [
+                [0.000000, 0.000000, 0.000000],
+                [1.23779327, 0.71463749, 0.000000],
+                [0.000000, 1.425000, 3.380000],
+                [1.23779327, 2.14363749, 3.380000],
+            ]
+        ),
+        "base": 6.74,
+    },
+    2: {
+        "cell": np.array(
+            [
+                [2.468179, 0.000000, 0.000000],
+                [-1.234091, 2.1375, 0.000000],
+                [0.000000, 0.000000, 6.260000],
+            ]
+        ),
+        "positions": np.array(
+            [
+                [0.000000, 0.000000, 0.000000],
+                [1.234091, 0.7125, 0.000000],
+                [0.000000, 1.425000, 3.130000],
+                [1.234091, 2.1375, 3.130000],
+            ]
+        ),
+        "base": 6.24,
+    },
+}
+
+
+def scan_graphite(disp):
 
     print("=" * 40)
-    print(" SCAN of energy along z-axis : graphite-D2")
+    print(f" SCAN of energy along z-axis : graphite-D{disp}")
 
-    cell = np.array(
-        [
-            [2.468179, 0.000000, 0.000000],
-            [-1.234091, 2.1375, 0.000000],
-            [0.000000, 0.000000, 6.260000],
-        ]
-    )
-    positions = np.array(
-        [
-            [0.000000, 0.000000, 0.000000],
-            [1.234091, 0.7125, 0.000000],
-            [0.000000, 1.425000, 3.130000],
-            [1.234091, 2.1375, 3.130000],
-        ]
-    )
+    cell = GRAPHITE[disp]["cell"]
+    positions = GRAPHITE[disp]["positions"]
+    base = GRAPHITE[disp]["base"]
     symbols = ["C"] * 4
 
     parameter_config = copy.deepcopy(parameters)
-    parameter_config["DEMON_PARAMETERS"]["ACTIVE"]["DFTB"].update({"DISP": 2, "DIAG": "DSYGVD"})
+    parameter_config["DEMON_PARAMETERS"]["ACTIVE"]["DFTB"].update({"DISP": disp, "DIAG": "DSYGVD"})
     kpts = [17, 17, 3]
     dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
 
     distance, energy = [], []
-
-    base = 6.24
 
     for i in range(0, 7):
         new_cell = cell.copy()
@@ -137,72 +150,23 @@ def scan_graphite_D2():
 
     fig, ax = plt.subplots(figsize=(6.5, 6.5))
 
-    ax.plot(distance, energy, color="black", marker="s")
+    # Polynomial fit (degree 3), for display only
+    fit = np.polyfit(distance, energy, 3)
+    d_fit = np.linspace(distance[0], distance[-1], 200)
+    ax.plot(d_fit, np.polyval(fit, d_fit), color="black")
+    ax.plot(distance, energy, color="black", marker="s", linestyle="none")
 
     ax.set_xlabel(r"Distance inter-layer ($\AA$)")
     ax.set_ylabel("Energy (Ha)")
 
-    _save(fig, "./graphene-D2.png")
+    _save(fig, f"./graphite-D{disp}.png")
 
 
-def scan_graphite_D1():
-
-    print("=" * 40)
-    print(" SCAN of energy along z-axis : graphite-D1")
-
-    cell = np.array(
-        [
-            [2.47558654, 0.000000, 0.000000],
-            [-1.23779327, 2.1439125, 0.000000],
-            [0.000000, 0.000000, 6.760000],
-        ]
-    )
-    positions = np.array(
-        [
-            [0.000000, 0.000000, 0.000000],
-            [1.23779327, 0.71463749, 0.000000],
-            [0.000000, 1.425000, 3.380000],
-            [1.23779327, 2.14363749, 3.380000],
-        ]
-    )
-    symbols = ["C"] * 4
-
-    parameter_config = copy.deepcopy(parameters)
-    parameter_config["DEMON_PARAMETERS"]["ACTIVE"]["DFTB"].update({"DISP": 1, "DIAG": "DSYGVD"})
-    kpts = [17, 17, 3]
-    dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
-
-    distance, energy = [], []
-
-    base = 6.74
-    for i in range(0, 7):
-        new_cell = cell.copy()
-        new_positions = positions.copy()
-        new_cell[2, 2] = base + (0.01 * i)
-        new_positions[2:, 2] = (base + (0.01 * i)) / 2
-
-        dem.calculate(symbols=symbols, positions=new_positions, cell=new_cell, kpts=kpts)
-
-        results = dem.results
-        print(f" > Energy total at {(base + (0.01 * i)) / 2} A : {results['energy']['energy']} Ha")
-
-        distance.append((base + (0.01 * i)) / 2)
-        energy.append(results["energy"]["energy"])
-
-    fig, ax = plt.subplots(figsize=(6.5, 6.5))
-
-    ax.plot(distance, energy, color="black", marker="s")
-
-    ax.set_xlabel(r"Distance inter-layer ($\AA$)")
-    ax.set_ylabel("Energy (Ha)")
-
-    _save(fig, "./graphene-D1.png")
-
-
-def example_periodic_graphene():
+def example_periodic_graphite_AA():
+    """Single point on AA-stacked graphite (graphene sheets repeated every 6.7 A)."""
 
     print("=" * 40)
-    print(" Example single-point graphene")
+    print(" Example single-point graphite AA")
 
     cell = np.array(
         [
@@ -353,12 +317,12 @@ def example_opt_graphene_D1():
 if __name__ == "__main__":
     exemple_run_kpt()
 
-    example_periodic_graphene()
+    example_periodic_graphite_AA()
 
     example_opt_graphene_D1()
 
     example_opt_graphene_D2()
 
-    scan_graphite_D1()
+    scan_graphite(1)
 
-    scan_graphite_D2()
+    scan_graphite(2)
