@@ -11,7 +11,7 @@ from copy import deepcopy
 import numpy as np
 import pytest
 from ase.atoms import Atoms
-from ase.calculators.calculator import PropertyNotImplementedError, SCFError
+from ase.calculators.calculator import SCFError
 from ase.calculators.fd import calculate_numerical_forces
 from ase.units import Bohr, Hartree
 
@@ -78,12 +78,18 @@ class FakeDeMonNano:
 
     raw = {}
     kwargs = None
+    calc_kwargs = None
 
     def __init__(self, **kwargs):
         FakeDeMonNano.kwargs = kwargs
 
     def calculate(self, **kwargs):
+        FakeDeMonNano.calc_kwargs = kwargs
         self.results = deepcopy(FakeDeMonNano.raw)
+        # deMonPy always returns the geometry read from deMon.mol
+        self.results.setdefault(
+            "output_geometry", Atoms(kwargs["symbols"], positions=kwargs["positions"])
+        )
 
 
 @pytest.fixture
@@ -91,6 +97,7 @@ def fake(monkeypatch):
     monkeypatch.setattr(ase_calculator, "deMonNano", FakeDeMonNano)
     FakeDeMonNano.raw = {}
     FakeDeMonNano.kwargs = None
+    FakeDeMonNano.calc_kwargs = None
     return FakeDeMonNano
 
 
@@ -174,6 +181,26 @@ class TestUnit:
         calc = DeMonNano(directory=str(tmp_path), **parameters)
         calc.calculate(_water(), properties=properties)
         assert fake.kwargs["DEMON_MODULE"] == module
+
+    def test_charges_read(self, fake, tmp_path):
+        """A8: charges read from deMon.mol without forces, absent with OPT SP."""
+        geometry = _water()
+        geometry.set_initial_charges([-0.6, 0.3, 0.3])
+        fake.raw = {
+            "energy": {"energy": -1.5},
+            "forces": np.zeros((3, 3)),
+            "output_geometry": geometry,
+        }
+
+        calc = DeMonNano(directory=str(tmp_path), **parameters)
+        calc.calculate(_water(), properties=["energy"])
+        assert fake.calc_kwargs["read_charges"] is True
+        np.testing.assert_allclose(calc.results["charges"], [-0.6, 0.3, 0.3])
+
+        calc = DeMonNano(directory=str(tmp_path), **parameters)
+        calc.calculate(_water(), properties=["energy", "forces"])
+        assert fake.calc_kwargs["read_charges"] is False
+        assert "charges" not in calc.results
 
     def test_fermi_level(self, fake, tmp_path):
         """A5: Fermi level read from the output, else highest occupied eigenvalue."""
@@ -262,12 +289,21 @@ class TestIntegration:
         assert calc.results["energy"] == pytest.approx(energy_ha * Hartree, rel=1e-10)
 
     def test_charges(self):
-        """B5: charges are not implemented (deMonNano does not write them)."""
+        """B5: Mulliken charges of the water dimer, also after get_forces()."""
+        reference = [-0.556548, 0.286685, 0.269881, -0.528002, 0.218527, 0.309458]
+
         atoms = water_dimer.copy()
         atoms.calc = DeMonNano(directory=os.path.join(WORKDIR, "charges"), **parameters)
+        charges = atoms.get_charges()
 
-        with pytest.raises(PropertyNotImplementedError):
-            atoms.get_charges()
+        np.testing.assert_allclose(charges, reference, rtol=1e-5)
+        assert charges.sum() == pytest.approx(0.0, abs=1e-5)
+
+        # Forces first (OPT SP, no charges in deMon.mol): ASE recomputes
+        atoms = water_dimer.copy()
+        atoms.calc = DeMonNano(directory=os.path.join(WORKDIR, "charges"), **parameters)
+        atoms.get_forces()
+        np.testing.assert_allclose(atoms.get_charges(), reference, rtol=1e-5)
 
     def test_scf_not_converged(self):
         """B10: a nearly dissociated water dimer (SCC not converged) raises SCFError."""
