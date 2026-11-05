@@ -71,39 +71,40 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=T
                 charges.append(float(fields[4]) if len(fields) > 4 else 0.0)
 
                 if velocities:
+                    # Xx lines (periodic cell) only have 4 fields
                     veloc.append(
-                        [
-                            float(fields[5]),
-                            float(fields[6]),
-                            float(fields[7]),
-                        ]
+                        [float(v) for v in fields[5:8]] if len(fields) > 7 else [0.0, 0.0, 0.0]
                     )
             else:
                 charges.append(0.0)
 
         mask = [symbol != "Xx" for symbol in symbols]
-        has_xx = not all(mask)
+        xx = [p for p, keep_atom in zip(positions, mask) if not keep_atom]
 
-        if has_xx:
-            periodic = True
-
-            # xx_positions = [
-            #    pos for pos, is_real in zip(positions, mask)
-            #    if not is_real
-            # ]
-
-            # lattice = xx_positions[:-1]
-            cell = np.zeros((3, 3))
+        if xx:
+            # deMonNano writes 9 Xx: the 8 corners of the cell centred on the
+            # origin (corner (i, j, k) at index 4i + 2j + k), then the
+            # translation applied to the input positions.
+            if len(xx) != 9:
+                raise ValueError(
+                    f"{len(xx)} Xx atoms found, 9 expected (8 cell corners + translation)"
+                )
+            xx = np.asarray(xx)
+            cell = np.array([xx[4] - xx[0], xx[2] - xx[0], xx[1] - xx[0]])
+            shift = xx[8]
             periodic = True
         else:
-            # lattice = None
             cell = None
+            shift = None
             periodic = False
 
         # Filter Xx atoms
         symbols = [s for s, keep_atom in zip(symbols, mask) if keep_atom]
         positions = [p for p, keep_atom in zip(positions, mask) if keep_atom]
         charges = [c for c, keep_atom in zip(charges, mask) if keep_atom]
+
+        if shift is not None:
+            positions = (np.asarray(positions) + shift).tolist()  # back to the input frame
 
         if velocities:
             veloc = [v for v, keep_atom in zip(veloc, mask) if keep_atom]

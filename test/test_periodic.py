@@ -323,3 +323,96 @@ class TestPeriodic:
         energy = results["energy"]
 
         assert np.allclose(energy["energy"] / 4, -1.73875958137, atol=1e-7)
+
+
+# Graphene for the periodic molecular dynamics
+MD_CELL = np.array(
+    [
+        [2.460000, 0.000000, 0.000000],
+        [-1.230000, 2.130422, 0.000000],
+        [0.000000, 0.000000, 100.0000],
+    ]
+)
+MD_POSITIONS = np.array(
+    [
+        [0.000000, 0.000000, 0.000000],
+        [1.230000, 0.710000, 0.000000],
+    ]
+)
+MD_TIMESTEP = 0.4  # fs
+
+
+def _run_periodic_md(nstep=20, temperature=300):
+    """Born-Oppenheimer MD of graphene (deMonNano), random velocities at *temperature*."""
+    parameter_config = deepcopy(parameters)
+    parameter_config["DEMON_MODULE"] = {
+        "ACTIVE": {
+            "MD": {
+                "MDYNAMICS": {
+                    "ZERO": False,
+                    "RANDOM": temperature,
+                    "RAN": False,
+                    "READ": {"VELOCITIES": []},
+                    "RESET": False,
+                    "WALL": None,
+                    "EXP": None,
+                    "ENER": None,
+                },
+                "TIMESTEP": MD_TIMESTEP,
+                "MDSTEP": {"MAX": nstep, "OUT": 1, "SOUT": 1, "TSIM": None},
+                "MDTEMP": None,
+                "TRAJECTORY": True,
+            },
+        },
+    }
+
+    dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+    dem.calculate(symbols=["C"] * 2, positions=MD_POSITIONS, cell=MD_CELL, kpts=[10, 10, 1])
+    return dem.results
+
+
+class TestPeriodicMD:
+    @pytest.mark.dynamics
+    def test_periodic_md_trajectory(self):
+        """Every frame: periodic, input cell, no Xx, continuous positions."""
+        results = _run_periodic_md()
+        traj = results["trajectory"]
+
+        assert len(traj) == 21
+        for atoms in traj:
+            assert atoms.pbc.all()
+            assert atoms.get_chemical_symbols() == ["C", "C"]
+            np.testing.assert_allclose(np.array(atoms.cell), MD_CELL, atol=1e-5)
+
+        # Xx translation removed: first frame in the input frame, no jump
+        np.testing.assert_allclose(traj[0].positions, MD_POSITIONS, atol=2e-6)
+        for previous, current in zip(traj[:-1], traj[1:]):
+            assert np.abs(current.positions - previous.positions).max() < 0.05
+
+    @pytest.mark.dynamics
+    def test_periodic_md_velocities(self):
+        """Velocities read despite the Xx lines (4 fields)."""
+        results = _run_periodic_md()
+        traj = results["trajectory"]
+
+        assert np.abs(traj[0].get_velocities()).max() > 0.0
+        assert traj[0].get_temperature() == pytest.approx(300.0, rel=1e-3)
+
+        final = results["output_geometry"]
+        assert final.pbc.all()
+        np.testing.assert_allclose(np.array(final.cell), MD_CELL, atol=1e-5)
+
+    @pytest.mark.dynamics
+    def test_periodic_md_conservation(self):
+        """NVE: Etot = Epot + Ekin, small drift, regular time.
+
+        Frame 0 is skipped: deMonNano writes Etot = 0 for it.
+        """
+        results = _run_periodic_md()
+        pote = results["potential_energy"][1:]
+        kine = results["kinetic_energy"][1:]
+        tote = results["total_energy"][1:]
+
+        np.testing.assert_allclose(tote, pote + kine, atol=1e-6)
+        assert np.abs(tote - tote[0]).max() < 1e-4
+        np.testing.assert_allclose(np.diff(results["time"]), MD_TIMESTEP, rtol=1e-6)

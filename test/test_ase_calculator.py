@@ -120,7 +120,6 @@ def _graphene_raw(kcoords, fermi=None):
 
 
 class TestUnit:
-
     def test_units(self, fake, tmp_path):
         """A1: energy Ha -> eV, forces = -gradient * Hartree / Bohr."""
         grad = np.array([[0.1, -0.2, 0.3], [0.0, 0.05, -0.1], [-0.1, 0.15, -0.2]])
@@ -243,7 +242,6 @@ class TestUnit:
 
 
 class TestIntegration:
-
     @pytest.mark.forces
     def test_numerical_forces(self):
         """B1: analytical forces = finite-difference forces (water dimer)."""
@@ -254,6 +252,28 @@ class TestIntegration:
         numerical = calculate_numerical_forces(atoms, eps=1e-3)
 
         np.testing.assert_allclose(forces, numerical, rtol=1e-3, atol=1e-3)
+
+    @pytest.mark.dynamics
+    def test_periodic_verlet(self):
+        """B2: NVE VelocityVerlet on graphene conserves Etot (periodic forces)."""
+        from ase import units
+        from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
+        from ase.md.verlet import VelocityVerlet
+
+        atoms = graphene.copy()
+        atoms.calc = DeMonNano(
+            directory=os.path.join(WORKDIR, "verlet"), kpts=(10, 10, 1), **parameters_pbc
+        )
+        MaxwellBoltzmannDistribution(atoms, temperature_K=300, rng=np.random.default_rng(0))
+
+        dyn = VelocityVerlet(atoms, timestep=0.5 * units.fs)
+        etot = []
+        dyn.attach(lambda: etot.append(atoms.get_total_energy()), interval=1)
+        dyn.run(40)
+
+        etot = np.array(etot)
+        assert len(etot) == 41
+        assert np.abs(etot - etot[0]).max() < 1e-4  # eV
 
     @pytest.mark.parametrize(
         "atoms, params, kpts",
