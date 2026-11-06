@@ -77,7 +77,8 @@ def exemple_run_dynamics():
 
     from ase import units
     from ase.md.langevin import Langevin
-    from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
+    from ase.md.verlet import VelocityVerlet
+    from ase.md.velocitydistribution import thermalize_momenta
     from ase.optimize import BFGS
 
     atoms = image.copy()
@@ -88,15 +89,17 @@ def exemple_run_dynamics():
         **parameters,
     )
     BFGS(atoms).run(fmax=0.01)  # start from the relaxed dimer
-    MaxwellBoltzmannDistribution(atoms, temperature_K=300)
+    thermalize_momenta(atoms, temperature_K=300)
 
-    dyn = Langevin(
-        atoms,
-        timestep=0.5 * units.fs,
-        temperature_K=300,
-        friction=0.01 / units.fs,
-        trajectory=os.path.join(WORKDIR, "md.traj"),
-    )
+    dyn = VelocityVerlet(atoms, timestep=0.5 * units.fs,
+                         trajectory=os.path.join(WORKDIR, "md.traj"),)
+    #dyn = Langevin(
+    #    atoms,
+    #    timestep=0.5 * units.fs,
+    #    temperature_K=300,
+    #    friction=0.01 / units.fs,
+    #    trajectory=os.path.join(WORKDIR, "md.traj"),
+    #)
 
     time, epot, ekin = [], [], []
 
@@ -163,7 +166,7 @@ def exemple_run_neb():
         images.append(img)
     images.append(final)
 
-    neb = NEB(images, climb=True)
+    neb = NEB(images, climb=True, method='improvedtangent')
     neb.interpolate(method="idpp")
     FIRE(neb, trajectory=os.path.join(WORKDIR, "neb.traj")).run(fmax=0.05, steps=200)
 
@@ -231,12 +234,17 @@ def exemple_run_bassinHopping():
 
 
 if __name__ == "__main__":
+    print("="*40,"ASE calculation")
     exemple_run_ase()
 
+    print("="*40,"BFGS optimization")
     exemple_run_bfgs()
 
+    print("="*40,"Verlet Dynamics")
     exemple_run_dynamics()
 
+    print("="*40,"NEB")
     exemple_run_neb()
 
+    print("="*40,"BassinHopping")
     exemple_run_bassinHopping()

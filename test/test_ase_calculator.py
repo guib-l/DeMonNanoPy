@@ -257,14 +257,14 @@ class TestIntegration:
     def test_periodic_verlet(self):
         """B2: NVE VelocityVerlet on graphene conserves Etot (periodic forces)."""
         from ase import units
-        from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
+        from ase.md.velocitydistribution import thermalize_momenta
         from ase.md.verlet import VelocityVerlet
 
         atoms = graphene.copy()
         atoms.calc = DeMonNano(
             directory=os.path.join(WORKDIR, "verlet"), kpts=(10, 10, 1), **parameters_pbc
         )
-        MaxwellBoltzmannDistribution(atoms, temperature_K=300, rng=np.random.default_rng(0))
+        thermalize_momenta(atoms, temperature_K=300, rng=np.random.default_rng(0))
 
         dyn = VelocityVerlet(atoms, timestep=0.5 * units.fs)
         etot = []
