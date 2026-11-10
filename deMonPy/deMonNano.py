@@ -72,6 +72,7 @@ class deMonNano(Common):
         basis=None,
         ase_obj=True,
         clean_repository=True,
+        ignore_parse_errors=True,
         **parameters,
     ):
         """Initialise a deMonNano calculator.
@@ -91,6 +92,10 @@ class deMonNano(Common):
             basis: Basis configuration dictionary.  Expected keys are
                 ``"PTYPE"`` and ``"SKFILE"``.  Falls back to
                 :data:`deMonPy.DEMON_BASIS` when empty.
+            ignore_parse_errors: If ``True`` (default), a property the
+                parser fails to compute is set to ``None`` and the failure
+                is recorded in ``results["errors"]`` (kind ``"parse"``)
+                instead of raising.  A missing ``deMon.out`` always raises.
             **parameters: Full deMonNano configuration.  Recognised
                 top-level keys include ``DEMON_EXECUTABLE``,
                 ``DEMON_WORKDIR``, ``DEMON_PARAMETERS`` and
@@ -107,6 +112,7 @@ class deMonNano(Common):
                         basis,
                         ase_obj,
                         clean_repository,
+                        ignore_parse_errors,
                         **parameters,
                     )
         
@@ -132,6 +138,7 @@ class deMonNano(Common):
             flags=self.flags,
             output="deMon.out",
             ase_obj=ase_obj,
+            ignore_parse_errors=self._ignore_parse_errors,
         )
 
         if clean_repository:
@@ -190,6 +197,7 @@ class deMonNano(Common):
             flags=self.flags,
             output="deMon.out",
             ase_obj=self._ase_obj,
+            ignore_parse_errors=self._ignore_parse_errors,
         )
 
     def calculate(

@@ -44,6 +44,7 @@ class deMon(Common):
         basis=None,
         ase_obj=True,
         clean_repository=True,
+        ignore_parse_errors=True,
         **parameters,
     ):
 
@@ -58,6 +59,7 @@ class deMon(Common):
                         basis,
                         ase_obj,
                         clean_repository,
+                        ignore_parse_errors,
                         **parameters,
                     )
 
@@ -102,6 +104,7 @@ class deMon(Common):
             flags=self.flags,
             output="deMon.out",
             ase_obj=self._ase_obj,
+            ignore_parse_errors=self._ignore_parse_errors,
         )
 
     def calculate(

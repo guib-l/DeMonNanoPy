@@ -1,5 +1,39 @@
 
+from functools import wraps
+
 import numpy as np
+
+
+def safe_parse(*keys, default=None):
+    """Make an output reader tolerant to parsing failures.
+
+    When the decorated reader raises and the parser has
+    ``ignore_parse_errors`` set to ``True``, the exception is recorded in
+    ``complet_results["errors"]`` (kind ``"parse"``), every key in *keys*
+    is set to *default* (discarding any partially parsed value), and
+    *default* is returned.  Otherwise the exception propagates unchanged.
+
+    Args:
+        *keys: ``complet_results`` keys the reader is expected to fill.
+        default: Value used for missing keys and returned on failure.
+    """
+
+    def decorator(method):
+        @wraps(method)
+        def wrapper(self, *args, **kwargs):
+            try:
+                return method(self, *args, **kwargs)
+            except Exception as err:
+                if not getattr(self, "ignore_parse_errors", False):
+                    raise
+                self._add_error("parse", f"{method.__name__}: {type(err).__name__}: {err}")
+                for key in keys:
+                    self.complet_results[key] = default
+                return default
+
+        return wrapper
+
+    return decorator
 
 
 class IOread(object):

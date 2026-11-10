@@ -7,7 +7,7 @@ import re
 import numpy as np
 
 from deMonPy.exceptions import OutputParseError
-from deMonPy.ioread import IOread
+from deMonPy.ioread import IOread, safe_parse
 from deMonPy.molden import read_XYZ
 from deMonPy.profile import assert_flags, exclude_flags
 
@@ -57,6 +57,7 @@ class read_output(IOread):
         flags=set(),
         ase_obj=True,
         type_calculation={},
+        ignore_parse_errors=True,
     ):
         """Initialize the output reader.
 
@@ -66,6 +67,10 @@ class read_output(IOread):
             output: Main output file name.
             flags: Active parser flags.
             type_calculation: Reserved calculation metadata.
+            ignore_parse_errors: If ``True`` (default), a reader that
+                fails records a ``"parse"`` error and leaves its results
+                set to ``None`` instead of raising.  Missing or
+                unreadable output files always raise.
         """
 
         IOread.__init__(
@@ -76,6 +81,7 @@ class read_output(IOread):
         self.output = output
 
         self.flags = flags
+        self.ignore_parse_errors = ignore_parse_errors
 
         self.properties = properties
         self.complet_results = {
@@ -127,6 +133,7 @@ class read_output(IOread):
     # =================================
     # READ ENERGY (basics)
 
+    @safe_parse("properties")
     def read_basics(self):
         """Read basics things"""
 
@@ -180,6 +187,7 @@ class read_output(IOread):
 
         self.complet_results["properties"] = data
 
+    @safe_parse("energy")
     def read_energy(self):
         """Parse energy values from the loaded output lines."""
 
@@ -232,6 +240,7 @@ class read_output(IOread):
     # =================================
     # READ GEOMETRY (basics)
 
+    @safe_parse("input_geometry", "output_geometry")
     @exclude_flags(["ptmc", "freq", "ptmd", "rttddftb"])
     def read_geometry(self, output="deMon.mol", is_charges=False, velocities=False, keep=1):
         """Read input, output, or trajectory geometries.
@@ -286,6 +295,7 @@ class read_output(IOread):
     # =================================
     # READ PARAMETERS (basics)
 
+    @safe_parse("states", "charges")
     @assert_flags("ci")
     def read_ci(self):
         """Parse configuration interaction states and configurations."""
@@ -307,6 +317,7 @@ class read_output(IOread):
                     self.complet_results[f"configuration_{count}"] = _conf
                 count += 1
                 _conf = {}
+                self.complet_results["energy"] = {"energy": None}
 
             if self.is_inside("************    STATES    ************", line):
                 state_search = True
@@ -366,6 +377,7 @@ class read_output(IOread):
                     charges = self.complet_results["states"][f"state {idx}"]["charges_cm3"]
                     self.complet_results["charges"].update({"charges cm3": charges})
 
+    @safe_parse("triplet", "singlet")
     @assert_flags("td-dftb")
     def read_tddftb(self):
         """Parse TD-DFTB singlet and triplet transitions."""
@@ -406,6 +418,7 @@ class read_output(IOread):
                         pass
             self.complet_results[key] = args
 
+    @safe_parse("frequency", "zpe")
     @assert_flags("freq")
     def read_freq(self):
         """Parse vibrational frequency results."""
@@ -528,6 +541,7 @@ class read_output(IOread):
                 authorized = False
         return data
 
+    @safe_parse()
     @assert_flags("print")
     def read_debug(self, extract_data=False, keep_matrix=-1):
 
@@ -610,6 +624,7 @@ class read_output(IOread):
             )
             self.complet_results["Coefficients"] = tab.copy()
 
+    @safe_parse("k-points", "eigenvalues", "kpts_coords")
     @assert_flags("pbc")
     def read_pbc(
         self,
@@ -648,6 +663,7 @@ class read_output(IOread):
         self.complet_results["kpts_coords"] = np.array(kcoords)
 
 
+    @safe_parse("moe", "mos")
     @assert_flags("print")
     def read_print(self):
         """Parse print output sections."""
@@ -787,6 +803,7 @@ class read_output(IOread):
 
             self.complet_results["mos"] = data
 
+    @safe_parse()
     def read_errors(
         self,
     ):
@@ -805,6 +822,7 @@ class read_output(IOread):
                 if m in line:
                     self._add_error("optimization", m, line=line.strip())
 
+    @safe_parse("tensors")
     @exclude_flags(["ptmc", "freq"])
     def parse_tensors(self):
 
@@ -873,6 +891,7 @@ class read_output(IOread):
     # =================================
     # READ MODULES (basics)
 
+    @safe_parse()
     @assert_flags("ptmd")
     def _read_ptmd(self):
         """Parse PTMD response"""
@@ -881,6 +900,7 @@ class read_output(IOread):
                 self._add_error("mpi", "ERROR IN MPI_INIT", line=line.strip())
                 return
 
+    @safe_parse("optimization")
     @assert_flags("opt")
     def _read_opt(self):
         """Parse optimization-specific output sections."""
@@ -902,6 +922,7 @@ class read_output(IOread):
                 self.complet_results["optimization"]["grad_max"] = value
                 break
 
+    @safe_parse("ptmc")
     @assert_flags("ptmc")
     def _read_ptmc(self):
         """Parse PTMC-specific output sections."""
@@ -973,6 +994,7 @@ class read_output(IOread):
 
             self.complet_results["trajectory"] = _traj
 
+    @safe_parse()
     @assert_flags("md")
     def _read_md(self):
         """Parse molecular dynamics summary values."""
@@ -995,6 +1017,7 @@ class read_output(IOread):
                 if _flag in line:
                     self.complet_results["energy"].update({it: float(line.split()[-2])})
 
+    @safe_parse()
     @assert_flags("neb")
     def _read_neb(self):
         """Parse nudged elastic band output sections.

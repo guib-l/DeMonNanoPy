@@ -168,6 +168,7 @@ class Common(BasicCalculation):
         basis=None,
         ase_obj=True,
         clean_repository=True,
+        ignore_parse_errors=True,
         **parameters,
     ):
 
@@ -178,6 +179,7 @@ class Common(BasicCalculation):
 
         self.parameters = copy.deepcopy(parameters)
         self._ase_obj = ase_obj
+        self._ignore_parse_errors = ignore_parse_errors
 
         _execut = self.parameters.pop("DEMON_EXECUTABLE", execut or deMonPy.DEMON_EXECUTABLE)
         _prefix = self.parameters.pop("PREFIX", prefix)

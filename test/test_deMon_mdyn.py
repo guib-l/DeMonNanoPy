@@ -223,13 +223,13 @@ class TestMDbasic:
 
         import ase
         from ase.md.velocitydistribution import (
-            thermalize_momenta,
+            MaxwellBoltzmannDistribution
         )
 
-        thermalize_momenta(
+        MaxwellBoltzmannDistribution(
             atoms=image,
             temperature_K=482,
-            exact_temperature=True,
+            force_temp=True,
             rng=np.random.RandomState(314159262),
         )
         velocities = image.get_velocities() * ase.units.fs
