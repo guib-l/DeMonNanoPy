@@ -377,11 +377,11 @@ class read_output(IOread):
                     charges = self.complet_results["states"][f"state {idx}"]["charges_cm3"]
                     self.complet_results["charges"].update({"charges cm3": charges})
 
-    @safe_parse("triplet", "singlet")
+    #@safe_parse("triplet", "singlet")
     @assert_flags("td-dftb")
     def read_tddftb(self):
         """Parse TD-DFTB singlet and triplet transitions."""
-
+        
         msg = "LINEAR RESPONSE FOR CLOSED SHELL MOLECULES ONLY."
         for line in self.lines:
             if msg in line:
@@ -394,8 +394,11 @@ class read_output(IOread):
                 break
 
         count = 0
+        text = "\n".join(self.lines)
         for key, signature in zip(["triplet", "singlet"], ["SUMMARY TRIPLET:", "SUMMARY SINGLET"]):
             args = {}
+            if signature not in text:
+                continue
             for i, line in enumerate(self.lines):
                 self.compute_block(line, signature, "", nb_line=N + 4)
                 if self._tocken_block:

@@ -178,6 +178,7 @@ def example_dos():
 
     fig, ax = plt.subplots(figsize=(6.5, 4.5))
     ax.plot(energies, weights, color="black")
+    ax.set_xlim(min(energies), 13.0)
     ax.axvline(0.0, color="grey", ls="--")
     ax.set_xlabel(r"$E - E_F$ (eV)")
     ax.set_ylabel("DOS (states/eV)")

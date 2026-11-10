@@ -63,6 +63,30 @@ class TestTDDFTB:
         assert "triplet" in results.keys()
         assert "singlet" in results.keys()
 
+    def test_tddftb_closeShell_singlet(self):
+
+        parameter_config = deepcopy(parameters)
+        parameter_config["DEMON_PARAMETERS"]["ACTIVE"].update(
+            {
+                "TD-DFTB": {"LRESP":5,"NO_TRIP":True},
+            }
+        )
+        dem = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **parameter_config)
+
+        dem.calculate(symbols=image.symbols, positions=image.positions)
+
+        results = dem.results
+        energy = results["energy"]
+
+        assert energy["energy"] == -8.06209343
+        assert energy["electronic_energy"] == -8.21888334
+        assert energy["coulomb_energy"] == 0.04185358
+        assert energy["repulsive_energy"] == 0.15678992
+
+        assert "singlet" in results.keys()
+
+
+
     @pytest.mark.beta
     def test_tddftb_dftb3(self):
 
