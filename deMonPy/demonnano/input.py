@@ -733,7 +733,7 @@ class write_input:
             else:
                 self.io_lines["DFTB"].append("LRESP")
             self.io_lines["DFTB"] += self.handler_writen(value)
-            self.flags.remove("td-dftb")
+            #self.flags.remove("td-dftb")
 
         elif isinstance(value, int):
             self.io_lines["DFTB"].append(f"LRESP={value}")
