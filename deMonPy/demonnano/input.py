@@ -108,7 +108,11 @@ class write_input:
         params = parameters.get("DEMON_PARAMETERS", None)
         if params is None:
             raise ConfigError("DEMON_PARAMETERS block is missing")
-        self.parameters = params.get("ACTIVE", {})
+        # Ownership boundary: the section writers consume the ACTIVE dicts
+        # in place (pop/remove/update) while emitting their sections, so
+        # they must run on private deep copies and never mutate the
+        # calculator's (or the caller's) parameter snapshot.
+        self.parameters = copy.deepcopy(params.get("ACTIVE", {}))
 
         if not self.parameters:
             raise ConfigError("DEMON_PARAMETERS.ACTIVE is empty or missing")
@@ -116,7 +120,7 @@ class write_input:
 
         # Update Modules Flags
         params = parameters.get("DEMON_MODULE", {})
-        self.module = params.get("ACTIVE", {})
+        self.module = copy.deepcopy(params.get("ACTIVE", {}))
 
         try:
             self.flags.add(*[key.lower() for key in self.module.keys()])
@@ -384,7 +388,13 @@ class write_input:
         npths = params["NPTHS"]
 
         if npts > 1:
-            print("WARNING : didn't work for many path for this moment.")
+            warnings.warn(
+                f"Multi-path input is not supported (NPTS={npts}): the "
+                "PATHS section is still written to the input file, but "
+                "several paths cannot be followed for this calculation.",
+                UserWarning,
+                stacklevel=2,
+            )
         self.io_lines["PATHS"] = [f"NPTS={npts}", f"NPTHS={npths}"]
 
         path = "\n"
@@ -883,8 +893,13 @@ class write_input:
         path = os.path.join(workdir, filename)
 
         with open(path, "w", encoding="utf-8") as fd:
-            geom = self.io_lines.pop("GEOMETRY")
+            # Read GEOMETRY (do not pop) so write() stays reentrant; the
+            # entry is skipped below and written last.
+            geom = self.io_lines["GEOMETRY"]
             for key, item in self.io_lines.items():
+                if key == "GEOMETRY":
+                    continue
+
                 fd.write(key)
 
                 for elm in item:

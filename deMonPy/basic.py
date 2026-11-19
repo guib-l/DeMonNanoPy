@@ -30,7 +30,7 @@ import sys
 
 import deMonPy
 from deMonPy.encoder import AseEncoder
-from deMonPy.exceptions import ExecuteFailed
+from deMonPy.exceptions import ConfigError, ExecuteFailed
 from deMonPy.profile import Process
 
 
@@ -229,6 +229,20 @@ class Common(BasicCalculation):
         from pathlib import Path
 
         wd = Path(self.workdir).expanduser().resolve()
+
+        if wd == Path("/"):
+            raise ConfigError(
+                f"Refusing to clean working directory {wd}: it is the "
+                "filesystem root; artefact deletion would remove "
+                "unrelated files."
+            )
+        home = Path.home()
+        if wd == home or wd == home.resolve():
+            raise ConfigError(
+                f"Refusing to clean working directory {wd}: it is the user's "
+                "home directory; artefact deletion would remove "
+                "unrelated files."
+            )
 
         for pattern in self._ARTIFACT_PATTERNS:
             for f in wd.glob(pattern):
