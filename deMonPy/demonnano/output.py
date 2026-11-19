@@ -12,6 +12,202 @@ from deMonPy.molden import read_XYZ
 from deMonPy.profile import assert_flags, exclude_flags
 
 
+# =============================================================================
+# deMon output format positions
+#
+# The parsers below read deMon output (deMon.out / deMon.mol / deMon.coef)
+# by raw position.  Each constant names one magic index, split marker, slice
+# bound or line offset and quotes the deMon output line it parses.  Guards
+# built on these constants record a "parse" error (via ``_add_error``) when a
+# line or block does not have the expected shape; they never change the
+# valid-output result.
+# =============================================================================
+
+# --- read_basics --------------------------------------------------------------
+# "Requested SCC tolerance :  0.10000E-07" -- value = first sci-notation token
+BASICS_SCC_TOLERANCE_TOKEN = 0
+# "SCC mixing paramter :   0.30" -- value = first decimal token
+BASICS_SCC_MIXING_TOKEN = 0
+# "Maximum number of SCC cycles :  200" -- value = last integer token
+BASICS_MAX_SCC_CYCLES_TOKEN = -1
+# "Number of DFTB atoms           :      6" -- split marker ":"
+BASICS_COLON_SEPARATOR = ":"
+# "Number of DFTB atoms           :      6" -- value = last ':'-separated field
+BASICS_COLON_VALUE_TOKEN = -1
+
+# --- read_energy / get_energies -----------------------------------------------
+# "DFTB total energy         [Hartree]       =        -8.06209343" -- last token
+ENERGY_VALUE_TOKEN = -1
+
+# --- read_ci --------------------------------------------------------------------
+# "for state   1 =     -23.34492577" -- state number
+CI_STATE_NUMBER_TOKEN = 2
+# "for state   1 =     -23.34492577" -- state energy
+CI_STATE_ENERGY_TOKEN = 4
+# "weight of conf   1 = 0.997473 (  0.997864 )" -- Mulliken weight
+CI_CONF_WEIGHT_TOKEN = 5
+# "molecule   1 = 0.997473" -- atomic charge
+CI_ATOM_CHARGE_TOKEN = 3
+# deMon numbers states from 1 ("for state 1"); np.argmin is 0-based
+CI_STATE_NUMBER_OFFSET = 1
+# "for state   1 =     -23.34492577" -- minimum tokens (guard)
+CI_STATE_MIN_TOKENS = 5
+# "weight of conf   1 = 0.997473 (  0.997864 )" -- minimum tokens (guard)
+CI_CONF_WEIGHT_MIN_TOKENS = 6
+# "molecule   1 = 0.997473" -- minimum tokens (guard)
+CI_ATOM_CHARGE_MIN_TOKENS = 4
+
+# --- read_tddftb -------------------------------------------------------------------
+# "requested transitions to calculate     :       10" -- value = last token
+TDDFTB_NTRANSITIONS_TOKEN = -1
+# SUMMARY block = signature line + blank + column header + blank + N data lines
+TDDFTB_SUMMARY_HEADER_LINES = 4
+# "8.813  0.0013149  8   ->     9  0.998  8.805  S" -- the "->" separator
+TDDFTB_TRANSITION_ARROW = "->"
+# "8.813  0.0013149  8   ->     9  0.998  8.805  S" -- w [eV]
+TDDFTB_STATE_W_TOKEN = 0
+# "8.813  0.0013149  8   ->     9  0.998  8.805  S" -- Osz. strength
+TDDFTB_STATE_OSCILLATOR_TOKEN = 1
+# "8.813  0.0013149  8   ->     9  0.998  8.805  S" -- Transition (from-state)
+TDDFTB_STATE_FROM_TOKEN = 2
+# "8.813  0.0013149  8   ->     9  0.998  8.805  S" -- the "->" separator
+TDDFTB_TRANSITION_ARROW_TOKEN = 3
+# "8.813  0.0013149  8   ->     9  0.998  8.805  S" -- Transition (to-state)
+TDDFTB_STATE_TO_TOKEN = 4
+# "8.813  0.0013149  8   ->     9  0.998  8.805  S" -- Weight
+TDDFTB_STATE_WEIGHT_TOKEN = 5
+# "8.813  0.0013149  8   ->     9  0.998  8.805  S" -- E_sp [eV]
+TDDFTB_STATE_ENERGY_TOKEN = 6
+# a transition line has 8 tokens; the parser uses up to token 6
+TDDFTB_STATE_MIN_TOKENS = 7
+# a line with >= 4 tokens and "->" at token 3 is a transition line (guard)
+TDDFTB_TRANSITION_MIN_TOKENS = 4
+
+# --- read_freq ------------------------------------------------------------------------
+# " NUMBER OF ATOMS: 3" -- atom count = last token
+FREQ_ATOMS_TOKEN = -1
+# "ZERO-POINT ENERGY =   0.02151778 HARTREE   =   13.5026 KCAL/MOL" -- 4th token
+FREQ_ZPE_TOKEN = 3
+# "ZERO-POINT ENERGY =   0.02151778 HARTREE" -- minimum tokens (guard)
+FREQ_ZPE_MIN_TOKENS = 4
+# "MODE:    1" / "FREQUENCY:  1562.7  [1/CM]" / "INTENSITY:    44.0  [KM/MOL]"
+# -- value = 2nd token
+FREQ_LABEL_VALUE_TOKEN = 1
+# "MODE:    1" / "FREQUENCY:  1562.7" / "INTENSITY:    44.0" -- minimum tokens (guard)
+FREQ_LABEL_MIN_TOKENS = 2
+# each MODE block = 6 header lines + Nbatm atom rows:
+# "MODE:", "FREQUENCY:", "INTENSITY:", blank, "ATOM  INP.NR.  X  Y  Z", blank
+FREQ_MODE_HEADER_LINES = 6
+# MODE block -- atom-displacement rows start at line index 6
+FREQ_VECT_TABLE_START = 6
+# "O  1  0.0000  0.0716  0.0000" -- symbol + INP.NR. columns before x y z
+FREQ_VECT_SKIP_TOKENS = 2
+# "O  1  0.0000  0.0716  0.0000" -- minimum tokens (guard)
+FREQ_VECT_MIN_TOKENS = 5
+
+# --- read_AOM_matrix ----------------------------------------------------------------------
+# "Orbit El  N  L   1  2 ..." -- chunk column numbers from token 4
+AOM_COLUMN_TOKEN_START = 4
+# "1  O  2  0  1.000000 ..." -- row index
+AOM_ROW_TOKEN = 0
+# "1  O  2  0  1.000000 ..." -- values from token 4
+AOM_VALUE_TOKEN_START = 4
+# "1  O  2  0  1.000000 ..." -- minimum tokens (guard)
+AOM_ROW_MIN_TOKENS = 5
+# "1  O  2  0  1.000000 ..." -- deMon rows and columns are numbered from 1
+AOM_1BASED_OFFSET = 1
+
+# --- read_debug (Gamma matrix) ----------------------------------------------------------------
+# "Shell El         1  2 ..." -- column numbers from token 2
+GAMMA_COLUMN_TOKEN_START = 2
+# "1 O  0.52220 ..." -- row index
+GAMMA_ROW_TOKEN = 0
+# "1 O  0.52220 ..." -- element symbol
+GAMMA_ELEMENT_TOKEN = 1
+# "1 O  0.52220 ..." -- values from token 2
+GAMMA_VALUE_TOKEN_START = 2
+# "1 O  0.52220 ..." -- minimum tokens (guard)
+GAMMA_MIN_TOKENS = 3
+
+# --- read_pbc -----------------------------------------------------------------------------------
+# " -0.790839405237485        2.00000000000000" -- eigenvalue
+PBC_EIGENERGY_TOKEN = 0
+# " -0.790839405237485        2.00000000000000" -- occupation
+PBC_EIG_OCCUPATION_TOKEN = 1
+# " -0.790839405237485        2.00000000000000" -- 2 floats per band line
+PBC_EIG_TOKEN_COUNT = 2
+# each real line occupies 2 entries in the splitlines() view ("\n".join of
+# readlines() keeps the trailing newlines), so the scan window is nband * 2
+PBC_EIG_SCAN_WINDOW_FACTOR = 2
+# fractional k-point coordinates: last non-empty line within 3 lines before
+# "kpoint number" (no in-repo sample prints them; shape unverified)
+PBC_KCOORD_LOOKBACK = 3
+# coordinates line -- tokens 1:4 hold the fractional coordinates
+PBC_KCOORD_TOKEN_START = 1
+PBC_KCOORD_TOKEN_STOP = 4
+
+# --- read_print (deMon.coef) ---
+# deMon.coef: the value follows on the line after the label
+COEF_VALUE_LINE_OFFSET = 1
+# "8  O  0.6550  -0.0544  5.9307  1  4" -- Z
+COEF_ATOM_Z_TOKEN = 0
+# "8  O  0.6550  -0.0544  5.9307  1  4" -- symbol
+COEF_ATOM_SYMBOL_TOKEN = 1
+# "8  O  0.6550  -0.0544  5.9307  1  4" -- x
+COEF_ATOM_X_TOKEN = 2
+# "8  O  0.6550  -0.0544  5.9307  1  4" -- y
+COEF_ATOM_Y_TOKEN = 3
+# "8  O  0.6550  -0.0544  5.9307  1  4" -- z
+COEF_ATOM_ZCOORD_TOKEN = 4
+# "8  O  0.6550  -0.0544  5.9307  1  4" -- basis start
+COEF_ATOM_BASIS_START_TOKEN = 5
+# "8  O  0.6550  -0.0544  5.9307  1  4" -- basis end
+COEF_ATOM_BASIS_END_TOKEN = 6
+# "8  O  0.6550  -0.0544  5.9307  1  4" -- minimum tokens (guard)
+COEF_ATOM_MIN_TOKENS = 7
+# "1 2.00  -0.8381" -- occupation
+COEF_MOE_OCCUPATION_TOKEN = 1
+# "1 2.00  -0.8381" -- MO energy
+COEF_MOE_ENERGY_TOKEN = 2
+# "1 2.00  -0.8381" -- minimum tokens (guard)
+COEF_MOE_MIN_TOKENS = 3
+# "llmos , ulmos" followed by "1  36" -- minimum tokens (guard)
+COEF_LUMO_RANGE_MIN_TOKENS = 2
+
+# --- read_errors ---
+# "ERROR : loop over charges not converged" -- split marker ":"
+ERROR_COLON_SEPARATOR = ":"
+# "ERROR : loop over charges not converged" -- message = last ':'-separated field
+ERROR_MESSAGE_TOKEN = -1
+
+# --- read_geometry (deMon.mol MD frames) ---
+# frame comment "BOMD INFORMATION  <e0> <e1> <e2> <e3>" (tokens 2..5, see
+# molden._read_xyz_ext); deMon.mol of a BOMD run
+XYZ_INFO_POTENTIAL_COL = 0
+XYZ_INFO_KINETIC_COL = 1
+XYZ_INFO_TOTAL_COL = 2
+XYZ_INFO_TIME_COL = 3
+
+# --- parse_tensors ---
+# "(1, 2) = ..." -- matrix labels are 1-based
+TENSOR_LABEL_OFFSET = 1
+
+# --- _read_opt ---
+# forces.out -- first line is a header, then one force vector per line
+FORCES_HEADER_LINES = 1
+# "Maximum gradient =  1.2e-05" -- value = last token
+OPT_GRADIENT_TOKEN = -1
+
+# --- _read_md ---
+# "Average TOTAL ENERGY : <value>" -- value = 2nd-to-last token
+# (no in-repo sample of the MD summary; shape unverified)
+MD_ENERGY_VALUE_TOKEN = -2
+
+# --- _read_ptmc ---
+# deMon.NN.mol frame comment -- value = 3rd token (no in-repo sample; unverified)
+PTMC_TRAJ_VALUE_TOKEN = 2
+
+
 def convert_float(val, safe=False):
     try:
         return float(val)
@@ -103,7 +299,7 @@ class read_output(IOread):
 
         filename = os.path.join(self.workdir, self.output)
         try:
-            with open(filename, "r") as fd:
+            with open(filename, "r", encoding="utf-8", errors="replace") as fd:
                 self.lines.extend(fd.readlines())
         except FileNotFoundError as err:
             raise OutputParseError(
@@ -129,6 +325,177 @@ class read_output(IOread):
                 "line": line,
             }
         )
+
+    # ------------------------------------------------------------------ guards
+    # Shape guards for the raw-position parsing below.  Each guard records a
+    # "parse" error through the existing _add_error mechanism when a line or
+    # block does not have the expected shape, and then leaves the original
+    # parsing untouched so the reader degrades exactly as it did before
+    # (natural exception -> safe_parse, or silent partial result).
+
+    def _guard_basics_count(self, label, line):
+        """Record a parse error if a ``read_basics`` "label : <int>" line is malformed."""
+        field = line.split(BASICS_COLON_SEPARATOR)[BASICS_COLON_VALUE_TOKEN]
+        try:
+            int(field)
+        except ValueError:
+            self._add_error(
+                "parse",
+                f"read_basics: '{label}' expects an integer after "
+                f"'{BASICS_COLON_SEPARATOR}', found {field.strip()!r}",
+                line=line.strip(),
+            )
+
+    @staticmethod
+    def _is_tddftb_transition(values):
+        """True when a split SUMMARY line looks like a transition line."""
+        return (
+            len(values) >= TDDFTB_TRANSITION_MIN_TOKENS
+            and values[TDDFTB_TRANSITION_ARROW_TOKEN] == TDDFTB_TRANSITION_ARROW
+        )
+
+    def _guard_tddftb_transition(self, signature, line, values):
+        """Record a parse error if a ``read_tddftb`` transition line is malformed."""
+        if len(values) < TDDFTB_STATE_MIN_TOKENS:
+            self._add_error(
+                "parse",
+                f"read_tddftb: '{signature}' transition line expects at least "
+                f"{TDDFTB_STATE_MIN_TOKENS} tokens, found {len(values)}: {line.strip()!r}",
+                line=line.strip(),
+            )
+            return
+        try:
+            float(values[TDDFTB_STATE_W_TOKEN])
+            float(values[TDDFTB_STATE_OSCILLATOR_TOKEN])
+            int(values[TDDFTB_STATE_FROM_TOKEN])
+            int(values[TDDFTB_STATE_TO_TOKEN])
+            float(values[TDDFTB_STATE_WEIGHT_TOKEN])
+            float(values[TDDFTB_STATE_ENERGY_TOKEN])
+        except (ValueError, IndexError):
+            self._add_error(
+                "parse",
+                f"read_tddftb: '{signature}' transition line has non-numeric fields: "
+                f"{line.strip()!r}",
+                line=line.strip(),
+            )
+
+    def _guard_freq_label(self, marker, line):
+        """Record a parse error if a ``read_freq`` "LABEL: value" line is malformed."""
+        values = line.split()
+        if len(values) < FREQ_LABEL_MIN_TOKENS:
+            self._add_error(
+                "parse",
+                f"read_freq: '{marker}' line expects at least "
+                f"{FREQ_LABEL_MIN_TOKENS} tokens, found {len(values)}: {line.strip()!r}",
+                line=line.strip(),
+            )
+
+    def _guard_gamma_header(self, line):
+        """Record a parse error if a ``read_debug`` "Shell El" header is malformed."""
+        cols = line.split()[GAMMA_COLUMN_TOKEN_START:]
+        if not cols or not all(c.lstrip("-").isdigit() for c in cols):
+            self._add_error(
+                "parse",
+                f"read_debug: 'Shell El' header expects integer column numbers from "
+                f"token {GAMMA_COLUMN_TOKEN_START}, found: {line.strip()!r}",
+                line=line.strip(),
+            )
+
+    def _guard_gamma_row(self, line, n_cols):
+        """Record a parse error if a ``read_debug`` Gamma row is malformed."""
+        parts = line.split()
+        try:
+            int(parts[GAMMA_ROW_TOKEN])
+        except (ValueError, IndexError):
+            self._add_error(
+                "parse",
+                f"read_debug: Gamma row expects an integer row index, found: "
+                f"{line.strip()!r}",
+                line=line.strip(),
+            )
+            return
+        if len(parts[GAMMA_VALUE_TOKEN_START:]) != n_cols:
+            self._add_error(
+                "parse",
+                f"read_debug: Gamma row expects {n_cols} values (one per column), "
+                f"found {len(parts[GAMMA_VALUE_TOKEN_START:])}: {line.strip()!r}",
+                line=line.strip(),
+            )
+
+    def _guard_coef_int_value(self, value_line, label):
+        """Record a parse error if a deMon.coef integer value line is malformed."""
+        try:
+            int(value_line)
+        except ValueError:
+            self._add_error(
+                "parse",
+                f"read_print: deMon.coef '{label}' expects an integer value, "
+                f"found {value_line.strip()!r}",
+                line=value_line.strip(),
+            )
+
+    def _guard_coef_llmos(self, value_line):
+        """Record a parse error if the deMon.coef "llmos" value line is malformed."""
+        parts = value_line.split()
+        if len(parts) < COEF_LUMO_RANGE_MIN_TOKENS or not all(
+            p.lstrip("-").isdigit() for p in parts[:COEF_LUMO_RANGE_MIN_TOKENS]
+        ):
+            self._add_error(
+                "parse",
+                f"read_print: deMon.coef 'llmos' value line expects at least "
+                f"{COEF_LUMO_RANGE_MIN_TOKENS} integers, found: {value_line.strip()!r}",
+                line=value_line.strip(),
+            )
+
+    def _guard_coef_atom_row(self, line):
+        """Record a parse error if a deMon.coef "atomic position" row is malformed."""
+        parts = line.split()
+        if len(parts) < COEF_ATOM_MIN_TOKENS:
+            self._add_error(
+                "parse",
+                f"read_print: deMon.coef atom row expects at least "
+                f"{COEF_ATOM_MIN_TOKENS} tokens (Z, symbol, x, y, z, basis start, "
+                f"basis end), found {len(parts)}: {line.strip()!r}",
+                line=line.strip(),
+            )
+            return
+        try:
+            int(parts[COEF_ATOM_Z_TOKEN])
+            float(parts[COEF_ATOM_X_TOKEN])
+            float(parts[COEF_ATOM_Y_TOKEN])
+            float(parts[COEF_ATOM_ZCOORD_TOKEN])
+            int(parts[COEF_ATOM_BASIS_START_TOKEN])
+            int(parts[COEF_ATOM_BASIS_END_TOKEN])
+        except (ValueError, IndexError):
+            self._add_error(
+                "parse",
+                f"read_print: deMon.coef atom row has non-numeric fields: "
+                f"{line.strip()!r}",
+                line=line.strip(),
+            )
+
+    def _guard_coef_moe_row(self, line):
+        """Record a parse error if a deMon.coef "occupation and MOE" row is malformed."""
+        parts = line.split()
+        if len(parts) < COEF_MOE_MIN_TOKENS:
+            self._add_error(
+                "parse",
+                f"read_print: deMon.coef MOE row expects at least {COEF_MOE_MIN_TOKENS} "
+                f"tokens (index, occupation, energy), found {len(parts)}: "
+                f"{line.strip()!r}",
+                line=line.strip(),
+            )
+            return
+        try:
+            float(parts[COEF_MOE_OCCUPATION_TOKEN])
+            float(parts[COEF_MOE_ENERGY_TOKEN])
+        except (ValueError, IndexError):
+            self._add_error(
+                "parse",
+                f"read_print: deMon.coef MOE row has non-numeric fields: "
+                f"{line.strip()!r}",
+                line=line.strip(),
+            )
 
     # =================================
     # READ ENERGY (basics)
@@ -157,33 +524,48 @@ class read_output(IOread):
             if "Requested SCC tolerance" in line:
                 val = re.findall(r"[-+]?\d+\.\d+E[-+]?\d+", line)
                 if val:
-                    data["scc_tolerance"] = float(val[0])
+                    data["scc_tolerance"] = float(val[BASICS_SCC_TOLERANCE_TOKEN])
 
             elif "Maximum number of SCC cycles" in line:
                 val = re.findall(r"\d+", line)
                 if val:
-                    data["max_scc_cycles"] = int(val[-1])
+                    data["max_scc_cycles"] = int(val[BASICS_MAX_SCC_CYCLES_TOKEN])
 
             elif "SCC mixing" in line:
                 val = re.findall(r"[-+]?\d*\.\d+", line)
                 if val:
-                    data["scc_mixing"] = float(val[0])
+                    data["scc_mixing"] = float(val[BASICS_SCC_MIXING_TOKEN])
 
             # -------- ELECTRONIC INFO --------
             elif "Number of DFTB atoms" in line:
-                data["n_atoms"] = int(line.split(":")[-1])
+                self._guard_basics_count("Number of DFTB atoms", line)
+                data["n_atoms"] = int(
+                    line.split(BASICS_COLON_SEPARATOR)[BASICS_COLON_VALUE_TOKEN]
+                )
 
             elif "Number of DFTB atom types" in line:
-                data["n_atom_types"] = int(line.split(":")[-1])
+                self._guard_basics_count("Number of DFTB atom types", line)
+                data["n_atom_types"] = int(
+                    line.split(BASICS_COLON_SEPARATOR)[BASICS_COLON_VALUE_TOKEN]
+                )
 
             elif "Dimension of DFTB matrices" in line:
-                data["matrix_dim"] = int(line.split(":")[-1])
+                self._guard_basics_count("Dimension of DFTB matrices", line)
+                data["matrix_dim"] = int(
+                    line.split(BASICS_COLON_SEPARATOR)[BASICS_COLON_VALUE_TOKEN]
+                )
 
             elif "Number of DFTB electrons" in line:
-                data["n_electrons"] = int(line.split(":")[-1])
+                self._guard_basics_count("Number of DFTB electrons", line)
+                data["n_electrons"] = int(
+                    line.split(BASICS_COLON_SEPARATOR)[BASICS_COLON_VALUE_TOKEN]
+                )
 
             elif "Number of DFTB shells" in line:
-                data["n_shells"] = int(line.split(":")[-1])
+                self._guard_basics_count("Number of DFTB shells", line)
+                data["n_shells"] = int(
+                    line.split(BASICS_COLON_SEPARATOR)[BASICS_COLON_VALUE_TOKEN]
+                )
 
         self.complet_results["properties"] = data
 
@@ -229,12 +611,12 @@ class read_output(IOread):
 
         if self.is_inside(criteria, line):
             label = _criteria_energy_str_bis[criteria]
-            _energy[label] = self.get_float(line, index=-1)
+            _energy[label] = self.get_float(line, index=ENERGY_VALUE_TOKEN)
 
         if start_search:
             for cs, it in _criteria_energy_str_bis.items():
                 if self.is_inside(cs, line):
-                    _energy[it] = self.get_float(line, index=-1)
+                    _energy[it] = self.get_float(line, index=ENERGY_VALUE_TOKEN)
         return _energy
 
     # =================================
@@ -287,10 +669,10 @@ class read_output(IOread):
             self.complet_results["output_geometry"] = data[-1]
 
         if "md" in self.flags:
-            self.complet_results["time"] = info[:, 3]
-            self.complet_results["potential_energy"] = info[:, 0]
-            self.complet_results["kinetic_energy"] = info[:, 1]
-            self.complet_results["total_energy"] = info[:, 2]
+            self.complet_results["time"] = info[:, XYZ_INFO_TIME_COL]
+            self.complet_results["potential_energy"] = info[:, XYZ_INFO_POTENTIAL_COL]
+            self.complet_results["kinetic_energy"] = info[:, XYZ_INFO_KINETIC_COL]
+            self.complet_results["total_energy"] = info[:, XYZ_INFO_TOTAL_COL]
 
     # =================================
     # READ PARAMETERS (basics)
@@ -324,28 +706,52 @@ class read_output(IOread):
 
             if self.is_inside("for state", line) and state_search:
                 sl = line.split()
-                num = int(sl[2])
-                sub = float(sl[4])
+                if len(sl) < CI_STATE_MIN_TOKENS:
+                    self._add_error(
+                        "parse",
+                        f"read_ci: 'for state' line expects at least "
+                        f"{CI_STATE_MIN_TOKENS} tokens (for state <n> = <e>), found "
+                        f"{len(sl)}: {line.strip()!r}",
+                        line=line.strip(),
+                    )
+                num = int(sl[CI_STATE_NUMBER_TOKEN])
+                sub = float(sl[CI_STATE_ENERGY_TOKEN])
                 wgh, chrg_mulliken, chrg_cm3 = [], [], []
                 state = {f"state {num}": {"energy": sub}}
 
             if self.is_inside("weight of conf", line) and state_search:
                 sl = line.split()
+                if len(sl) < CI_CONF_WEIGHT_MIN_TOKENS:
+                    self._add_error(
+                        "parse",
+                        f"read_ci: 'weight of conf' line expects at least "
+                        f"{CI_CONF_WEIGHT_MIN_TOKENS} tokens, found {len(sl)}: "
+                        f"{line.strip()!r}",
+                        line=line.strip(),
+                    )
                 try:
-                    wgh.append(float(sl[5]))
+                    wgh.append(float(sl[CI_CONF_WEIGHT_TOKEN]))
                 except (ValueError, IndexError):
                     wgh.append(None)
                 state[f"state {num}"].update({"weight": wgh})
 
             if self.is_inside("molecule", line) and state_search:
                 sl = line.split()
+                if len(sl) < CI_ATOM_CHARGE_MIN_TOKENS:
+                    self._add_error(
+                        "parse",
+                        f"read_ci: 'molecule' line expects at least "
+                        f"{CI_ATOM_CHARGE_MIN_TOKENS} tokens, found {len(sl)}: "
+                        f"{line.strip()!r}",
+                        line=line.strip(),
+                    )
                 chrg = chrg_mulliken
                 label = "charges_mulliken"
                 if len(chrg_mulliken) == len(wgh):
                     chrg = chrg_cm3
                     label = "charges_cm3"
                 try:
-                    chrg.append(float(sl[3]))
+                    chrg.append(float(sl[CI_ATOM_CHARGE_TOKEN]))
                 except (ValueError, IndexError):
                     chrg.append(None)
 
@@ -364,7 +770,7 @@ class read_output(IOread):
                     np.argmin(
                         [state["energy"] for k, state in self.complet_results["states"].items()]
                     )
-                    + 1
+                    + CI_STATE_NUMBER_OFFSET
                 )
 
                 energies = self.complet_results["states"][f"state {idx}"]["energy"]
@@ -390,7 +796,16 @@ class read_output(IOread):
 
         for line in self.lines:
             if self.is_inside("requested transitions to calculate", line):
-                N = self.get_int(line, -1)
+                try:
+                    int(line.split()[TDDFTB_NTRANSITIONS_TOKEN])
+                except (ValueError, IndexError):
+                    self._add_error(
+                        "parse",
+                        "read_tddftb: 'requested transitions to calculate' expects a "
+                        f"trailing integer, found {line.strip()!r}",
+                        line=line.strip(),
+                    )
+                N = self.get_int(line, TDDFTB_NTRANSITIONS_TOKEN)
                 break
 
         count = 0
@@ -400,19 +815,21 @@ class read_output(IOread):
             if signature not in text:
                 continue
             for i, line in enumerate(self.lines):
-                self.compute_block(line, signature, "", nb_line=N + 4)
+                self.compute_block(line, signature, "", nb_line=N + TDDFTB_SUMMARY_HEADER_LINES)
                 if self._tocken_block:
                     values = line.split()
+                    if self._is_tddftb_transition(values):
+                        self._guard_tddftb_transition(signature, line, values)
                     try:
                         args.update(
                             {
                                 f"state_{count}": {
-                                    "w": float(values[0]),
-                                    "oscillator": float(values[1]),
-                                    "from": int(values[2]),
-                                    "to": int(values[4]),
-                                    "weight": float(values[5]),
-                                    "energy": float(values[6]),
+                                    "w": float(values[TDDFTB_STATE_W_TOKEN]),
+                                    "oscillator": float(values[TDDFTB_STATE_OSCILLATOR_TOKEN]),
+                                    "from": int(values[TDDFTB_STATE_FROM_TOKEN]),
+                                    "to": int(values[TDDFTB_STATE_TO_TOKEN]),
+                                    "weight": float(values[TDDFTB_STATE_WEIGHT_TOKEN]),
+                                    "energy": float(values[TDDFTB_STATE_ENERGY_TOKEN]),
                                 }
                             }
                         )
@@ -430,11 +847,37 @@ class read_output(IOread):
 
         for line in self.lines:
             if "NUMBER OF ATOMS:" in line:
-                Nbatm = int(line.split()[-1])
+                sl = line.split()
+                if len(sl) < 2:
+                    self._add_error(
+                        "parse",
+                        "read_freq: 'NUMBER OF ATOMS:' expects a trailing integer, "
+                        f"found {line.strip()!r}",
+                        line=line.strip(),
+                    )
+                else:
+                    try:
+                        int(sl[FREQ_ATOMS_TOKEN])
+                    except ValueError:
+                        self._add_error(
+                            "parse",
+                            "read_freq: 'NUMBER OF ATOMS:' expects a trailing integer, "
+                            f"found {sl[FREQ_ATOMS_TOKEN].strip()!r}",
+                            line=line.strip(),
+                        )
+                Nbatm = int(line.split()[FREQ_ATOMS_TOKEN])
             if "ZERO-POINT ENERGY =" in line:
-                zpe = float(line.split()[3])
+                if len(line.split()) < FREQ_ZPE_MIN_TOKENS:
+                    self._add_error(
+                        "parse",
+                        f"read_freq: 'ZERO-POINT ENERGY =' line expects at least "
+                        f"{FREQ_ZPE_MIN_TOKENS} tokens, found {len(line.split())}: "
+                        f"{line.strip()!r}",
+                        line=line.strip(),
+                    )
+                zpe = float(line.split()[FREQ_ZPE_TOKEN])
 
-            self.compute_block(line, "MODE:", "", 6 + Nbatm)
+            self.compute_block(line, "MODE:", "", FREQ_MODE_HEADER_LINES + Nbatm)
 
             if self.counter == 0 and self._block != "":
                 temp.append(self._block)
@@ -445,19 +888,38 @@ class read_output(IOread):
 
             for line in frq.split("\n"):
                 if self.is_inside(control="MODE:", line=line):
-                    mode = int(line.split()[1])
+                    self._guard_freq_label("MODE:", line)
+                    mode = int(line.split()[FREQ_LABEL_VALUE_TOKEN])
                 if self.is_inside(control="FREQUENCY:", line=line):
-                    frequency = float(line.split()[1])
+                    self._guard_freq_label("FREQUENCY:", line)
+                    frequency = float(line.split()[FREQ_LABEL_VALUE_TOKEN])
                 if self.is_inside(control="INTENSITY:", line=line):
-                    intensity = float(line.split()[1])
+                    self._guard_freq_label("INTENSITY:", line)
+                    intensity = float(line.split()[FREQ_LABEL_VALUE_TOKEN])
 
             table = []
-            for lin in frq.split("\n")[6:-1]:
+            rows = frq.split("\n")[FREQ_VECT_TABLE_START:-1]
+            if len(rows) < Nbatm:
+                self._add_error(
+                    "parse",
+                    f"read_freq: MODE block expects {Nbatm} atom-displacement rows "
+                    f"({FREQ_MODE_HEADER_LINES} header lines + {Nbatm} atom rows), "
+                    f"found {len(rows)}",
+                )
+            for lin in rows:
                 valeurs = lin.strip().split()
+                if len(valeurs) < FREQ_VECT_MIN_TOKENS:
+                    self._add_error(
+                        "parse",
+                        f"read_freq: atom-displacement row expects at least "
+                        f"{FREQ_VECT_MIN_TOKENS} tokens (symbol, INP.NR., x, y, z), "
+                        f"found {len(valeurs)}: {lin.strip()!r}",
+                        line=lin.strip(),
+                    )
                 nombres = [convert_float(v, False) for v in valeurs]
                 table.append(nombres)
 
-            table = np.array(table)[:, 2:]
+            table = np.array(table)[:, FREQ_VECT_SKIP_TOKENS:]
 
             freq.append(
                 {"mode": mode, "frequency": frequency, "intensity": intensity, "vect": table}
@@ -505,7 +967,17 @@ class read_output(IOread):
                 continue
 
             parts = line.split()
-            cols = [int(x) for x in parts[4:]]
+            cols_tokens = parts[AOM_COLUMN_TOKEN_START:]
+            if not cols_tokens or not all(
+                x.lstrip("-").isdigit() for x in cols_tokens
+            ):
+                self._add_error(
+                    "parse",
+                    f"read_AOM_matrix: 'Orbit' header expects integer column numbers "
+                    f"from token {AOM_COLUMN_TOKEN_START}, found: {line.strip()!r}",
+                    line=line.strip(),
+                )
+            cols = [int(x) for x in cols_tokens]
 
             min_cols = min(cols)
             max_cols = max(cols)
@@ -518,12 +990,33 @@ class read_output(IOread):
 
                 parts = line.split()
                 try:
-                    row = int(parts[0])
+                    row = int(parts[AOM_ROW_TOKEN])
                 except (ValueError, IndexError):
                     break
 
-                values = [convert_float(x, safe=True) for x in parts[4:]]
-                tab[min_cols - 1 : max_cols, row - 1] = values
+                if len(parts) < AOM_ROW_MIN_TOKENS or len(
+                    parts[AOM_VALUE_TOKEN_START:]
+                ) != len(cols):
+                    self._add_error(
+                        "parse",
+                        f"read_AOM_matrix: data row expects {len(cols)} values (one per "
+                        f"column {min_cols}..{max_cols}), found "
+                        f"{len(parts[AOM_VALUE_TOKEN_START:])}: {line.strip()!r}",
+                        line=line.strip(),
+                    )
+                    # Fail with a diagnosable error instead of letting the
+                    # assignment below raise an opaque numpy broadcast error.
+                    raise OutputParseError(
+                        f"read_AOM_matrix: section '{symb_save}' row {row} has "
+                        f"{len(parts[AOM_VALUE_TOKEN_START:])} values, header "
+                        f"declares {len(cols)} columns: {line.strip()!r}"
+                    )
+
+                values = [convert_float(x, safe=True) for x in parts[AOM_VALUE_TOKEN_START:]]
+                tab[
+                    min_cols - AOM_1BASED_OFFSET : max_cols,
+                    row - AOM_1BASED_OFFSET,
+                ] = values
 
                 i += 1
 
@@ -567,18 +1060,29 @@ class read_output(IOread):
                         break
 
                     if line.startswith("Shell El"):
+                        self._guard_gamma_header(line)
                         parts = line.split()
-                        current_cols = list(map(int, parts[2:]))
+                        current_cols = list(map(int, parts[GAMMA_COLUMN_TOKEN_START:]))
                         continue
 
                     parts = line.split()
 
-                    if len(parts) < 3:
+                    if len(parts) < GAMMA_MIN_TOKENS:
+                        if line.strip():
+                            self._add_error(
+                                "parse",
+                                f"read_debug: Gamma row expects at least "
+                                f"{GAMMA_MIN_TOKENS} tokens (row, element, values), "
+                                f"found {len(parts)}: {line.strip()!r}",
+                                line=line.strip(),
+                            )
                         continue
 
-                    row_idx = int(parts[0])
-                    element = parts[1]
-                    values = list(map(float, parts[2:]))
+                    self._guard_gamma_row(line, len(current_cols))
+
+                    row_idx = int(parts[GAMMA_ROW_TOKEN])
+                    element = parts[GAMMA_ELEMENT_TOKEN]
+                    values = list(map(float, parts[GAMMA_VALUE_TOKEN_START:]))
 
                     labels[row_idx] = element
 
@@ -644,22 +1148,41 @@ class read_output(IOread):
 
             if "kpoint number" in line:
                 count = True
-                limit = i + nband * 2
+                limit = i + nband * PBC_EIG_SCAN_WINDOW_FACTOR
                 nkpt += 1
                 # Fractional coordinates are on the previous non-empty line
-                prev = [li for li in lines[max(0, i - 3):i] if li.strip()][-1]
-                kcoords.append([float(x) for x in prev.split()[1:4]])
+                prev = [
+                    li
+                    for li in lines[max(0, i - PBC_KCOORD_LOOKBACK):i]
+                    if li.strip()
+                ][-1]
+                kcoords.append(
+                    [float(x) for x in prev.split()[PBC_KCOORD_TOKEN_START:PBC_KCOORD_TOKEN_STOP]]
+                )
 
             if count and i <= limit:
                 li = line.split()
                 try:
-                    energyK.append([float(li[0]), float(li[1])])
+                    energyK.append(
+                        [
+                            float(li[PBC_EIGENERGY_TOKEN]),
+                            float(li[PBC_EIG_OCCUPATION_TOKEN]),
+                        ]
+                    )
                 except (ValueError, IndexError):
                     pass
-        
+
+        if nkpt > 0 and nband is not None and len(energyK) != nkpt * nband:
+            self._add_error(
+                "parse",
+                f"read_pbc: expected {nkpt * nband} (energy, occupation) entries "
+                f"({nkpt} k-points x {nband} bands x {PBC_EIG_TOKEN_COUNT} floats), "
+                f"found {len(energyK)}",
+            )
+
         energyK = np.array(energyK)
-        energyK = np.reshape(energyK, (nkpt, nband, 2))
-        eigenv = energyK[:,:,:1].reshape((nkpt,nband))
+        energyK = np.reshape(energyK, (nkpt, nband, PBC_EIG_TOKEN_COUNT))
+        eigenv = energyK[:, :, :1].reshape((nkpt, nband))
         
         self.complet_results["k-points"] = energyK
         self.complet_results["eigenvalues"] = eigenv
@@ -713,7 +1236,7 @@ class read_output(IOread):
                 "mo_coefficients": [],
             }
 
-            with open(filename, "r") as f:
+            with open(filename, "r", encoding="utf-8", errors="replace") as f:
                 lines = f.readlines()
 
             i = 0
@@ -722,27 +1245,31 @@ class read_output(IOread):
 
                 # --------- HEADER ----------
                 if line == "NAtoms":
-                    data["n_atoms"] = int(lines[i + 1].strip())
+                    self._guard_coef_int_value(lines[i + COEF_VALUE_LINE_OFFSET], "NAtoms")
+                    data["n_atoms"] = int(lines[i + COEF_VALUE_LINE_OFFSET].strip())
                     i += 2
                     continue
 
                 elif line == "N basis":
-                    data["n_basis"] = int(lines[i + 1].strip())
+                    self._guard_coef_int_value(lines[i + COEF_VALUE_LINE_OFFSET], "N basis")
+                    data["n_basis"] = int(lines[i + COEF_VALUE_LINE_OFFSET].strip())
                     i += 2
                     continue
 
                 elif line == "PArameter type":
-                    data["parameter_type"] = lines[i + 1].strip()
+                    data["parameter_type"] = lines[i + COEF_VALUE_LINE_OFFSET].strip()
                     i += 2
                     continue
 
                 elif line == "homo":
-                    data["homo"] = int(lines[i + 1].strip())
+                    self._guard_coef_int_value(lines[i + COEF_VALUE_LINE_OFFSET], "homo")
+                    data["homo"] = int(lines[i + COEF_VALUE_LINE_OFFSET].strip())
                     i += 2
                     continue
 
                 elif "llmos" in line:
-                    parts = lines[i + 1].split()
+                    self._guard_coef_llmos(lines[i + COEF_VALUE_LINE_OFFSET])
+                    parts = lines[i + COEF_VALUE_LINE_OFFSET].split()
                     data["lumo_range"] = tuple(map(int, parts))
                     i += 2
                     continue
@@ -755,14 +1282,15 @@ class read_output(IOread):
                         parts = lines[i].split()
                         if parts[0] == "occupation":
                             break
+                        self._guard_coef_atom_row(lines[i])
                         atom = {
-                            "Z": int(parts[0]),
-                            "symbol": parts[1],
-                            "x": float(parts[2]),
-                            "y": float(parts[3]),
-                            "z": float(parts[4]),
-                            "basis_start": int(parts[5]),
-                            "basis_end": int(parts[6]),
+                            "Z": int(parts[COEF_ATOM_Z_TOKEN]),
+                            "symbol": parts[COEF_ATOM_SYMBOL_TOKEN],
+                            "x": float(parts[COEF_ATOM_X_TOKEN]),
+                            "y": float(parts[COEF_ATOM_Y_TOKEN]),
+                            "z": float(parts[COEF_ATOM_ZCOORD_TOKEN]),
+                            "basis_start": int(parts[COEF_ATOM_BASIS_START_TOKEN]),
+                            "basis_end": int(parts[COEF_ATOM_BASIS_END_TOKEN]),
                         }
                         data["atoms"].append(atom)
                         i += 1
@@ -777,8 +1305,9 @@ class read_output(IOread):
                         parts = lines[i].split()
                         if parts[1] == "Coefficients":
                             break
-                        data["occupations"].append(float(parts[1]))
-                        data["mo_energies"].append(float(parts[2]))
+                        self._guard_coef_moe_row(lines[i])
+                        data["occupations"].append(float(parts[COEF_MOE_OCCUPATION_TOKEN]))
+                        data["mo_energies"].append(float(parts[COEF_MOE_ENERGY_TOKEN]))
                         i += 1
                     data["occupations"] = np.array(data["occupations"])
                     data["mo_energies"] = np.array(data["mo_energies"])
@@ -816,7 +1345,7 @@ class read_output(IOread):
         """
         for line in self.lines:
             if "ERROR :" in line:
-                _str = line.split(":")[-1].strip()
+                _str = line.split(ERROR_COLON_SEPARATOR)[ERROR_MESSAGE_TOKEN].strip()
                 self._add_error("demon", _str, line=line.strip())
 
         msg = ["optimization not converged"]
@@ -869,7 +1398,7 @@ class read_output(IOread):
         )
 
         for i, j, val1, val2 in matrix_pattern:
-            i, j = int(i) - 1, int(j) - 1
+            i, j = int(i) - TENSOR_LABEL_OFFSET, int(j) - TENSOR_LABEL_OFFSET
             inertia[i][j] = float(val1)
             quadrupole[i][j] = float(val2)
 
@@ -911,9 +1440,9 @@ class read_output(IOread):
         if "doforces" in self.flags:
             forces = []
             filename = os.path.join(self.workdir, "forces.out")
-            with open(filename, "r") as fd:
+            with open(filename, "r", encoding="utf-8", errors="replace") as fd:
                 for i, line in enumerate(fd.readlines()):
-                    if i == 0:
+                    if i < FORCES_HEADER_LINES:
                         continue
                     forces.append(list(map(float, line.split())))
             self.complet_results["forces"] = np.array(forces)
@@ -921,7 +1450,7 @@ class read_output(IOread):
         self.complet_results["optimization"] = {}
         for line in self.lines:
             if "Maximum gradient =" in line:
-                value = float(line.split()[-1])
+                value = float(line.split()[OPT_GRADIENT_TOKEN])
                 self.complet_results["optimization"]["grad_max"] = value
                 break
 
@@ -988,7 +1517,9 @@ class read_output(IOread):
                 filename = os.path.join(self.workdir, output)
                 data, info = read_XYZ(filename, is_charges=False, velocities=False, keep=1)
 
-                energies = np.array(list(map(lambda x: float(x.split()[2]), info)))
+                energies = np.array(
+                    list(map(lambda x: float(x.split()[PTMC_TRAJ_VALUE_TOKEN]), info))
+                )
 
                 _traj[output] = {
                     "trajectory": data,
@@ -1018,7 +1549,9 @@ class read_output(IOread):
         for line in self.lines:
             for it, _flag in energies_flags.items():
                 if _flag in line:
-                    self.complet_results["energy"].update({it: float(line.split()[-2])})
+                    self.complet_results["energy"].update(
+                        {it: float(line.split()[MD_ENERGY_VALUE_TOKEN])}
+                    )
 
     @safe_parse()
     @assert_flags("neb")

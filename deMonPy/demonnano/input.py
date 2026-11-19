@@ -877,12 +877,12 @@ class write_input:
         """
 
         if "paths" in self.flags:
-            with open(os.path.join(workdir, "deMon.pth.inp"), "w") as fd:
+            with open(os.path.join(workdir, "deMon.pth.inp"), "w", encoding="utf-8") as fd:
                 fd.write(self.file_path_check)
 
         path = os.path.join(workdir, filename)
 
-        with open(path, "w") as fd:
+        with open(path, "w", encoding="utf-8") as fd:
             geom = self.io_lines.pop("GEOMETRY")
             for key, item in self.io_lines.items():
                 fd.write(key)

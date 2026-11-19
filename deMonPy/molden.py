@@ -149,7 +149,7 @@ def _read_xyz_ext(fileobj, is_charges=False, velocities=False, keep=1, ase_obj=T
 
 
 def read_XYZ(filename, **kwargs):
-    with open(filename, "r") as fd:
+    with open(filename, "r", encoding="utf-8", errors="replace") as fd:
         temp = _read_xyz_ext(fd, **kwargs)
     return temp
 
@@ -207,7 +207,7 @@ def write_xyz_ext(
 def write_XYZ(filename, images, intent="w", **kwargs):
     if not isinstance(images, list):
         images = [images]
-    with open(filename, intent) as fd:
+    with open(filename, intent, encoding="utf-8") as fd:
         write_xyz_ext(fd, images, **kwargs)
     return None
 
