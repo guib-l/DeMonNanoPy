@@ -45,11 +45,12 @@ class deMon(Common):
         ase_obj=True,
         clean_repository=True,
         ignore_parse_errors=True,
+        timeout=None,
         **parameters,
     ):
 
-        
-        Common.__init__(self, 
+
+        Common.__init__(self,
                         execut,
                         workdir,
                         omp_threads,
@@ -60,6 +61,7 @@ class deMon(Common):
                         ase_obj,
                         clean_repository,
                         ignore_parse_errors,
+                        timeout=timeout,
                         **parameters,
                     )
 
@@ -140,7 +142,7 @@ class deMon(Common):
         """
         self.write_input(symbols, positions, cell=cell, kpts=kpts)
 
-        self.execute(ignore_fails=False)
+        self.execute()
 
         self.parse_output(read_charges=read_charges, extract_debug=extract_debug, **kwargs)
 

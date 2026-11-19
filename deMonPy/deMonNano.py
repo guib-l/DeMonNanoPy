@@ -30,7 +30,7 @@ import deMonPy
 from deMonPy.basic import Common
 from deMonPy.demonnano.input import write_input
 from deMonPy.demonnano.output import read_output
-from deMonPy.exceptions import ConfigError
+from deMonPy.exceptions import ConfigError, ExecuteFailed
 
 # ============================================================================= 
 #
@@ -73,6 +73,7 @@ class deMonNano(Common):
         ase_obj=True,
         clean_repository=True,
         ignore_parse_errors=True,
+        timeout=None,
         **parameters,
     ):
         """Initialise a deMonNano calculator.
@@ -96,13 +97,15 @@ class deMonNano(Common):
                 parser fails to compute is set to ``None`` and the failure
                 is recorded in ``results["errors"]`` (kind ``"parse"``)
                 instead of raising.  A missing ``deMon.out`` always raises.
+            timeout: Maximum number of seconds the process may run before
+                being terminated.  Defaults to ``None`` (no timeout).
             **parameters: Full deMonNano configuration.  Recognised
                 top-level keys include ``DEMON_EXECUTABLE``,
                 ``DEMON_WORKDIR``, ``DEMON_PARAMETERS`` and
                 ``DEMON_MODULE``.
         """
 
-        Common.__init__(self, 
+        Common.__init__(self,
                         execut,
                         workdir,
                         omp_threads,
@@ -113,6 +116,7 @@ class deMonNano(Common):
                         ase_obj,
                         clean_repository,
                         ignore_parse_errors,
+                        timeout=timeout,
                         **parameters,
                     )
         
@@ -211,6 +215,7 @@ class deMonNano(Common):
         index=0,
         read_charges=False,
         extract_debug=False,
+        get_errors=False,
         **kwargs,
     ):
         """Run a full single-point (or flagged) calculation.
@@ -230,12 +235,33 @@ class deMonNano(Common):
             index: Integer identifier used to key the resulting state
                 snapshot.  Defaults to ``0``.
             **kwargs: Reserved for future calculation options.
+
+        Raises:
+            ExecuteFailed: If the binary exited with a non-zero status, or
+                the run reported deMonNano execution errors (``"ERROR :"``
+                lines in ``deMon.out``).  Parse errors are not raised here:
+                they stay governed by ``ignore_parse_errors``.
         """
         self.write_input(symbols, positions, cell=cell, kpts=kpts)
 
-        self.execute(ignore_fails=False)
+        self.execute()
 
         self.parse_output(read_charges=read_charges, extract_debug=extract_debug, **kwargs)
+
+        # deMonNano can exit with status 0 even when the run failed (e.g. an
+        # SCC loop that did not converge): surface the "ERROR :" lines
+        # recorded by the parser so a failed run never returns silently.
+        demon_errors = [
+            err for err in self.results.get("errors", []) if err.get("kind") == "demon"
+        ]
+        if demon_errors:
+            details = "\n".join(
+                f"  {err.get('line') or err.get('message', '')}" for err in demon_errors
+            )
+            if not get_errors:
+                raise ExecuteFailed(
+                    f"deMonNano calculation '{self.title}' failed in {self.workdir}:\n{details}"
+                )
 
         self.set_state(
             index=index,

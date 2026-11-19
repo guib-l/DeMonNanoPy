@@ -210,3 +210,9 @@ def test_configure_from_file(tmp_path, monkeypatch, fake_mpi):
     deMonPy.configure_from_file(str(cfg))
     assert deMonPy.DEMON_LAUNCHER == "mpirun -np {nprocs}"
     assert deMonPy.DEMON_NPROCS == 3
+
+
+def test_configure_from_file_missing(tmp_path):
+    missing = tmp_path / "missing.json"
+    with pytest.raises(FileNotFoundError, match="missing.json"):
+        deMonPy.configure_from_file(str(missing))

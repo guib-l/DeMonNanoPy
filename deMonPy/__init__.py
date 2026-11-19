@@ -56,7 +56,10 @@ def configure_from_file(path="global.json"):
         path: Path to the JSON configuration file.
     """
     if not os.path.exists(path):
-        raise FileExistsError(f"File globals.json didn't exists at {os.path.abspath(path)}")
+        raise FileNotFoundError(
+            f"File {path!r} doesn't exist. It is expected to be a JSON file with "
+            "'DEMON_EXECUTABLE' and 'DEMON_BASIS' keys. See INSTALL.md."
+        )
     with open(path) as f:
         config = json.load(f)
 

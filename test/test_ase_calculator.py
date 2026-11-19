@@ -11,7 +11,7 @@ from copy import deepcopy
 import numpy as np
 import pytest
 from ase.atoms import Atoms
-from ase.calculators.calculator import SCFError
+from ase.calculators.calculator import CalculationFailed, SCFError
 from ase.calculators.fd import calculate_numerical_forces
 from ase.units import Bohr, Hartree
 
@@ -19,7 +19,7 @@ import deMonPy
 import deMonPy.ase_calculator as ase_calculator
 from deMonPy.ase_calculator import DeMonNano
 from deMonPy.deMonNano import deMonNano
-from deMonPy.exceptions import OutputParseError
+from deMonPy.exceptions import ExecuteFailed, OutputParseError
 from demon_env import configure_or_skip
 
 configure_or_skip("global.json")
@@ -74,15 +74,20 @@ class FakeDeMonNano:
     """Stand-in for :class:`deMonPy.deMonNano.deMonNano`.
 
     ``raw`` is returned as ``results``; ``kwargs`` keeps the constructor
-    arguments given by the ASE calculator.
+    arguments given by the ASE calculator.  When ``error`` is set (an
+    :class:`~deMonPy.exceptions.ExecuteFailed`), :meth:`calculate` populates
+    ``results`` from ``raw`` and then raises it, mirroring the engine
+    auto-raise on a failed run.
     """
 
     raw = {}
     kwargs = None
     calc_kwargs = None
+    error = None
 
     def __init__(self, **kwargs):
         FakeDeMonNano.kwargs = kwargs
+        self.results = {}
 
     def calculate(self, **kwargs):
         FakeDeMonNano.calc_kwargs = kwargs
@@ -91,6 +96,8 @@ class FakeDeMonNano:
         self.results.setdefault(
             "output_geometry", Atoms(kwargs["symbols"], positions=kwargs["positions"])
         )
+        if FakeDeMonNano.error is not None:
+            raise FakeDeMonNano.error
 
 
 @pytest.fixture
@@ -99,6 +106,7 @@ def fake(monkeypatch):
     FakeDeMonNano.raw = {}
     FakeDeMonNano.kwargs = None
     FakeDeMonNano.calc_kwargs = None
+    FakeDeMonNano.error = None
     return FakeDeMonNano
 
 
@@ -236,6 +244,44 @@ class TestUnit:
         with pytest.raises(OutputParseError):
             calc.calculate(graphene.copy(), properties=["energy"])
 
+    def test_engine_execute_failed_scf_error(self, fake, tmp_path):
+        """A9: an engine ExecuteFailed with kind-"demon" errors maps to SCFError."""
+        fake.raw = {
+            "energy": {"energy": -1.5},
+            "errors": [
+                {
+                    "kind": "demon",
+                    "message": "loop over charges not converged",
+                    "line": "ERROR : loop over charges not converged",
+                }
+            ],
+        }
+        fake.error = ExecuteFailed("deMonNano calculation 'CALCULATION DEMONANO' failed")
+
+        calc = DeMonNano(directory=str(tmp_path), **parameters)
+        with pytest.raises(SCFError, match="loop over charges not converged") as excinfo:
+            calc.calculate(_water(), properties=["energy"])
+        assert not isinstance(excinfo.value, ExecuteFailed)
+
+    def test_engine_execute_failed_calculation_failed(self, fake, tmp_path):
+        """A10: an engine ExecuteFailed without kind-"demon" errors maps to CalculationFailed."""
+        fake.raw = {}  # simulated non-zero exit: no "ERROR :" lines were parsed
+        fake.error = ExecuteFailed('Calculator "DEMON" failed with return code 1')
+
+        calc = DeMonNano(directory=str(tmp_path), **parameters)
+        with pytest.raises(CalculationFailed, match="return code 1") as excinfo:
+            calc.calculate(_water(), properties=["energy"])
+        assert not isinstance(excinfo.value, ExecuteFailed)
+
+    def test_no_output_geometry_calculation_failed(self, fake, tmp_path):
+        """A11: a run producing no deMon.mol raises CalculationFailed, not AttributeError."""
+        fake.raw = {"energy": {"energy": -1.5}, "output_geometry": None}
+
+        calc = DeMonNano(directory=str(tmp_path), **parameters)
+        with pytest.raises(CalculationFailed, match="deMon.mol") as excinfo:
+            calc.calculate(_water(), properties=["energy"])
+        assert not isinstance(excinfo.value, AttributeError)
+
 
 # =============================================================================
 # B. Integration tests (deMonNano executable)
@@ -327,7 +373,12 @@ class TestIntegration:
         np.testing.assert_allclose(atoms.get_charges(), reference, rtol=1e-5)
 
     def test_scf_not_converged(self):
-        """B10: a nearly dissociated water dimer (SCC not converged) raises SCFError."""
+        """B10: a nearly dissociated water dimer (SCC not converged) raises SCFError.
+
+        The engine auto-raises ExecuteFailed on the "ERROR :" lines of
+        deMon.out; the ASE layer maps that failure to SCFError because the
+        recorded errors are of kind "demon" (SCF-type failure).
+        """
         atoms = water_dimer.copy()
         atoms.positions = [
             [0.554, -0.537, 3.578],
@@ -339,5 +390,5 @@ class TestIntegration:
         ]
         atoms.calc = DeMonNano(directory=os.path.join(WORKDIR, "scf"), **parameters)
 
-        with pytest.raises(SCFError):
+        with pytest.raises(SCFError, match="loop over charges not converged"):
             atoms.get_potential_energy()

@@ -135,17 +135,17 @@ class Process:
     def execute(self, check=True, timeout=None):
 
         if self.executable is None:
-            raise EnvironmentError("No executable configured")
+            raise ConfigError("No executable configured")
 
         exe = self.executable.resolve()
         if not exe.is_file():
-            raise FileNotFoundError(f"Executable not found: {exe}")
+            raise ConfigError(f"Executable not found: {exe}")
         if not os.access(exe, os.X_OK):
-            raise PermissionError(f"Executable not runnable: {exe}")
+            raise ExecuteFailed(f"Executable not runnable: {exe}")
 
         wd = self.workdir.resolve()
         if not wd.is_dir():
-            raise NotADirectoryError(f"Working directory missing: {wd}")
+            raise ConfigError(f"Working directory missing: {wd}")
 
         command = self.build_command(exe)
 
@@ -160,8 +160,13 @@ class Process:
                 check=False,
                 shell=False,
             )
+        except subprocess.TimeoutExpired as err:
+            raise ExecuteFailed(
+                f'Calculator "{self.prefix}" exceeded the {timeout}s timeout in {wd}\n'
+                f"command: {shlex.join(command)}"
+            ) from err
         except OSError as err:
-            raise EnvironmentError(f'Failed to execute "{shlex.join(command)}"') from err
+            raise ExecuteFailed(f'Failed to execute "{shlex.join(command)}"') from err
 
         if check and result.returncode != 0:
             raise ExecuteFailed(

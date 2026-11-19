@@ -30,12 +30,12 @@ from copy import deepcopy
 
 import numpy as np
 from ase.calculators.abc import GetOutputsMixin
-from ase.calculators.calculator import Calculator, SCFError, all_changes
+from ase.calculators.calculator import Calculator, CalculationFailed, SCFError, all_changes
 from ase.units import Bohr, Hartree
 
 import deMonPy
 from deMonPy.deMonNano import deMonNano
-from deMonPy.exceptions import OutputParseError
+from deMonPy.exceptions import ExecuteFailed, OutputParseError
 
 # Conversion factor: deMonNano reports gradients in Hartree/Bohr.
 # ASE expects forces in eV/Angstrom.  F = -gradient.
@@ -131,6 +131,15 @@ class DeMonNano(GetOutputsMixin, Calculator):
                 the previously attached atoms are reused.
             properties: List of property names to compute.
             system_changes: List of changes since the last call.
+
+        Raises:
+            SCFError: If deMon.out contains kind-"demon" errors (e.g. the
+                SCC loop over charges did not converge).
+            CalculationFailed: If the engine run fails, or if the run
+                produced no ``deMon.mol`` (no output geometry to read
+                charges from).
+            OutputParseError: If the CARTESIAN GRADIENT block or the
+                k-point coordinates cannot be parsed.
         """
         super().calculate(atoms, properties, system_changes)
 
@@ -176,13 +185,28 @@ class DeMonNano(GetOutputsMixin, Calculator):
             cell = np.array(atoms.cell)
             kpts = self.parameters.get("kpts")
 
-        calc.calculate(
-            symbols=list(atoms.symbols),
-            positions=atoms.positions,
-            cell=cell,
-            kpts=kpts,
-            read_charges=not need_forces,
-        )
+        try:
+            calc.calculate(
+                symbols=list(atoms.symbols),
+                positions=atoms.positions,
+                cell=cell,
+                kpts=kpts,
+                read_charges=not need_forces,
+            )
+        except ExecuteFailed as err:
+            # The engine raises ExecuteFailed itself on a failed run (non-zero
+            # exit or "ERROR :" lines of deMon.out); map it back to the ASE
+            # family: kind-"demon" errors mean an SCF failure, anything else a
+            # generic calculation failure.
+            errors = [
+                e["line"] for e in calc.results.get("errors", []) if e["kind"] == "demon"
+            ]
+            if errors:
+                raise SCFError(
+                    f"deMonNano failed in {os.path.join(workdir, 'deMon.out')}: "
+                    + "; ".join(errors)
+                ) from err
+            raise CalculationFailed(f"deMonNano failed in {workdir}: {err}") from err
 
         raw = calc.results
 
@@ -204,7 +228,13 @@ class DeMonNano(GetOutputsMixin, Calculator):
 
         # --- charges: "BOMD INFORMATION" frame of deMon.mol (absent with OPT SP) ---
         if not need_forces:
-            self.results["charges"] = np.array(raw["output_geometry"].get_initial_charges())
+            output_geometry = raw.get("output_geometry")
+            if output_geometry is None:
+                raise CalculationFailed(
+                    f"deMonNano produced no deMon.mol in {workdir}: the run "
+                    f"emitted no output geometry, so charges cannot be read."
+                )
+            self.results["charges"] = np.array(output_geometry.get_initial_charges())
 
         # --- forces (Hartree/Bohr -> eV/Ang) ---
         if need_forces:

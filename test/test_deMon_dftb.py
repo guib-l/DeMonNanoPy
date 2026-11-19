@@ -379,7 +379,7 @@ class TestDftb:
 
         mod = deMonNano(title="CALCULATION DEMONANO", workdir=WORKDIR, **copy_parameters)
 
-        mod.calculate(symbols=image.symbols, positions=image.positions)
+        mod.calculate(symbols=image.symbols, positions=image.positions, get_errors=True)
 
         results = mod.results
         err = results["errors"]

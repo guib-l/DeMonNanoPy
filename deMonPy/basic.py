@@ -39,8 +39,7 @@ class BasicCalculation:
 
     This class owns a :class:`~deMonPy.profile.Process` instance and
     provides helpers shared by every calculation type: working-directory
-    creation, execution with optional error suppression, and a simple
-    state-snapshot mechanism.
+    creation, execution, and a simple state-snapshot mechanism.
 
     Attributes:
         execut: Default executable path (class-level fallback).
@@ -52,7 +51,16 @@ class BasicCalculation:
     execut = ""
     workdir = None
 
-    def __init__(self, executable, workdir, prefix, omp_threads=1, launcher=None, nprocs=1):
+    def __init__(
+        self,
+        executable,
+        workdir,
+        prefix,
+        omp_threads=1,
+        launcher=None,
+        nprocs=1,
+        timeout=None,
+    ):
         """Initialise the calculation process wrapper.
 
         Args:
@@ -66,6 +74,8 @@ class BasicCalculation:
                 see :class:`~deMonPy.profile.Process`.
             nprocs: Number of processes substituted for ``{nprocs}`` in the
                 launcher.  Defaults to ``1``.
+            timeout: Maximum number of seconds the process may run before
+                being terminated.  Defaults to ``None`` (no timeout).
         """
         self.process = Process(
             executable=executable,
@@ -76,24 +86,17 @@ class BasicCalculation:
             nprocs=nprocs,
         )
         self.workdir = workdir
+        self.timeout = timeout
         self.state = {}
 
-    def execute(self, ignore_fails=False):
+    def execute(self):
         """Run the underlying process.
-
-        Args:
-            ignore_fails: If ``True``, any exception raised during
-                execution is silently caught.  Defaults to ``False``.
 
         Raises:
             ExecuteFailed: Propagated from :meth:`Process.execute` when
-                the run fails and *ignore_fails* is ``False``.
+                the run fails (including a timeout).
         """
-        try:
-            self.process.execute()
-        except Exception:
-            if not ignore_fails:
-                raise
+        self.process.execute(timeout=self.timeout)
 
     def set_workdir(self):
         """Create the working directory if it does not already exist."""
@@ -169,6 +172,7 @@ class Common(BasicCalculation):
         ase_obj=True,
         clean_repository=True,
         ignore_parse_errors=True,
+        timeout=None,
         **parameters,
     ):
 
@@ -195,6 +199,7 @@ class Common(BasicCalculation):
             omp_threads=omp_threads,
             launcher=_launcher,
             nprocs=_nprocs,
+            timeout=timeout,
         )
 
         # Start running directory
@@ -280,7 +285,7 @@ class Common(BasicCalculation):
         """
         self.write_input(symbols, positions, cell=cell, kpts=kpts)
 
-        self.execute(ignore_fails=False)
+        self.execute()
 
         self.parse_output(read_charges=read_charges, extract_debug=extract_debug, **kwargs)
 

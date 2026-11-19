@@ -20,7 +20,7 @@ class InputError(DeMonError):
 
 
 class ExecuteFailed(DeMonError):
-    """Raised when the deMonNano binary returns a non-zero exit code."""
+    """Raised when a deMonNano run fails: non-zero exit code or "ERROR :" lines in deMon.out."""
 
 
 class OutputParseError(DeMonError):
