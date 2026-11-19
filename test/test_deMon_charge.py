@@ -7,8 +7,9 @@ from conftest import compute_numgrad
 
 import deMonPy
 from deMonPy.deMonNano import deMonNano
+from demon_env import configure_or_skip
 
-deMonPy.configure_from_file("global.json")
+configure_or_skip("global.json")
 
 parameters = {
     "DEMON_EXECUTABLE": deMonPy.DEMON_EXECUTABLE,

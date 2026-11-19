@@ -6,8 +6,9 @@ import pytest
 import deMonPy
 from deMonPy.deMonNano import deMonNano
 from deMonPy.molden import read_XYZ
+from demon_env import configure_or_skip
 
-deMonPy.configure_from_file("global.json")
+configure_or_skip("global.json")
 
 parameters = {
     "DEMON_EXECUTABLE": deMonPy.DEMON_EXECUTABLE,

@@ -20,8 +20,9 @@ import deMonPy.ase_calculator as ase_calculator
 from deMonPy.ase_calculator import DeMonNano
 from deMonPy.deMonNano import deMonNano
 from deMonPy.exceptions import OutputParseError
+from demon_env import configure_or_skip
 
-deMonPy.configure_from_file("global.json")
+configure_or_skip("global.json")
 
 parameters = {
     "DEMON_EXECUTABLE": deMonPy.DEMON_EXECUTABLE,

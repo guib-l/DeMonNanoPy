@@ -8,8 +8,9 @@ from ase.atoms import Atoms
 import deMonPy
 from deMonPy.ase_calculator import DeMonNano
 from deMonPy.deMonNano import Module_DeMonNano, deMonNano
+from demon_env import configure_or_skip
 
-deMonPy.configure_from_file("global.json")
+configure_or_skip("global.json")
 
 parameters = {
     "DEMON_EXECUTABLE": deMonPy.DEMON_EXECUTABLE,
