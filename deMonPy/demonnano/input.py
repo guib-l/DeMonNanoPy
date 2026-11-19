@@ -2,6 +2,7 @@
 # Import standard de python3
 import copy
 import os
+import warnings
 
 import numpy as np
 
@@ -148,8 +149,24 @@ class write_input:
                 _inline.append(f"{key}={item}")
             elif isinstance(item, str):
                 _inline.append(f"{key}{bind_str}{item}")
+            elif isinstance(item, list):
+                # Lists are serialized by the section writer that calls this
+                # handler (e.g. CUTSYS FRAGMENT), so there is nothing to do.
+                continue
             else:
-                pass
+                try:
+                    value = repr(item)
+                except Exception:
+                    value = "<unrepresentable value>"
+                if len(value) > 50:
+                    value = value[:47] + "..."
+                warnings.warn(
+                    f"Input parameter '{key}' has an unsupported value type "
+                    f"{type(item).__name__} ({value}); the value is dropped "
+                    "from the input file.",
+                    UserWarning,
+                    stacklevel=2,
+                )
         return _inline
 
     def _write_table(self, table, symbols=None, fmt="10.8f"):

@@ -25,18 +25,62 @@ Typical usage::
 """
 
 from copy import deepcopy
+import warnings
+
+import numpy as np
 
 import deMonPy
 from deMonPy.basic import Common
 from deMonPy.demonnano.input import write_input
 from deMonPy.demonnano.output import read_output
-from deMonPy.exceptions import ConfigError, ExecuteFailed
+from deMonPy.exceptions import ConfigError, ExecuteFailed, InputError
+
+# Lower-case forms of the ACTIVE keys (DEMON_PARAMETERS.ACTIVE and
+# DEMON_MODULE.ACTIVE) consumed by the input writer of
+# :mod:`deMonPy.demonnano.input` (either by a matching
+# ``@assert_flags``-guarded section or inside one).  A key absent from
+# this set is silently skipped by the writer and would leave the
+# generated ``deMon.inp`` incomplete, so :meth:`deMonNano.write_input`
+# warns about it.
+_SUPPORTED_ACTIVE_FLAGS = frozenset(
+    {
+        # DEMON_MODULE.ACTIVE keys (module writers)
+        "opt",
+        "ptmc",
+        "md",
+        "neb",
+        # DEMON_PARAMETERS.ACTIVE keys (parameter writers)
+        "dftb",
+        "rttddftb",
+        "paths",
+        "rg",
+        "pbc",
+        "dipole",
+        "molecules",
+        "wmull",
+        "cm3",
+        "cm3inter",
+        "charge",
+        "multi",
+        "ci",
+        "cutsys",
+        "td-dftb",
+        "freq",
+        "mm",
+        "qmmm",
+        "print",
+        # consumed inside _write_geometry (units selection)
+        "geometry",
+        # consumed inside _write_molecules, under the "molecules" guard
+        "quaternion",
+    }
+)
 
 # ============================================================================= 
 #
 # MAIN object for deMonNano
 #
-# =============================================================================
+# ============================================================================= 
 
 class deMonNano(Common):
     """High-level calculator that builds input, runs deMonNano and parses output.
@@ -172,6 +216,8 @@ class deMonNano(Common):
         :meth:`calculate` call uses the updated configuration.  The
         :attr:`flags` set is re-derived from the new parameter keys.
         The ``ase_obj`` setting chosen at construction time is preserved.
+        The parameters are deep-copied, so the caller's dictionaries are
+        not shared with the calculator.
 
         Args:
             properties: List of output properties requested from the
@@ -187,7 +233,7 @@ class deMonNano(Common):
         if basis is None:
             basis = {}
 
-        self.parameters = parameters.copy()
+        self.parameters = deepcopy(parameters)
 
         # Build parameters
         # self.basis = parameters.pop("BASIS", basis or deMonPy.DEMON_BASIS)
@@ -203,6 +249,44 @@ class deMonNano(Common):
             ase_obj=self._ase_obj,
             ignore_parse_errors=self._ignore_parse_errors,
         )
+
+    def _validate_geometry(self, symbols, positions):
+        """Validate the geometry passed to :meth:`calculate`.
+
+        Only the length/shape contract is enforced: *symbols* and
+        *positions* must describe the same number of atoms, *positions*
+        must be an array-like of shape ``(N, 3)``, and the atom list must
+        not be empty.  The content of the symbols is not checked and the
+        original *positions* is left untouched.
+
+        Args:
+            symbols: Sequence of atomic symbols.
+            positions: Array-like of atomic coordinates.
+
+        Raises:
+            InputError: If *positions* is not of shape ``(N, 3)`` with
+                ``N == len(symbols) >= 1``.
+        """
+        n_symbols = len(symbols)
+        pos = np.asarray(positions)
+
+        if n_symbols > 0:
+
+            if pos.ndim != 2 or pos.shape[1] != 3:
+                raise InputError(
+                    f"positions must have shape (N, 3) with N={n_symbols} atoms, got {pos.shape}"
+                )
+
+            if pos.shape[0] != n_symbols:
+                raise InputError(
+                    f"number of symbols ({n_symbols}) does not match "
+                    f"number of position rows ({pos.shape[0]})"
+                )
+        else:
+            if pos.shape[0] != n_symbols:
+                raise InputError(
+                    f"positions must have same shape than symbols"
+                )
 
     def calculate(
         self,
@@ -228,20 +312,26 @@ class deMonNano(Common):
         4. Stores a state snapshot accessible through :meth:`get_state`.
 
         Args:
-            symbols: Sequence of atomic symbols (e.g. ``["C", "O"]``).
-                Must match the length of *positions*.
+            symbols: Non-empty sequence of atomic symbols (e.g.
+                ``["C", "O"]``).  Must match the length of *positions*.
             positions: Array-like of shape ``(N, 3)`` with Cartesian
-                coordinates in angstroms.
+                coordinates in angstroms, where ``N`` is the number of
+                atoms in *symbols* (at least 1).
             index: Integer identifier used to key the resulting state
                 snapshot.  Defaults to ``0``.
             **kwargs: Reserved for future calculation options.
 
         Raises:
+            InputError: If *symbols* and *positions* describe different
+                numbers of atoms, if *positions* is not of shape
+                ``(N, 3)``, or if no atoms are given at all.
             ExecuteFailed: If the binary exited with a non-zero status, or
                 the run reported deMonNano execution errors (``"ERROR :"``
                 lines in ``deMon.out``).  Parse errors are not raised here:
                 they stay governed by ``ignore_parse_errors``.
         """
+        self._validate_geometry(symbols, positions)
+
         self.write_input(symbols, positions, cell=cell, kpts=kpts)
 
         self.execute()
@@ -288,6 +378,7 @@ class deMonNano(Common):
             geometry: Array-like of shape ``(N, 3)`` with Cartesian
                 coordinates written to the ``GEOMETRY`` section.
         """
+        _warn_unsupported_active_flags(self._wi.parameters, self._wi.module)
 
         # Parameters
         self._wi._write_dftb()
@@ -555,3 +646,32 @@ class Module_DeMonNano(deMonNano):
 
         else:
             raise NotImplementedError(f"Method {method} is unknow in module {self.build.__name__}")
+
+
+def _warn_unsupported_active_flags(parameters, module):
+    """Warn about ACTIVE keys for which the input writer has no writer.
+
+    A key without a matching ``@assert_flags``-guarded section is silently
+    skipped during the assembly of ``deMon.inp``; this emits a single
+    :class:`UserWarning` naming each such key and the supported ones.  The
+    input assembly itself is left untouched (warning only).
+
+    Args:
+        parameters: The ``DEMON_PARAMETERS.ACTIVE`` dictionary.
+        module: The ``DEMON_MODULE.ACTIVE`` dictionary.
+    """
+    unknown = sorted(
+        {key for key in [*parameters, *module] if key.lower() not in _SUPPORTED_ACTIVE_FLAGS}
+    )
+    if not unknown:
+        return
+
+    supported = ", ".join(flag.upper() for flag in sorted(_SUPPORTED_ACTIVE_FLAGS))
+    warnings.warn(
+        "DEMON_PARAMETERS.ACTIVE / DEMON_MODULE.ACTIVE key(s) ignored by "
+        f"the input writer (no matching section in deMon.inp): "
+        f"{', '.join(repr(key) for key in unknown)}. "
+        f"Supported keys: {supported}.",
+        UserWarning,
+        stacklevel=3,
+    )

@@ -1,3 +1,4 @@
+from copy import deepcopy
 
 from deMonPy.basic import Common
 from deMonPy.demon.input import write_input
@@ -80,6 +81,8 @@ class deMon(Common):
         :meth:`calculate` call uses the updated configuration.  The
         :attr:`flags` set is re-derived from the new parameter keys.
         The ``ase_obj`` setting chosen at construction time is preserved.
+        The parameters are deep-copied, so the caller's dictionaries are
+        not shared with the calculator.
 
         Args:
             properties: List of output properties requested from the
@@ -95,7 +98,7 @@ class deMon(Common):
         if basis is None:
             basis = {}
 
-        self.parameters = parameters.copy()
+        self.parameters = deepcopy(parameters)
 
         self._wi = write_input(BASIS=self.basis, **parameters)
         self.flags = self._wi.flags
