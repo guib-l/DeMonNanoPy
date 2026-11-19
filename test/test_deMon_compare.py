@@ -218,7 +218,7 @@ class TestComparison:
                     "ACTIVE": {
                         "DFTB": {
                             "SCC": True,
-                            "TOL": 1e-10,
+                            "TOL": 1e-10
                         },
                         "TD-DFTB": 15,
                     },
