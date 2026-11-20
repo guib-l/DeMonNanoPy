@@ -1,7 +1,7 @@
 import json
 import os
 
-__version__ = "0.1.1"
+__version__ = "0.2.0"
 
 from deMonPy.modules.dyn import _dyn
 from deMonPy.modules.ptmc import _ptmc
