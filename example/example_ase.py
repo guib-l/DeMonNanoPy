@@ -34,6 +34,14 @@ image = Atoms(
 )
 
 
+def _save(fig, filename):
+    fig.tight_layout()
+    if filename:
+        if filename:
+            os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
+        fig.savefig(filename, dpi=150)
+        print(f"Figure : {filename}")
+
 
 def exemple_run_ase():
 
@@ -120,7 +128,7 @@ def exemple_run_dynamics():
     ax.set_ylabel(r"$E - E_{pot}(t=0)$ (eV)")
     ax.legend()
     fig.tight_layout()
-    fig.savefig("./water-dynamics.png", dpi=150)
+    _save(fig,"./figures/water-dynamics.png")
 
 
 def exemple_run_neb():
@@ -177,7 +185,7 @@ def exemple_run_neb():
     fig, ax = plt.subplots(figsize=(6.5, 4.5))
     nebtools.plot_band(ax=ax)
     fig.tight_layout()
-    fig.savefig("./water-neb.png", dpi=150)
+    _save(fig,"./figures/water-neb.png")
 
 
 def exemple_run_bassinHopping():
@@ -229,7 +237,7 @@ def exemple_run_bassinHopping():
     ax.set_ylabel("Energy (eV)")
     ax.legend()
     fig.tight_layout()
-    fig.savefig("./water-bh.png", dpi=150)
+    _save(fig,"./figures/water-bh.png")
 
 
 

@@ -1,4 +1,4 @@
-import copy
+import copy,os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -32,6 +32,8 @@ WORKDIR = ".run/examples-pbc/"
 def _save(fig, filename):
     fig.tight_layout()
     if filename:
+        if filename:
+            os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
         fig.savefig(filename, dpi=150)
         print(f"Figure : {filename}")
 
@@ -73,7 +75,7 @@ def exemple_run_kpt():
 
     ax.set_xlabel("K-points")
     ax.set_ylabel(r"|$\Delta$ Energy| (Ha)")
-    _save(fig, "./energy-vs-kpts.png")
+    _save(fig, "./figures/energy-vs-kpts.png")
 
 
 # Graphite AB: cell, positions and starting c parameter for each dispersion model
@@ -159,7 +161,7 @@ def scan_graphite(disp):
     ax.set_xlabel(r"Distance inter-layer ($\AA$)")
     ax.set_ylabel("Energy (Ha)")
 
-    _save(fig, f"./graphite-D{disp}.png")
+    _save(fig, f"./figures/graphite-D{disp}.png")
 
 
 def example_periodic_graphite_AA():

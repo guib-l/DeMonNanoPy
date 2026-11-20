@@ -1,4 +1,4 @@
-import copy
+import copy,os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -27,6 +27,8 @@ WORKDIR = ".run/examples-argon/"
 def _save(fig, filename):
     fig.tight_layout()
     if filename:
+        if filename:
+            os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
         fig.savefig(filename, dpi=150)
         print(f"Figure : {filename}")
 
@@ -65,7 +67,7 @@ def example_argon_cluster():
     ax.set_xlabel("Number of argon atoms")
     ax.set_ylabel(r"Energy (cm$^{-1}$)")
 
-    _save(fig, "./DABCO-argons.png")
+    _save(fig, "./figures/DABCO-argons.png")
 
 
 if __name__ == "__main__":

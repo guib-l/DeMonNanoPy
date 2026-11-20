@@ -27,6 +27,8 @@ WORKDIR = ".run/examples-rttddftb"
 def _save(fig, filename):
     fig.tight_layout()
     if filename:
+        if filename:
+            os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
         fig.savefig(filename, dpi=150)
         print(f"Figure : {filename}")
 
@@ -317,4 +319,4 @@ if __name__ == "__main__":
     plt.xlabel("Time (fs)")
     ax[1].set_ylabel("Charge variation")
 
-    _save(fig, "./charge_variation.png")
+    _save(fig, "./figures/charge_variation.png")

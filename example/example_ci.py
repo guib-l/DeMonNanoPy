@@ -1,4 +1,4 @@
-import copy
+import copy,os
 
 import ase
 import matplotlib.pyplot as plt
@@ -59,6 +59,8 @@ positions = np.array(
 def _save(fig, filename):
     fig.tight_layout()
     if filename:
+        if filename:
+            os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
         fig.savefig(filename, dpi=150)
         print(f"Figure : {filename}")
 
@@ -119,7 +121,7 @@ def exemple_ci_pyrene():
     ax.set_xlabel("Distances (A)")
     ax.set_ylabel("Energy (eV)")
 
-    _save(fig, "./dissociation-profile.png")
+    _save(fig, "./figures/dissociation-profile.png")
 
 
 def exemple_exci_pyrene():
@@ -170,7 +172,7 @@ def exemple_exci_pyrene():
     ax.set_xlabel("Distances (A)")
     ax.set_ylabel("Energy (eV)")
 
-    _save(fig, "./profile-pyrene.png")
+    _save(fig, "./figures/profile-pyrene.png")
 
 
 def exemple_exci_pyrene_rot(distance=3.2):
@@ -226,7 +228,7 @@ def exemple_exci_pyrene_rot(distance=3.2):
     ax.set_xlabel("Angle (degree)")
     ax.set_ylabel("Energy (eV)")
 
-    _save(fig, f"./profile-pyrene_rot-{distance}.png")
+    _save(fig, f"./figures/profile-pyrene_rot-{distance}.png")
 
 
 if __name__ == "__main__":

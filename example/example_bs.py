@@ -51,6 +51,8 @@ PH_KPTS = (4, 4, 1)
 def _save(fig, filename):
     fig.tight_layout()
     if filename:
+        if filename:
+            os.makedirs(os.path.dirname(os.path.abspath(filename)), exist_ok=True)
         fig.savefig(filename, dpi=150)
         print(f"Figure : {filename}")
 
@@ -99,7 +101,7 @@ def exemple_run_bs():
     fig, ax = plt.subplots(figsize=(6.5, 4.5))
     bs.plot(ax=ax, emin=-20.0, emax=10.0)
     ax.set_ylabel(r"$E - E_F$ (eV)")
-    _save(fig, "./graphene-bs.png")
+    _save(fig, "./figures/graphene-bs.png")
 
 
 def example_relax():
@@ -152,7 +154,7 @@ def example_relax():
     ax.set_xlabel(r"Lattice parameter a ($\AA$)")
     ax.set_ylabel("Energy (eV)")
     ax.legend()
-    _save(fig, "./graphene-relax.png")
+    _save(fig, "./figures/graphene-relax.png")
 
     relaxed = atoms.copy()
     relaxed.calc = None
@@ -182,7 +184,7 @@ def example_dos():
     ax.axvline(0.0, color="grey", ls="--")
     ax.set_xlabel(r"$E - E_F$ (eV)")
     ax.set_ylabel("DOS (states/eV)")
-    _save(fig, "./graphene-dos.png")
+    _save(fig, "./figures/graphene-dos.png")
 
 
 def _phonons():
@@ -229,7 +231,7 @@ def example_phonon_bs():
     fig, ax = plt.subplots(figsize=(6.5, 4.5))
     bs.plot(ax=ax, emin=0.0, emax=0.25)
     ax.set_ylabel("Energy (eV)")
-    _save(fig, "./graphene-phonon-bs.png")
+    _save(fig, "./figures/graphene-phonon-bs.png")
 
 
 def example_phonon_dos():
@@ -246,7 +248,7 @@ def example_phonon_dos():
     ax.set_xlim(0.0, 0.25)
     ax.set_xlabel("Energy (eV)")
     ax.set_ylabel("Phonon DOS")
-    _save(fig, "./graphene-phonon-dos.png")
+    _save(fig, "./figures/graphene-phonon-dos.png")
 
 
 if __name__ == "__main__":
