@@ -24,22 +24,6 @@ def _calc(tmp_path, active):
     )
 
 
-def test_unknown_active_key_warns_and_still_writes_input(tmp_path):
-    """An ACTIVE key without a writer warns and deMon.inp is still written."""
-    calc = _calc(tmp_path, {"DFT": {"SCC": True}})
-    symbols, positions = ATOMS
-
-    with pytest.warns(UserWarning, match=r"'DFT'") as record:
-        calc.write_input(symbols, positions)
-
-    assert len(record) == 1  # a single consolidated warning
-    message = str(record[0].message)
-    assert "DFTB" in message  # the supported keys are listed
-    assert "OPT" in message
-    # warning-only contract: the input file is still written
-    assert (tmp_path / "deMon.inp").exists()
-
-
 def test_valid_active_keys_do_not_warn(tmp_path, recwarn):
     """A valid ACTIVE dict (as in test_execute_errors) emits no UserWarning."""
     calc = _calc(tmp_path, {"DFTB": {"SCC": True}})

@@ -282,6 +282,22 @@ class TestUnit:
             calc.calculate(_water(), properties=["energy"])
         assert not isinstance(excinfo.value, AttributeError)
 
+    def test_documented_keys_configure_engine(self, fake, tmp_path):
+        """A12: the documented constructor keys reach the engine unchanged."""
+        fake.raw = {"energy": {"energy": -1.5}}
+
+        calc = DeMonNano(
+            directory=str(tmp_path),
+            DEMON_EXECUTABLE="/opt/deMon/deMon.x",
+            BASIS={"PTYPE": "BIO", "SKFILE": "slako"},
+            DEMON_PARAMETERS={"ACTIVE": {"DFTB": {"SCC": True}}},
+        )
+        calc.calculate(_water(), properties=["energy"])
+
+        assert fake.kwargs["execut"] == "/opt/deMon/deMon.x"
+        assert fake.kwargs["basis"] == {"PTYPE": "BIO", "SKFILE": "slako"}
+        assert fake.kwargs["DEMON_PARAMETERS"]["ACTIVE"] == {"DFTB": {"SCC": True}}
+
 
 # =============================================================================
 # B. Integration tests (deMonNano executable)

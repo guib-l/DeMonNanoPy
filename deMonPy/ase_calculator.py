@@ -13,9 +13,9 @@ Typical usage::
 
     atoms = molecule("H2O")
     atoms.calc = DeMonNano(
-        execut="/path/to/deMon.x",
-        basis={"PTYPE": "BIO", "SKFILE": "/path/to/basis"},
-        parameters={"DFTB": {"SCC": True}},
+        DEMON_EXECUTABLE="/path/to/deMon.x",
+        BASIS={"PTYPE": "BIO", "SKFILE": "/path/to/basis"},
+        DEMON_PARAMETERS={"ACTIVE": {"DFTB": {"SCC": True}}},
     )
 
     energy = atoms.get_potential_energy()      # eV
@@ -25,10 +25,14 @@ The calculator converts results from Hartree (deMonNano native unit)
 to eV so that they integrate transparently with the rest of ASE.
 """
 
+from __future__ import annotations
+
 import os
 from copy import deepcopy
+from typing import Any, Sequence
 
 import numpy as np
+from ase import Atoms
 from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import Calculator, CalculationFailed, SCFError, all_changes
 from ase.units import Bohr, Hartree
@@ -61,8 +65,9 @@ class DeMonNano(GetOutputsMixin, Calculator):
     implemented_properties = ["energy", "free_energy", "forces", "charges"]
 
     default_parameters = {
-        "execut": None,
-        "basis": {},
+        "DEMON_EXECUTABLE": None,
+        "BASIS": {},
+        "DEMON_PARAMETERS": {},
         "omp_threads": 1,
         "launcher": None,
         "nprocs": None,
@@ -73,12 +78,12 @@ class DeMonNano(GetOutputsMixin, Calculator):
 
     def __init__(
         self,
-        restart=None,
-        label="ase_demon",
-        atoms=None,
-        directory=".",
-        **kwargs,
-    ):
+        restart: str | None = None,
+        label: str = "ase_demon",
+        atoms: Atoms | None = None,
+        directory: str = ".",
+        **kwargs: Any,
+    ) -> None:
         """Initialise the ASE-compatible deMonNano calculator.
 
         Args:
@@ -90,19 +95,23 @@ class DeMonNano(GetOutputsMixin, Calculator):
                 A sub-directory named *label* is created inside it.
             **kwargs: Calculator-specific options.  Accepted keys:
 
-                * **execut** -- path to the deMonNano executable.
-                  Falls back to :data:`deMonPy.DEMON_EXECUTABLE`.
-                * **basis** -- dict with ``"PTYPE"`` and ``"SKFILE"``
+                * **DEMON_EXECUTABLE** -- path to the deMonNano
+                  executable.  Falls back to
+                  :data:`deMonPy.DEMON_EXECUTABLE`.
+                * **BASIS** -- dict with ``"PTYPE"`` and ``"SKFILE"``
                   keys.  Falls back to :data:`deMonPy.DEMON_BASIS`.
-                * **parameters** -- dict of DFTB parameters placed under
-                  ``DEMON_PARAMETERS > ACTIVE`` (e.g.
-                  ``{"DFTB": {"SCC": True}}``).
+                * **DEMON_PARAMETERS** -- the full deMonNano parameters
+                  block; MUST contain the ``ACTIVE`` key (e.g.
+                  ``{"ACTIVE": {"DFTB": {"SCC": True}}}``).
                 * **omp_threads** -- OpenMP thread count (default ``1``).
                 * **launcher** -- command prefix such as
                   ``"mpirun -np {nprocs}"``.  Falls back to
                   :data:`deMonPy.DEMON_LAUNCHER`.
                 * **nprocs** -- number of processes for ``{nprocs}``.
                   Falls back to :data:`deMonPy.DEMON_NPROCS`.
+                * **kpts** -- k-point grid (e.g. ``(10, 10, 1)``) for
+                  periodic (PBC) calculations; ``None`` for
+                  non-periodic systems.
                 * **prefix** -- process manager prefix (default
                   ``"DEMON"``).
                 * **title** -- input-file title string.
@@ -117,10 +126,10 @@ class DeMonNano(GetOutputsMixin, Calculator):
 
     def calculate(
         self,
-        atoms=None,
-        properties=["energy"],
-        system_changes=all_changes,
-    ):
+        atoms: Atoms | None = None,
+        properties: Sequence[str] = ["energy"],
+        system_changes: Sequence[str] = all_changes,
+    ) -> None:
         """Run a deMonNano calculation and populate :attr:`results`.
 
         This method is called by ASE every time a property (energy,

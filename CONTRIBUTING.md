@@ -7,7 +7,7 @@ documentation improvements, and suggestions.
 
 ## Prerequisites
 
-- Python 3.11 or later
+- Python 3.12 or later
 - Git
 - A working `deMon.x` binary and Slater-Koster parameter files, if you want to
   run the test suite (see [Configuration](#configuration))

@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
+from __future__ import annotations
 
+from typing import Any, Sequence
 import warnings
+
+from ase import Atoms
 
 from deMonPy.module import modules
 
@@ -44,17 +48,17 @@ class _dyn(modules):
 
     def forward(
         self,
-        image=None,
-        restart=False,
-        temp=300,
-        velocities=None,
-        timestep=0.4,
-        max_steps=100,
-        wall=None,
-        out=10,
-        out_traj=True,
-        **args,
-    ):
+        image: Atoms | None = None,
+        restart: bool = False,
+        temp: float = 300,
+        velocities: Sequence[Sequence[float]] | None = None,
+        timestep: float = 0.4,
+        max_steps: int = 100,
+        wall: float | None = None,
+        out: int = 10,
+        out_traj: bool = True,
+        **args: Any,
+    ) -> None:
 
         if restart:
             image = self.context.results.get("output_geometry", None)

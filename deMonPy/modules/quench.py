@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 
 # Import standard de python3
+from __future__ import annotations
+
+from typing import Any
+
+from ase import Atoms
 import numpy as np
 
 from deMonPy.module import modules
@@ -74,7 +79,15 @@ class _relax_geometry(modules):
 
         return True
 
-    def forward(self, image, max=999, algo="CGRAD", out=1, restart=False, **args):
+    def forward(
+        self,
+        image: Atoms,
+        max: int = 999,
+        algo: str = "CGRAD",
+        out: int = 1,
+        restart: bool = False,
+        **args: Any,
+    ) -> None:
 
         self._module_parameters = dict(max=max, algo=algo, out=out, restart=restart, **args)
 

@@ -7,7 +7,7 @@ name = "DeMonNanoPy"
 dynamic = ["version"]
 description = "Python wrapper around deMonNano for preparing inputs, launching calculations, and parsing results."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = "MIT"
 license-files = ["LICENSE"]
 authors = [
@@ -20,7 +20,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: Chemistry",
@@ -51,11 +50,8 @@ version = { attr = "deMonPy.__version__" }
 [tool.setuptools.packages.find]
 include = ["deMonPy", "deMonPy.*"]
 
-[tool.setuptools.package-data]
-deMonPy = ["parameters.json"]
-
 [tool.ruff]
-target-version = "py310"
+target-version = "py312"
 line-length = 100
 
 [tool.ruff.lint]

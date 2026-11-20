@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 
 # Import standard de python3
+from __future__ import annotations
 
+from typing import Any, Sequence
+
+from ase import Atoms
 
 from deMonPy.module import modules
 
@@ -26,21 +30,21 @@ class _ptmc(modules):
 
     def forward(
         self,
-        image,
-        max=30,
-        seed=True,
-        out=1,
-        wall=8.0,
-        temperature=None,
-        n_temp=10,
-        max_temp=300,
-        min_temp=30,
-        rescale=10,
-        distribution_temp="geom",
-        temp_list=None,
-        restart=False,
-        **args,
-    ):
+        image: Atoms,
+        max: int = 30,
+        seed: bool = True,
+        out: int = 1,
+        wall: float = 8.0,
+        temperature: float | None = None,
+        n_temp: int = 10,
+        max_temp: float = 300,
+        min_temp: float = 30,
+        rescale: float = 10,
+        distribution_temp: str = "geom",
+        temp_list: Sequence[float] | None = None,
+        restart: bool = False,
+        **args: Any,
+    ) -> None:
 
         self._module_parameters = dict(
             max=max,

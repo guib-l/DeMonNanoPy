@@ -7,6 +7,16 @@ from deMonPy.modules.dyn import _dyn
 from deMonPy.modules.ptmc import _ptmc
 from deMonPy.modules.quench import _relax_geometry
 
+from deMonPy.ase_calculator import DeMonNano
+from deMonPy.deMonNano import deMonNano, Module_DeMonNano
+from deMonPy.exceptions import (
+    ConfigError,
+    DeMonError,
+    ExecuteFailed,
+    InputError,
+    OutputParseError,
+)
+
 """
 Available module in the deMonNanoAPI
  - opt  : Optimization

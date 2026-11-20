@@ -15,13 +15,13 @@ DeMonNanoPy provides a small Python API to:
 
 The codebase is organized around three main layers:
 
-- `deMonPy.input.write_input`: builds `deMon.inp` from Python parameters,
+- `deMonPy.demonnano.input.write_input`: builds `deMon.inp` from Python parameters,
 - `deMonPy.deMonNano.deMonNano`: runs a standard calculation,
 - `deMonPy.deMonNano.Module_DeMonNano`: runs higher-level workflows through modules.
 
 ## Installation
 
-DeMonNanoPy requires **Python >= 3.11** and depends on NumPy and ASE.
+DeMonNanoPy requires **Python >= 3.12** and depends on NumPy and ASE.
 
 > **Note:** the distribution is named `DeMonNanoPy` but the import package is
 > `deMonPy`. You install `DeMonNanoPy` and `import deMonPy`.
@@ -226,9 +226,9 @@ from deMonPy.ase_calculator import DeMonNano
 
 atoms = molecule("H2O")
 atoms.calc = DeMonNano(
-    execut="~/Documents/dev_deMon/deMon.x",
-    basis={"PTYPE": "BIO", "SKFILE": "../basis"},
-    parameters={"DFTB": {"SCC": True}},
+    DEMON_EXECUTABLE="~/Documents/dev_deMon/deMon.x",
+    BASIS={"PTYPE": "BIO", "SKFILE": "../basis"},
+    DEMON_PARAMETERS={"ACTIVE": {"DFTB": {"SCC": True}}},
 )
 
 energy = atoms.get_potential_energy()  # eV
@@ -247,9 +247,15 @@ Example scripts are available in the `example/` directory:
 Run them from the repository root after adapting the executable path and basis path:
 
 ```bash
-python example/exemple_opt.py
-python example/exemple_md.py
-python example/exemple_ptmc.py
+python3 example/exemple_opt.py
+python3 example/exemple_md.py
+python3 example/exemple_ptmc.py
+```
+
+or 
+
+```bash
+./example/run_all.sh
 ```
 
 ## Tests
@@ -262,8 +268,7 @@ currently **integration tests** that require a local environment:
   `DEMON_BASIS` paths,
 - the corresponding Slater-Koster parameter files.
 
-Without that configuration the suite does not collect. Splitting it into
-binary-free unit tests and opt-in integration tests is tracked in `TODO.md`.
+Without that configuration the suite does not collect.
 
 Once the environment is set up:
 

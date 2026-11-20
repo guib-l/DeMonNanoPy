@@ -24,7 +24,10 @@ Typical usage::
     print(calc.results)
 """
 
+from __future__ import annotations
+
 from copy import deepcopy
+from typing import Any, Sequence
 import warnings
 
 import numpy as np
@@ -35,46 +38,6 @@ from deMonPy.demonnano.input import write_input
 from deMonPy.demonnano.output import read_output
 from deMonPy.exceptions import ConfigError, ExecuteFailed, InputError
 
-# Lower-case forms of the ACTIVE keys (DEMON_PARAMETERS.ACTIVE and
-# DEMON_MODULE.ACTIVE) consumed by the input writer of
-# :mod:`deMonPy.demonnano.input` (either by a matching
-# ``@assert_flags``-guarded section or inside one).  A key absent from
-# this set is silently skipped by the writer and would leave the
-# generated ``deMon.inp`` incomplete, so :meth:`deMonNano.write_input`
-# warns about it.
-_SUPPORTED_ACTIVE_FLAGS = frozenset(
-    {
-        # DEMON_MODULE.ACTIVE keys (module writers)
-        "opt",
-        "ptmc",
-        "md",
-        "neb",
-        # DEMON_PARAMETERS.ACTIVE keys (parameter writers)
-        "dftb",
-        "rttddftb",
-        "paths",
-        "rg",
-        "pbc",
-        "dipole",
-        "molecules",
-        "wmull",
-        "cm3",
-        "cm3inter",
-        "charge",
-        "multi",
-        "ci",
-        "cutsys",
-        "td-dftb",
-        "freq",
-        "mm",
-        "qmmm",
-        "print",
-        # consumed inside _write_geometry (units selection)
-        "geometry",
-        # consumed inside _write_molecules, under the "molecules" guard
-        "quaternion",
-    }
-)
 
 # ============================================================================= 
 #
@@ -107,19 +70,19 @@ class deMonNano(Common):
 
     def __init__(
         self,
-        execut=None,
-        workdir=".",
-        omp_threads=1,
-        prefix="DEMON",
-        title="CALCULATION DEMONANO",
-        properties=None,
-        basis=None,
-        ase_obj=True,
-        clean_repository=True,
-        ignore_parse_errors=True,
-        timeout=None,
-        **parameters,
-    ):
+        execut: str | None = None,
+        workdir: str = ".",
+        omp_threads: int = 1,
+        prefix: str = "DEMON",
+        title: str = "CALCULATION DEMONANO",
+        properties: list[str] | None = None,
+        basis: str | dict[str, str] | None = None,
+        ase_obj: bool = True,
+        clean_repository: bool = True,
+        ignore_parse_errors: bool = True,
+        timeout: float | None = None,
+        **parameters: Any,
+    ) -> None:
         """Initialise a deMonNano calculator.
 
         Args:
@@ -291,17 +254,17 @@ class deMonNano(Common):
     def calculate(
         self,
         *,
-        symbols,
-        positions,
-        cell=None,
-        pbc=False,
-        kpts=None,
-        index=0,
-        read_charges=False,
-        extract_debug=False,
-        get_errors=False,
-        **kwargs,
-    ):
+        symbols: Sequence[str],
+        positions: Sequence[Sequence[float]],
+        cell: Sequence[Sequence[float]] | None = None,
+        pbc: bool | Sequence[bool] = False,
+        kpts: Sequence[int] | None = None,
+        index: int = 0,
+        read_charges: bool = False,
+        extract_debug: bool = False,
+        get_errors: bool = False,
+        **kwargs: Any,
+    ) -> None:
         """Run a full single-point (or flagged) calculation.
 
         This is the main entry point.  It sequentially:
@@ -378,7 +341,6 @@ class deMonNano(Common):
             geometry: Array-like of shape ``(N, 3)`` with Cartesian
                 coordinates written to the ``GEOMETRY`` section.
         """
-        _warn_unsupported_active_flags(self._wi.parameters, self._wi.module)
 
         # Parameters
         self._wi._write_dftb()
@@ -498,16 +460,16 @@ class Module_DeMonNano(deMonNano):
 
     def __init__(
         self,
-        module=None,
-        execut=None,
-        workdir=".",
-        omp_threads=1,
-        prefix="DEMON",
-        title="CALCULATION MODULE-DEMONANO",
-        properties=None,
-        available_modules=None,
-        **parameters,
-    ):
+        module: str | None = None,
+        execut: str | None = None,
+        workdir: str = ".",
+        omp_threads: int = 1,
+        prefix: str = "DEMON",
+        title: str = "CALCULATION MODULE-DEMONANO",
+        properties: list[str] | None = None,
+        available_modules: dict[str, dict] | None = None,
+        **parameters: Any,
+    ) -> None:
         """Initialise a module-aware deMonNano calculator.
 
         Args:
@@ -646,32 +608,3 @@ class Module_DeMonNano(deMonNano):
 
         else:
             raise NotImplementedError(f"Method {method} is unknow in module {self.build.__name__}")
-
-
-def _warn_unsupported_active_flags(parameters, module):
-    """Warn about ACTIVE keys for which the input writer has no writer.
-
-    A key without a matching ``@assert_flags``-guarded section is silently
-    skipped during the assembly of ``deMon.inp``; this emits a single
-    :class:`UserWarning` naming each such key and the supported ones.  The
-    input assembly itself is left untouched (warning only).
-
-    Args:
-        parameters: The ``DEMON_PARAMETERS.ACTIVE`` dictionary.
-        module: The ``DEMON_MODULE.ACTIVE`` dictionary.
-    """
-    unknown = sorted(
-        {key for key in [*parameters, *module] if key.lower() not in _SUPPORTED_ACTIVE_FLAGS}
-    )
-    if not unknown:
-        return
-
-    supported = ", ".join(flag.upper() for flag in sorted(_SUPPORTED_ACTIVE_FLAGS))
-    warnings.warn(
-        "DEMON_PARAMETERS.ACTIVE / DEMON_MODULE.ACTIVE key(s) ignored by "
-        f"the input writer (no matching section in deMon.inp): "
-        f"{', '.join(repr(key) for key in unknown)}. "
-        f"Supported keys: {supported}.",
-        UserWarning,
-        stacklevel=3,
-    )

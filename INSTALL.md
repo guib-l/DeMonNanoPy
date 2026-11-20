@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Python >= 3.11
+- Python >= 3.12
 - a deMonNano executable (`deMon.x`) available on the machine
 - basis / Slater-Koster files accessible from the chosen working directory
 
