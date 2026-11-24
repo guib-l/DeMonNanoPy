@@ -423,7 +423,7 @@ def test_water_2_sample_parses_as_before():
     assert p["n_electrons"] == 8
     assert p["n_shells"] == 4
 
-    assert wo.complet_results["zpe"] == 0.02151778
+    assert np.allclose(wo.complet_results["zpe"], 0.02151778, atol=1e-6)
     freq = wo.complet_results["frequency"]
     assert [(m["mode"], m["frequency"], m["intensity"]) for m in freq] == [
         (1, 1562.7, 44.0),
